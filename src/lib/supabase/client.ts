@@ -1,0 +1,11 @@
+import { createBrowserClient } from "@supabase/ssr";
+
+import { assertSupabaseEnv, env } from "@/lib/env";
+
+export function createClient() {
+  assertSupabaseEnv();
+  return createBrowserClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
