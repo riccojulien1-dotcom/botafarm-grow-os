@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-form";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
@@ -26,11 +28,16 @@ export default async function GrowRoomsPage() {
         <ul className="divide-y divide-zinc-800">
           {rooms?.length ? (
             rooms.map((room) => (
-              <li key={room.id} className="px-4 py-3 text-sm">
-                <p className="font-medium">{room.name}</p>
-                <p className="text-zinc-400">
-                  {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
-                </p>
+              <li key={room.id}>
+                <Link
+                  href={`/rooms/${room.id}`}
+                  className="block px-4 py-3 text-sm transition hover:bg-zinc-800/50"
+                >
+                  <p className="font-medium">{room.name}</p>
+                  <p className="text-zinc-400">
+                    {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
+                  </p>
+                </Link>
               </li>
             ))
           ) : (
