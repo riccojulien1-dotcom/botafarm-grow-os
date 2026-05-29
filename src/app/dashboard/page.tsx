@@ -1,60 +1,81 @@
-import Link from "next/link";
-
+import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
+import { DashboardRecentActivity } from "@/components/dashboard/dashboard-recent-activity";
 import { StatCard } from "@/components/dashboard/stat-card";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/get-user";
+import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
+
+function formatMetric(value: number | null, suffix = "") {
+  if (value === null) {
+    return "—";
+  }
+  return `${value}${suffix}`;
+}
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  const [roomsResult, remindersResult] = await Promise.all([
-    supabase.from("grow_rooms").select("id", { count: "exact", head: true }),
-    supabase
-      .from("reminders")
-      .select("id", { count: "exact", head: true })
-      .eq("is_completed", false),
-  ]);
-
-  const roomsCount = roomsResult.count ?? 0;
-  const pendingReminders = remindersResult.count ?? 0;
+  const user = await requireUser();
+  const data = await getDashboardData(user.id);
 
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Today dashboard</h1>
+        <h1 className="text-2xl font-semibold">Global dashboard</h1>
         <p className="text-sm text-zinc-400">
-          Core MVP dashboard with room overview, reminders, and quick links.
+          Your grow operation at a glance — rooms, plants, and latest journal signals.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Grow rooms" value={String(roomsCount)} helpText="Active setups" />
-        <StatCard label="Pending tasks" value={String(pendingReminders)} helpText="Open reminders" />
-        <StatCard label="Next watering" value="Manual" helpText="Will be automated in phase 2" />
-        <StatCard label="AI tips" value="Basic" helpText="Rule-based recommendations" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Total grow rooms"
+          value={String(data.totalGrowRooms)}
+          helpText="Rooms you currently manage"
+        />
+        <StatCard
+          label="Total plant count"
+          value={String(data.totalPlantCount)}
+          helpText="Summed across all rooms"
+        />
+        <StatCard
+          label="Total journal logs"
+          value={String(data.totalJournalLogs)}
+          helpText="All daily entries recorded"
+        />
+        <StatCard
+          label="Latest log date"
+          value={data.latestLogDate ?? "—"}
+          helpText="Most recent journal entry"
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <h2 className="font-medium">Quick actions</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/dashboard/grow-rooms" className="rounded-md bg-fuchsia-600 px-3 py-2 text-sm text-white hover:bg-fuchsia-500">
-              Manage grow rooms
-            </Link>
-            <Link href="/dashboard/journal" className="rounded-md border border-zinc-700 px-3 py-2 text-sm hover:border-zinc-500">
-              Add journal log
-            </Link>
-          </div>
-        </article>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Latest temperature"
+          value={formatMetric(data.latestTemperature, " °C")}
+          helpText="From your latest log"
+        />
+        <StatCard
+          label="Latest humidity"
+          value={formatMetric(data.latestHumidity, " %")}
+          helpText="From your latest log"
+        />
+        <StatCard
+          label="Latest EC"
+          value={formatMetric(data.latestEc)}
+          helpText="From your latest log"
+        />
+        <StatCard
+          label="Latest pH"
+          value={formatMetric(data.latestPh)}
+          helpText="From your latest log"
+        />
+      </div>
 
-        <article className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <h2 className="font-medium">Initial roadmap status</h2>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-300">
-            <li>Auth: implemented</li>
-            <li>Database schema: prepared</li>
-            <li>Grow rooms: basic CRUD (create/list) ready</li>
-            <li>Journal logs: first-entry form ready</li>
-          </ul>
-        </article>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DashboardRecentActivity
+          latestRoom={data.latestRoom}
+          recentLogs={data.recentLogs}
+        />
+        <DashboardQuickActions latestActiveRoomId={data.latestActiveRoomId} />
       </div>
     </section>
   );

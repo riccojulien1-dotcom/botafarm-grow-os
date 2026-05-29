@@ -21,7 +21,9 @@ export default async function GrowRoomsPage() {
         <p className="text-sm text-zinc-400">Create and manage your rooms and tents.</p>
       </div>
 
-      <CreateGrowRoomForm />
+      <div id="create-room">
+        <CreateGrowRoomForm />
+      </div>
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900">
         <div className="border-b border-zinc-800 px-4 py-3 text-sm text-zinc-400">Existing rooms</div>
