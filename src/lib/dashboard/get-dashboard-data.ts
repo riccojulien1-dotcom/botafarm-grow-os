@@ -19,7 +19,7 @@ export type DashboardData = {
   latestHumidity: number | null;
   latestEc: number | null;
   latestPh: number | null;
-  latestRoom: { id: string; name: string; created_at: string } | null;
+  latestRoom: { id: string; name: string; status: string; created_at: string } | null;
   latestActiveRoomId: string | null;
   recentLogs: DashboardRecentLog[];
 };
@@ -35,7 +35,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
     await Promise.all([
       supabase
         .from("grow_rooms")
-        .select("id,name,plant_count,created_at")
+        .select("id,name,status,plant_count,created_at")
         .eq("user_id", userId)
         .order("created_at", { ascending: false }),
       supabase
@@ -101,6 +101,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
       ? {
           id: latestRoom.id,
           name: latestRoom.name,
+          status: latestRoom.status,
           created_at: latestRoom.created_at,
         }
       : null,

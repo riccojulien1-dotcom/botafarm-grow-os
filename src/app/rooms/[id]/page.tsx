@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
+import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
+import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,7 +36,9 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
 
   const { data: room, error } = await supabase
     .from("grow_rooms")
-    .select("id,name,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes")
+    .select(
+      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes",
+    )
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -71,13 +75,14 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           </Link>
         </div>
 
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold">{room.name}</h1>
-          <p className="text-sm text-zinc-400">Room details</p>
+          <GrowRoomStatusBadge status={room.status} />
         </div>
+        <p className="text-sm text-zinc-400">Room details</p>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <FieldRow label="name" value={room.name} />
+          <FieldRow label="status" value={room.status} />
           <FieldRow label="room_type" value={room.room_type} />
           <FieldRow label="plant_count" value={room.plant_count} />
           <FieldRow label="dimensions" value={room.dimensions} />
@@ -87,6 +92,8 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <FieldRow label="irrigation" value={room.irrigation} />
           <FieldRow label="notes" value={room.notes} />
         </div>
+
+        <RoomDetailManagement room={room} />
 
         <section className="space-y-4">
           <div>

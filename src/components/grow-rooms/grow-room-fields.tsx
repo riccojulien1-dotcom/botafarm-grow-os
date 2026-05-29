@@ -1,0 +1,173 @@
+import {
+  DEFAULT_GROW_ROOM_STATUS,
+  GROW_ROOM_STATUSES,
+  type GrowRoomStatus,
+} from "@/lib/grow-rooms/constants";
+
+export type GrowRoomFieldValues = {
+  name: string;
+  status: GrowRoomStatus | string;
+  room_type: string | null;
+  plant_count: number | null;
+  dimensions: string | null;
+  lighting: string | null;
+  substrate: string | null;
+  genetics: string | null;
+  irrigation: string | null;
+  notes: string | null;
+};
+
+type GrowRoomFieldsProps = {
+  idPrefix: string;
+  values?: Partial<GrowRoomFieldValues>;
+};
+
+const inputClassName =
+  "mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100";
+
+export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
+  const status = values?.status ?? DEFAULT_GROW_ROOM_STATUS;
+
+  return (
+    <>
+      <div className="md:col-span-2">
+        <label htmlFor={`${idPrefix}-name`} className="text-sm text-zinc-200">
+          Room name
+        </label>
+        <input
+          id={`${idPrefix}-name`}
+          name="name"
+          required
+          defaultValue={values?.name ?? ""}
+          className={inputClassName}
+          placeholder="Flower Room"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-status`} className="text-sm text-zinc-200">
+          Status
+        </label>
+        <select
+          id={`${idPrefix}-status`}
+          name="status"
+          required
+          defaultValue={status}
+          className={inputClassName}
+        >
+          {GROW_ROOM_STATUSES.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-room_type`} className="text-sm text-zinc-200">
+          Type
+        </label>
+        <input
+          id={`${idPrefix}-room_type`}
+          name="room_type"
+          defaultValue={values?.room_type ?? ""}
+          className={inputClassName}
+          placeholder="Tent / Room / Greenhouse"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-plant_count`} className="text-sm text-zinc-200">
+          Plant count
+        </label>
+        <input
+          id={`${idPrefix}-plant_count`}
+          name="plant_count"
+          type="number"
+          min={0}
+          defaultValue={values?.plant_count ?? ""}
+          className={inputClassName}
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-dimensions`} className="text-sm text-zinc-200">
+          Dimensions
+        </label>
+        <input
+          id={`${idPrefix}-dimensions`}
+          name="dimensions"
+          defaultValue={values?.dimensions ?? ""}
+          className={inputClassName}
+          placeholder="120x120x200"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-lighting`} className="text-sm text-zinc-200">
+          Lighting
+        </label>
+        <input
+          id={`${idPrefix}-lighting`}
+          name="lighting"
+          defaultValue={values?.lighting ?? ""}
+          className={inputClassName}
+          placeholder="LED 480W"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-substrate`} className="text-sm text-zinc-200">
+          Substrate
+        </label>
+        <input
+          id={`${idPrefix}-substrate`}
+          name="substrate"
+          defaultValue={values?.substrate ?? ""}
+          className={inputClassName}
+          placeholder="Coco"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-genetics`} className="text-sm text-zinc-200">
+          Genetics
+        </label>
+        <input
+          id={`${idPrefix}-genetics`}
+          name="genetics"
+          defaultValue={values?.genetics ?? ""}
+          className={inputClassName}
+          placeholder="Botafarm Cut A"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-irrigation`} className="text-sm text-zinc-200">
+          Irrigation
+        </label>
+        <input
+          id={`${idPrefix}-irrigation`}
+          name="irrigation"
+          defaultValue={values?.irrigation ?? ""}
+          className={inputClassName}
+          placeholder="Drip"
+        />
+      </div>
+
+      <div className="md:col-span-2">
+        <label htmlFor={`${idPrefix}-notes`} className="text-sm text-zinc-200">
+          Notes
+        </label>
+        <textarea
+          id={`${idPrefix}-notes`}
+          name="notes"
+          rows={3}
+          defaultValue={values?.notes ?? ""}
+          className={inputClassName}
+          placeholder="Any context for this setup"
+        />
+      </div>
+    </>
+  );
+}

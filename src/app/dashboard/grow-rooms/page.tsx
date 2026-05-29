@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-form";
+import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,7 +9,9 @@ export default async function GrowRoomsPage() {
 
   const { data: rooms } = await supabase
     .from("grow_rooms")
-    .select("id,name,room_type,plant_count,created_at")
+    .select(
+      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,created_at",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -25,27 +26,19 @@ export default async function GrowRoomsPage() {
         <CreateGrowRoomForm />
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900">
-        <div className="border-b border-zinc-800 px-4 py-3 text-sm text-zinc-400">Existing rooms</div>
-        <ul className="divide-y divide-zinc-800">
-          {rooms?.length ? (
-            rooms.map((room) => (
-              <li key={room.id}>
-                <Link
-                  href={`/rooms/${room.id}`}
-                  className="block px-4 py-3 text-sm transition hover:bg-zinc-800/50"
-                >
-                  <p className="font-medium">{room.name}</p>
-                  <p className="text-zinc-400">
-                    {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
-                  </p>
-                </Link>
-              </li>
-            ))
-          ) : (
-            <li className="px-4 py-5 text-sm text-zinc-400">No grow room yet. Create your first one above.</li>
-          )}
-        </ul>
+      <div className="space-y-3">
+        <p className="text-sm text-zinc-400">Existing rooms</p>
+        {rooms?.length ? (
+          <ul className="space-y-3">
+            {rooms.map((room) => (
+              <GrowRoomCard key={room.id} room={room} />
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
+            No grow room yet. Create your first one above.
+          </p>
+        )}
       </div>
     </section>
   );

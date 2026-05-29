@@ -1,9 +1,10 @@
 import Link from "next/link";
 
+import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import type { DashboardRecentLog } from "@/lib/dashboard/get-dashboard-data";
 
 type DashboardRecentActivityProps = {
-  latestRoom: { id: string; name: string; created_at: string } | null;
+  latestRoom: { id: string; name: string; status: string; created_at: string } | null;
   recentLogs: DashboardRecentLog[];
 };
 
@@ -34,7 +35,10 @@ export function DashboardRecentActivity({
               href={`/rooms/${latestRoom.id}`}
               className="mt-2 block rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 transition hover:border-fuchsia-800"
             >
-              <p className="text-sm font-medium text-zinc-100">{latestRoom.name}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-medium text-zinc-100">{latestRoom.name}</p>
+                <GrowRoomStatusBadge status={latestRoom.status} />
+              </div>
               <p className="text-xs text-zinc-400">
                 Created {formatTimestamp(latestRoom.created_at)}
               </p>
