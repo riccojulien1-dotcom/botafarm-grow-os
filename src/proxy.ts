@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 
 import { assertSupabaseEnv, env } from "@/lib/env";
 
-const protectedPaths = ["/dashboard"];
+const protectedPaths = ["/dashboard", "/rooms"];
 const authPaths = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {

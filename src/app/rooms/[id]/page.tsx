@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
+import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -41,6 +43,16 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
     notFound();
   }
 
+  const { data: logs } = await supabase
+    .from("daily_logs")
+    .select(
+      "id,log_date,logged_at,temperature,humidity,vpd,ec,ph,irrigation_volume,dryback_percent,notes",
+    )
+    .eq("grow_room_id", room.id)
+    .eq("user_id", user.id)
+    .order("log_date", { ascending: false })
+    .order("logged_at", { ascending: false });
+
   return (
     <AppShell user={user}>
       <section className="space-y-6">
@@ -75,6 +87,18 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <FieldRow label="irrigation" value={room.irrigation} />
           <FieldRow label="notes" value={room.notes} />
         </div>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-xl font-semibold">Daily Journal</h2>
+            <p className="text-sm text-zinc-400">
+              Track daily measurements for this grow room.
+            </p>
+          </div>
+
+          <CreateRoomDailyLogForm growRoomId={room.id} />
+          <RoomDailyLogsList logs={logs ?? []} />
+        </section>
       </section>
     </AppShell>
   );
