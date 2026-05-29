@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 
 import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
+import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
 type RoomDetailManagementProps = {
   room: GrowRoomFieldValues & { id: string };
@@ -15,6 +17,7 @@ type RoomDetailManagementProps = {
 const initialState: { error?: string; success?: string } = {};
 
 export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [updateState, updateAction, updatePending] = useActionState(
     updateGrowRoomAction,
@@ -25,7 +28,18 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
     initialState,
   );
 
-  if (isEditing && !updateState?.success) {
+  useRefreshOnActionSuccess(updateState?.success, () => {
+    setIsEditing(false);
+  });
+
+  useEffect(() => {
+    if (!deleteState?.success) {
+      return;
+    }
+    router.push("/dashboard/grow-rooms");
+  }, [deleteState?.success, router]);
+
+  if (isEditing) {
     return (
       <article className="rounded-xl border border-fuchsia-900/50 bg-zinc-900 p-4">
         <h2 className="font-medium text-white">Edit grow room</h2>
@@ -35,6 +49,9 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
 
           {updateState?.error ? (
             <p className="md:col-span-2 text-sm text-red-400">{updateState.error}</p>
+          ) : null}
+          {updateState?.success ? (
+            <p className="md:col-span-2 text-sm text-green-400">{updateState.success}</p>
           ) : null}
 
           <div className="flex flex-wrap gap-2 md:col-span-2">

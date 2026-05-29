@@ -3,6 +3,8 @@ import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function GrowRoomsPage() {
   const user = await requireUser();
   const supabase = await createClient();

@@ -4,11 +4,14 @@ import { useActionState } from "react";
 
 import { createGrowRoomAction } from "@/app/dashboard/grow-rooms/actions";
 import { GrowRoomFields } from "@/components/grow-rooms/grow-room-fields";
+import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
 const initialState: { error?: string; success?: string } = {};
 
 export function CreateGrowRoomForm() {
   const [state, formAction, pending] = useActionState(createGrowRoomAction, initialState);
+
+  useRefreshOnActionSuccess(state?.success);
 
   return (
     <form
