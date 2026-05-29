@@ -97,7 +97,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           </div>
 
           <CreateRoomDailyLogForm growRoomId={room.id} />
-          <RoomDailyLogsList logs={logs ?? []} />
+          <RoomDailyLogsList logs={logs ?? []} growRoomId={room.id} />
         </section>
       </section>
     </AppShell>
