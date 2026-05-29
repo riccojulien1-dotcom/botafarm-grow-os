@@ -12,7 +12,7 @@ export default async function GrowRoomsPage() {
   const { data: rooms } = await supabase
     .from("grow_rooms")
     .select(
-      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,created_at",
+      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,cycle_start_date,target_cycle_days,created_at",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });

@@ -15,6 +15,8 @@ export type GrowRoomFormPayload = {
   irrigation: string | null;
   plant_count: number | null;
   notes: string | null;
+  cycle_start_date: string | null;
+  target_cycle_days: number | null;
 };
 
 export function parseGrowRoomFormData(
@@ -37,6 +39,26 @@ export function parseGrowRoomFormData(
       ? Number(plantCountRaw)
       : null;
 
+  const cycleStartRaw = String(formData.get("cycle_start_date") ?? "").trim();
+  const cycle_start_date = cycleStartRaw || null;
+
+  if (cycle_start_date && !/^\d{4}-\d{2}-\d{2}$/.test(cycle_start_date)) {
+    return { ok: false, error: "Cycle start date must be a valid date." };
+  }
+
+  const targetDaysRaw = formData.get("target_cycle_days");
+  const target_cycle_days =
+    typeof targetDaysRaw === "string" && targetDaysRaw.length > 0
+      ? Number(targetDaysRaw)
+      : null;
+
+  if (
+    target_cycle_days != null &&
+    (!Number.isInteger(target_cycle_days) || target_cycle_days <= 0)
+  ) {
+    return { ok: false, error: "Target cycle days must be a positive whole number." };
+  }
+
   return {
     ok: true,
     payload: {
@@ -50,6 +72,8 @@ export function parseGrowRoomFormData(
       irrigation: String(formData.get("irrigation") ?? "").trim() || null,
       plant_count: Number.isNaN(plantCount) ? null : plantCount,
       notes: String(formData.get("notes") ?? "").trim() || null,
+      cycle_start_date,
+      target_cycle_days: Number.isNaN(target_cycle_days) ? null : target_cycle_days,
     },
   };
 }

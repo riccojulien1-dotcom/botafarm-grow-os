@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
+import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
 import { requireUser } from "@/lib/auth/get-user";
@@ -37,7 +38,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   const { data: room, error } = await supabase
     .from("grow_rooms")
     .select(
-      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes",
+      "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,cycle_start_date,target_cycle_days",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -80,6 +81,15 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <GrowRoomStatusBadge status={room.status} />
         </div>
         <p className="text-sm text-zinc-400">Room details</p>
+
+        <section className="space-y-3 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
+          <h2 className="text-sm font-medium text-fuchsia-200">Crop cycle</h2>
+          <GrowRoomCycleSummary
+            status={room.status}
+            cycleStartDate={room.cycle_start_date}
+            targetCycleDays={room.target_cycle_days}
+          />
+        </section>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <FieldRow label="status" value={room.status} />

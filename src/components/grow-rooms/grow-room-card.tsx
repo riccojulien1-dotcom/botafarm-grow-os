@@ -8,6 +8,7 @@ import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
+import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
@@ -96,6 +97,12 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
           <p className="text-sm text-zinc-400">
             {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
           </p>
+          <GrowRoomCycleSummary
+            status={room.status}
+            cycleStartDate={room.cycle_start_date}
+            targetCycleDays={room.target_cycle_days}
+            compact
+          />
         </div>
 
         <div className="flex gap-2">

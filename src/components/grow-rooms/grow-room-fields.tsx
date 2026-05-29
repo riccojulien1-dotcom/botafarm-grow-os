@@ -15,6 +15,8 @@ export type GrowRoomFieldValues = {
   genetics: string | null;
   irrigation: string | null;
   notes: string | null;
+  cycle_start_date: string | null;
+  target_cycle_days: number | null;
 };
 
 type GrowRoomFieldsProps = {
@@ -73,6 +75,34 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
           defaultValue={values?.room_type ?? ""}
           className={inputClassName}
           placeholder="Tent / Room / Greenhouse"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-cycle_start_date`} className="text-sm text-zinc-200">
+          Cycle start date
+        </label>
+        <input
+          id={`${idPrefix}-cycle_start_date`}
+          name="cycle_start_date"
+          type="date"
+          defaultValue={values?.cycle_start_date ?? ""}
+          className={inputClassName}
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-target_cycle_days`} className="text-sm text-zinc-200">
+          Target cycle days
+        </label>
+        <input
+          id={`${idPrefix}-target_cycle_days`}
+          name="target_cycle_days"
+          type="number"
+          min={1}
+          defaultValue={values?.target_cycle_days ?? ""}
+          className={inputClassName}
+          placeholder="63"
         />
       </div>
 
