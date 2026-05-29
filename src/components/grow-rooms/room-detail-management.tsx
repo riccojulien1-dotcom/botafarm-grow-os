@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
+import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
 type RoomDetailManagementProps = {
@@ -19,6 +20,7 @@ const initialState: { error?: string; success?: string } = {};
 export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [editSession, setEditSession] = useState(0);
   const [updateState, updateAction, updatePending] = useActionState(
     updateGrowRoomAction,
     initialState,
@@ -27,31 +29,44 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
     deleteGrowRoomAction,
     initialState,
   );
+  const lastDeleteHandledRef = useRef(initialState);
 
-  useRefreshOnActionSuccess(updateState?.success, () => {
-    setIsEditing(false);
+  useRefreshOnActionSuccess(updateState, {
+    enabled: isEditing,
+    onSuccess: () => setIsEditing(false),
   });
 
   useEffect(() => {
-    if (!deleteState?.success) {
+    if (!deleteState?.success || deleteState === lastDeleteHandledRef.current) {
       return;
     }
+
+    lastDeleteHandledRef.current = deleteState;
     router.push("/dashboard/grow-rooms");
-  }, [deleteState?.success, router]);
+  }, [deleteState, router]);
+
+  function startEditing() {
+    setEditSession((current) => current + 1);
+    setIsEditing(true);
+  }
 
   if (isEditing) {
     return (
       <article className="rounded-xl border border-fuchsia-900/50 bg-zinc-900 p-4">
         <h2 className="font-medium text-white">Edit grow room</h2>
-        <form action={updateAction} className="mt-4 grid gap-3 md:grid-cols-2">
+        <form
+          key={`room-edit-${room.id}-${editSession}`}
+          action={updateAction}
+          onKeyDown={preventImplicitFormSubmitOnEnter}
+          className="mt-4 grid gap-3 md:grid-cols-2"
+        >
           <input type="hidden" name="room_id" value={room.id} />
           <GrowRoomFields idPrefix={`room-${room.id}`} values={room} />
 
           {updateState?.error ? (
-            <p className="md:col-span-2 text-sm text-red-400">{updateState.error}</p>
-          ) : null}
-          {updateState?.success ? (
-            <p className="md:col-span-2 text-sm text-green-400">{updateState.success}</p>
+            <p className="md:col-span-2 text-sm text-red-400" role="alert">
+              {updateState.error}
+            </p>
           ) : null}
 
           <div className="flex flex-wrap gap-2 md:col-span-2">
@@ -65,7 +80,8 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
+              disabled={updatePending}
+              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500 disabled:opacity-60"
             >
               Cancel
             </button>
@@ -83,7 +99,7 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setIsEditing(true)}
+          onClick={startEditing}
           className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
         >
           Edit grow room
@@ -114,8 +130,15 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
       {updateState?.success ? (
         <p className="mt-3 text-sm text-green-400">{updateState.success}</p>
       ) : null}
+      {updateState?.error ? (
+        <p className="mt-3 text-sm text-red-400" role="alert">
+          {updateState.error}
+        </p>
+      ) : null}
       {deleteState?.error ? (
-        <p className="mt-3 text-sm text-red-400">{deleteState.error}</p>
+        <p className="mt-3 text-sm text-red-400" role="alert">
+          {deleteState.error}
+        </p>
       ) : null}
     </article>
   );

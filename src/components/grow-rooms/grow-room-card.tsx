@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import {
   deleteGrowRoomAction,
@@ -11,6 +11,7 @@ import {
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
+import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
 export type GrowRoomListItem = GrowRoomFieldValues & {
@@ -26,6 +27,7 @@ const initialState: { error?: string; success?: string } = {};
 export function GrowRoomCard({ room }: GrowRoomCardProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [editSession, setEditSession] = useState(0);
   const [updateState, updateAction, updatePending] = useActionState(
     updateGrowRoomAction,
     initialState,
@@ -34,30 +36,47 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
     deleteGrowRoomAction,
     initialState,
   );
+  const lastDeleteHandledRef = useRef(initialState);
 
-  useRefreshOnActionSuccess(updateState?.success, () => {
-    setIsEditing(false);
+  useRefreshOnActionSuccess(updateState, {
+    enabled: isEditing,
+    onSuccess: () => setIsEditing(false),
   });
 
   useEffect(() => {
-    if (!deleteState?.success) {
+    if (!deleteState?.success || deleteState === lastDeleteHandledRef.current) {
       return;
     }
+
+    lastDeleteHandledRef.current = deleteState;
     router.refresh();
-  }, [deleteState?.success, router]);
+  }, [deleteState, router]);
+
+  function startEditing() {
+    setEditSession((current) => current + 1);
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setIsEditing(false);
+  }
 
   if (isEditing) {
     return (
       <li className="rounded-xl border border-fuchsia-900/50 bg-zinc-900 p-4">
-        <form action={updateAction} className="grid gap-3 md:grid-cols-2">
+        <form
+          key={`edit-${room.id}-${editSession}`}
+          action={updateAction}
+          onKeyDown={preventImplicitFormSubmitOnEnter}
+          className="grid gap-3 md:grid-cols-2"
+        >
           <input type="hidden" name="room_id" value={room.id} />
           <GrowRoomFields idPrefix={`edit-${room.id}`} values={room} />
 
           {updateState?.error ? (
-            <p className="md:col-span-2 text-sm text-red-400">{updateState.error}</p>
-          ) : null}
-          {updateState?.success ? (
-            <p className="md:col-span-2 text-sm text-green-400">{updateState.success}</p>
+            <p className="md:col-span-2 text-sm text-red-400" role="alert">
+              {updateState.error}
+            </p>
           ) : null}
 
           <div className="flex flex-wrap gap-2 md:col-span-2">
@@ -70,8 +89,9 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
             </button>
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
-              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
+              onClick={cancelEditing}
+              disabled={updatePending}
+              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500 disabled:opacity-60"
             >
               Cancel
             </button>
@@ -108,7 +128,7 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setIsEditing(true)}
+            onClick={startEditing}
             className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
           >
             Edit
@@ -139,8 +159,15 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
       {updateState?.success ? (
         <p className="mt-3 text-sm text-green-400">{updateState.success}</p>
       ) : null}
+      {updateState?.error ? (
+        <p className="mt-3 text-sm text-red-400" role="alert">
+          {updateState.error}
+        </p>
+      ) : null}
       {deleteState?.error ? (
-        <p className="mt-3 text-sm text-red-400">{deleteState.error}</p>
+        <p className="mt-3 text-sm text-red-400" role="alert">
+          {deleteState.error}
+        </p>
       ) : null}
     </li>
   );
