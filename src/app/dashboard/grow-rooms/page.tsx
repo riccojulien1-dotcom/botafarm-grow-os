@@ -2,6 +2,10 @@ import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-for
 import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
 import { requireUser } from "@/lib/auth/get-user";
 import type { VarietyForHarvest } from "@/lib/grow-rooms/crop-cycle";
+import {
+  indexLatestLogsByRoom,
+  type DailyLogForRecommendations,
+} from "@/lib/recommendations/latest-log-by-room";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +29,7 @@ export default async function GrowRoomsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: rooms }, { data: varieties }] = await Promise.all([
+  const [{ data: rooms }, { data: varieties }, { data: logs }] = await Promise.all([
     supabase
       .from("grow_rooms")
       .select(
@@ -37,9 +41,20 @@ export default async function GrowRoomsPage() {
       .from("room_varieties")
       .select("id,grow_room_id,name,genetics,plant_count,flowering_duration_days")
       .eq("user_id", user.id),
+    supabase
+      .from("daily_logs")
+      .select(
+        "grow_room_id,log_date,logged_at,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
+      )
+      .eq("user_id", user.id)
+      .order("log_date", { ascending: false })
+      .order("logged_at", { ascending: false }),
   ]);
 
   const varietiesByRoom = groupVarietiesByRoom(varieties ?? []);
+  const latestLogByRoom = indexLatestLogsByRoom(
+    (logs ?? []) as DailyLogForRecommendations[],
+  );
 
   return (
     <section className="space-y-6">
@@ -61,6 +76,7 @@ export default async function GrowRoomsPage() {
                 key={room.id}
                 room={room}
                 varieties={varietiesByRoom.get(room.id) ?? []}
+                latestLog={latestLogByRoom.get(room.id) ?? null}
               />
             ))}
           </ul>

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { RoomJournalCharts } from "@/components/analytics/room-journal-charts";
+import { RoomRecommendationsPanel } from "@/components/recommendations/room-recommendations-panel";
+import { formatLogDateLabel } from "@/lib/recommendations/latest-log-by-room";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
 import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
@@ -75,6 +77,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
 
   const logsAsc = (logsRaw ?? []) as DailyLogRecord[];
   const logsForList = [...logsAsc].reverse();
+  const latestLog = logsForList[0] ?? null;
 
   return (
     <AppShell user={user}>
@@ -146,6 +149,16 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <CreateRoomDailyLogForm growRoomId={room.id} />
           <RoomDailyLogsList logs={logsForList} growRoomId={room.id} />
         </section>
+
+        <RoomRecommendationsPanel
+          roomStatus={room.status}
+          latestLog={latestLog}
+          logDateLabel={formatLogDateLabel(
+            latestLog
+              ? { ...latestLog, grow_room_id: room.id }
+              : null,
+          )}
+        />
 
         <RoomJournalCharts logs={logsAsc} />
       </section>

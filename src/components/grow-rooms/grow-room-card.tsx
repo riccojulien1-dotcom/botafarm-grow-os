@@ -8,11 +8,14 @@ import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
+import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import {
   getNextHarvestPreview,
   type VarietyForHarvest,
 } from "@/lib/grow-rooms/crop-cycle";
+import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
+import type { RecommendationLogInput } from "@/lib/recommendations/types";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
@@ -25,11 +28,13 @@ export type GrowRoomListItem = GrowRoomFieldValues & {
 type GrowRoomCardProps = {
   room: GrowRoomListItem;
   varieties?: VarietyForHarvest[];
+  latestLog?: RecommendationLogInput | null;
 };
 
 const initialState: { error?: string; success?: string } = {};
 
-export function GrowRoomCard({ room, varieties = [] }: GrowRoomCardProps) {
+export function GrowRoomCard({ room, varieties = [], latestLog = null }: GrowRoomCardProps) {
+  const recommendationSummary = getRecommendationSummary(latestLog, room.status);
   const nextHarvest = getNextHarvestPreview(
     room.status,
     room.cycle_start_date,
@@ -124,6 +129,10 @@ export function GrowRoomCard({ room, varieties = [] }: GrowRoomCardProps) {
               {room.name}
             </Link>
             <GrowRoomStatusBadge status={room.status} />
+            <RecommendationStatusBadge
+              severity={recommendationSummary.severity}
+              compact
+            />
           </div>
           <p className="text-sm text-zinc-400">
             {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
