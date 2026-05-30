@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { RoomJournalCharts } from "@/components/analytics/room-journal-charts";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
+import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
@@ -61,15 +63,18 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
     0,
   );
 
-  const { data: logs } = await supabase
+  const { data: logsRaw } = await supabase
     .from("daily_logs")
     .select(
       "id,log_date,logged_at,temperature,humidity,vpd,ppfd,dli,ec_in,ph_in,ec_runoff,ph_runoff,irrigation_count,irrigation_volume_per_event,runoff_percent,dryback_percent,plant_height_cm,stretch_percent,notes",
     )
     .eq("grow_room_id", room.id)
     .eq("user_id", user.id)
-    .order("log_date", { ascending: false })
-    .order("logged_at", { ascending: false });
+    .order("log_date", { ascending: true })
+    .order("logged_at", { ascending: true });
+
+  const logsAsc = (logsRaw ?? []) as DailyLogRecord[];
+  const logsForList = [...logsAsc].reverse();
 
   return (
     <AppShell user={user}>
@@ -134,8 +139,10 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           </div>
 
           <CreateRoomDailyLogForm growRoomId={room.id} />
-          <RoomDailyLogsList logs={logs ?? []} growRoomId={room.id} />
+          <RoomDailyLogsList logs={logsForList} growRoomId={room.id} />
         </section>
+
+        <RoomJournalCharts logs={logsAsc} />
       </section>
     </AppShell>
   );
