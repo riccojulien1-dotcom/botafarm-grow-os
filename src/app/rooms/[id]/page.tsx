@@ -7,6 +7,7 @@ import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
+import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -47,6 +48,18 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   if (error || !room) {
     notFound();
   }
+
+  const { data: varieties } = await supabase
+    .from("room_varieties")
+    .select("id,name,genetics,plant_count,flowering_duration_days,notes,created_at")
+    .eq("grow_room_id", room.id)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true });
+
+  const totalPlantsFromVarieties = (varieties ?? []).reduce(
+    (sum, variety) => sum + (variety.plant_count ?? 0),
+    0,
+  );
 
   const { data: logs } = await supabase
     .from("daily_logs")
@@ -104,6 +117,13 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         </div>
 
         <RoomDetailManagement room={room} />
+
+        <RoomVarietiesSection
+          growRoomId={room.id}
+          roomName={room.name}
+          varieties={varieties ?? []}
+          totalPlantsFromVarieties={totalPlantsFromVarieties}
+        />
 
         <section className="space-y-4">
           <div>
