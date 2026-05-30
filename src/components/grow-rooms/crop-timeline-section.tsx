@@ -1,11 +1,17 @@
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
-import { getCropCycleEngine } from "@/lib/grow-rooms/crop-cycle";
+import { VarietyHarvestTimelineList } from "@/components/grow-rooms/variety-harvest-timeline";
+import {
+  getCropCycleEngine,
+  getVarietyHarvestTimelines,
+  type VarietyForHarvest,
+} from "@/lib/grow-rooms/crop-cycle";
 
 type CropTimelineSectionProps = {
   status: string;
   cycleStartDate: string | null;
   targetCycleDays: number | null;
   roomName: string;
+  varieties: VarietyForHarvest[];
 };
 
 const TIMELINE_PHASES = [
@@ -21,8 +27,11 @@ export function CropTimelineSection({
   cycleStartDate,
   targetCycleDays,
   roomName,
+  varieties,
 }: CropTimelineSectionProps) {
-  const cycle = getCropCycleEngine(status, cycleStartDate, targetCycleDays);
+  const cycle = getCropCycleEngine(status, cycleStartDate, targetCycleDays, { varieties });
+  const varietyTimelines =
+    status === "Flower" ? getVarietyHarvestTimelines(varieties, cycleStartDate) : [];
   const activePhaseIndex = TIMELINE_PHASES.findIndex((phase) => phase === status);
 
   return (
@@ -30,8 +39,8 @@ export function CropTimelineSection({
       <div>
         <h2 className="text-xl font-semibold text-white">Crop timeline</h2>
         <p className="mt-1 text-sm text-zinc-400">
-          Automatic cycle position for {roomName}, calculated from status, start date, and
-          target days.
+          Automatic cycle position for {roomName}. Flower harvest timing uses variety flowering
+          duration when varieties are set.
         </p>
       </div>
 
@@ -39,10 +48,13 @@ export function CropTimelineSection({
         <p className="text-2xl font-semibold tracking-tight text-fuchsia-200">
           {cycle.phaseDayLabel}
         </p>
-        {cycle.progressPercent != null ? (
+        {cycle.phaseStatusMessage ? (
+          <p className="mt-2 text-sm text-zinc-300">{cycle.phaseStatusMessage}</p>
+        ) : null}
+        {cycle.progressPercent != null && cycle.progressLabel ? (
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-xs text-zinc-400">
-              <span>Cycle progress</span>
+              <span>{cycle.progressLabel}</span>
               <span>{cycle.progressPercent}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
@@ -83,9 +95,19 @@ export function CropTimelineSection({
         status={status}
         cycleStartDate={cycleStartDate}
         targetCycleDays={targetCycleDays}
+        varieties={varieties}
       />
 
-      {status === "Flower" && cycle.harvestInDaysLabel ? (
+      {cycle.useVarietyHarvestTimeline ? (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium uppercase tracking-wide text-fuchsia-300/90">
+            Variety harvest timeline
+          </h3>
+          <VarietyHarvestTimelineList entries={varietyTimelines} />
+        </div>
+      ) : null}
+
+      {cycle.showHarvestMetrics && cycle.harvestInDaysLabel ? (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-200">
           <p>{cycle.harvestInDaysLabel}</p>
           {cycle.estimatedHarvestDateLabel !== "Not set" ? (
@@ -96,7 +118,7 @@ export function CropTimelineSection({
         </div>
       ) : null}
 
-      {cycle.harvestAlert ? (
+      {cycle.showHarvestMetrics && cycle.harvestAlert ? (
         <p
           className="rounded-md border border-amber-900/50 bg-amber-950/40 px-3 py-2 text-sm font-medium text-amber-200"
           role="status"

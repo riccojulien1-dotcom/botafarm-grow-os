@@ -1,12 +1,16 @@
 import type { ReactNode } from "react";
 
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
-import { getCropCycleEngine } from "@/lib/grow-rooms/crop-cycle";
+import {
+  getCropCycleEngine,
+  type VarietyForHarvest,
+} from "@/lib/grow-rooms/crop-cycle";
 
 type GrowRoomCycleSummaryProps = {
   status: string;
   cycleStartDate: string | null;
   targetCycleDays: number | null;
+  varieties?: VarietyForHarvest[];
   compact?: boolean;
 };
 
@@ -14,9 +18,10 @@ export function GrowRoomCycleSummary({
   status,
   cycleStartDate,
   targetCycleDays,
+  varieties = [],
   compact = false,
 }: GrowRoomCycleSummaryProps) {
-  const cycle = getCropCycleEngine(status, cycleStartDate, targetCycleDays);
+  const cycle = getCropCycleEngine(status, cycleStartDate, targetCycleDays, { varieties });
 
   if (compact) {
     return (
@@ -25,10 +30,17 @@ export function GrowRoomCycleSummary({
           <GrowRoomStatusBadge status={status} />
           <span className="font-medium text-fuchsia-200">{cycle.phaseDayLabel}</span>
         </div>
+        {cycle.phaseStatusMessage ? (
+          <p className="text-zinc-300">{cycle.phaseStatusMessage}</p>
+        ) : null}
         <div className="grid gap-2 sm:grid-cols-2">
           <CycleMetric label="Current day" value={cycle.currentDayLabel} />
-          <CycleMetric label="Days remaining" value={cycle.daysRemainingLabel} />
-          <CycleMetric label="Est. harvest" value={cycle.estimatedHarvestDateLabel} />
+          {cycle.showDaysRemaining ? (
+            <CycleMetric label="Days remaining" value={cycle.daysRemainingLabel} />
+          ) : null}
+          {cycle.showHarvestMetrics ? (
+            <CycleMetric label="Est. harvest" value={cycle.estimatedHarvestDateLabel} />
+          ) : null}
           {cycle.harvestInDaysLabel ? (
             <CycleMetric label="Flower countdown" value={cycle.harvestInDaysLabel} />
           ) : null}
@@ -45,13 +57,20 @@ export function GrowRoomCycleSummary({
   return (
     <div className="space-y-3">
       <p className="text-lg font-medium text-fuchsia-200">{cycle.phaseDayLabel}</p>
+      {cycle.phaseStatusMessage ? (
+        <p className="text-sm text-zinc-300">{cycle.phaseStatusMessage}</p>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         <CycleMetric label="Current status" value={<GrowRoomStatusBadge status={status} />} />
         <CycleMetric label="Cycle start date" value={cycle.cycleStartLabel} />
         <CycleMetric label="Current day" value={cycle.currentDayLabel} />
         <CycleMetric label="Target cycle days" value={cycle.targetCycleDaysLabel} />
-        <CycleMetric label="Days remaining" value={cycle.daysRemainingLabel} />
-        <CycleMetric label="Estimated harvest date" value={cycle.estimatedHarvestDateLabel} />
+        {cycle.showDaysRemaining ? (
+          <CycleMetric label="Days remaining" value={cycle.daysRemainingLabel} />
+        ) : null}
+        {cycle.showHarvestMetrics ? (
+          <CycleMetric label="Estimated harvest date" value={cycle.estimatedHarvestDateLabel} />
+        ) : null}
       </div>
       {cycle.harvestInDaysLabel ? (
         <p className="text-sm text-zinc-300">{cycle.harvestInDaysLabel}</p>

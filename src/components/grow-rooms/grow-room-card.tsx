@@ -9,6 +9,10 @@ import {
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
+import {
+  getNextHarvestPreview,
+  type VarietyForHarvest,
+} from "@/lib/grow-rooms/crop-cycle";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
@@ -20,11 +24,18 @@ export type GrowRoomListItem = GrowRoomFieldValues & {
 
 type GrowRoomCardProps = {
   room: GrowRoomListItem;
+  varieties?: VarietyForHarvest[];
 };
 
 const initialState: { error?: string; success?: string } = {};
 
-export function GrowRoomCard({ room }: GrowRoomCardProps) {
+export function GrowRoomCard({ room, varieties = [] }: GrowRoomCardProps) {
+  const nextHarvest = getNextHarvestPreview(
+    room.status,
+    room.cycle_start_date,
+    room.target_cycle_days,
+    varieties,
+  );
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
@@ -121,8 +132,17 @@ export function GrowRoomCard({ room }: GrowRoomCardProps) {
             status={room.status}
             cycleStartDate={room.cycle_start_date}
             targetCycleDays={room.target_cycle_days}
+            varieties={varieties}
             compact
           />
+          {nextHarvest ? (
+            <p className="text-xs text-emerald-300/90">{nextHarvest.label}</p>
+          ) : null}
+          {nextHarvest && room.status === "Flower" ? (
+            <p className="text-xs text-zinc-500">
+              Est. harvest: {nextHarvest.estimatedHarvestDateLabel}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex gap-2">

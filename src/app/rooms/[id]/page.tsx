@@ -126,6 +126,13 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           cycleStartDate={room.cycle_start_date}
           targetCycleDays={room.target_cycle_days}
           roomName={room.name}
+          varieties={(varieties ?? []).map((variety) => ({
+            id: variety.id,
+            name: variety.name,
+            genetics: variety.genetics,
+            plant_count: variety.plant_count,
+            flowering_duration_days: variety.flowering_duration_days,
+          }))}
         />
 
         <section className="space-y-4">
