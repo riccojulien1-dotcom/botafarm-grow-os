@@ -6,7 +6,7 @@ import { RoomJournalCharts } from "@/components/analytics/room-journal-charts";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
 import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
-import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
+import { CropTimelineSection } from "@/components/grow-rooms/crop-timeline-section";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
@@ -100,15 +100,6 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         </div>
         <p className="text-sm text-zinc-400">Room details</p>
 
-        <section className="space-y-3 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
-          <h2 className="text-sm font-medium text-fuchsia-200">Crop cycle</h2>
-          <GrowRoomCycleSummary
-            status={room.status}
-            cycleStartDate={room.cycle_start_date}
-            targetCycleDays={room.target_cycle_days}
-          />
-        </section>
-
         <div className="grid gap-3 sm:grid-cols-2">
           <FieldRow label="status" value={room.status} />
           <FieldRow label="room_type" value={room.room_type} />
@@ -128,6 +119,13 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           roomName={room.name}
           varieties={varieties ?? []}
           totalPlantsFromVarieties={totalPlantsFromVarieties}
+        />
+
+        <CropTimelineSection
+          status={room.status}
+          cycleStartDate={room.cycle_start_date}
+          targetCycleDays={room.target_cycle_days}
+          roomName={room.name}
         />
 
         <section className="space-y-4">
