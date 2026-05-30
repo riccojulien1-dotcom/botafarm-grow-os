@@ -3,17 +3,13 @@
 import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/get-user";
+import { parseDailyLogFormData } from "@/lib/journal/parse-daily-log-form";
 import { createClient } from "@/lib/supabase/server";
 
-function numericValue(value: FormDataEntryValue | null) {
-  if (typeof value !== "string" || value.length === 0) {
-    return null;
-  }
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? null : parsed;
-}
-
-export async function createDailyLogAction(_: { error?: string; success?: string }, formData: FormData) {
+export async function createDailyLogAction(
+  _: { error?: string; success?: string },
+  formData: FormData,
+) {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -23,7 +19,6 @@ export async function createDailyLogAction(_: { error?: string; success?: string
     return { error: "Please select a grow room." };
   }
 
-  // Verify ownership before insert.
   const { data: room, error: roomError } = await supabase
     .from("grow_rooms")
     .select("id")
@@ -35,23 +30,23 @@ export async function createDailyLogAction(_: { error?: string; success?: string
     return { error: "Invalid grow room." };
   }
 
-  const payload = {
+  const fields = parseDailyLogFormData(formData);
+  if (!fields.ok) {
+    return { error: fields.error };
+  }
+
+  const { error } = await supabase.from("daily_logs").insert({
     user_id: user.id,
     grow_room_id: growRoomId,
-    temperature: numericValue(formData.get("temperature")),
-    humidity: numericValue(formData.get("humidity")),
-    ec: numericValue(formData.get("ec")),
-    ph: numericValue(formData.get("ph")),
-    irrigation_volume: numericValue(formData.get("irrigation_ml")),
-    notes: String(formData.get("notes") ?? "").trim() || null,
-  };
-
-  const { error } = await supabase.from("daily_logs").insert(payload);
+    ...fields.payload,
+  });
 
   if (error) {
     return { error: error.message };
   }
 
   revalidatePath("/dashboard/journal");
+  revalidatePath("/dashboard");
+  revalidatePath(`/rooms/${growRoomId}`);
   return { success: "Daily log saved." };
 }

@@ -45,7 +45,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
       supabase
         .from("daily_logs")
         .select(
-          "id,log_date,logged_at,temperature,humidity,ec,ph,grow_room_id,grow_rooms(name)",
+          "id,log_date,logged_at,temperature,humidity,ec_in,ph_in,grow_room_id,grow_rooms(name)",
         )
         .eq("user_id", userId)
         .order("log_date", { ascending: false })
@@ -95,8 +95,8 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
       : null,
     latestTemperature: latestLog?.temperature ?? null,
     latestHumidity: latestLog?.humidity ?? null,
-    latestEc: latestLog?.ec ?? null,
-    latestPh: latestLog?.ph ?? null,
+    latestEc: latestLog?.ec_in ?? null,
+    latestPh: latestLog?.ph_in ?? null,
     latestRoom: latestRoom
       ? {
           id: latestRoom.id,

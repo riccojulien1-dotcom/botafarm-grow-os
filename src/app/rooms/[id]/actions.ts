@@ -3,71 +3,10 @@
 import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/get-user";
+import { parseDailyLogFormData } from "@/lib/journal/parse-daily-log-form";
 import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string };
-
-function numericValue(value: FormDataEntryValue | null) {
-  if (typeof value !== "string" || value.length === 0) {
-    return null;
-  }
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? null : parsed;
-}
-
-function parseLogDate(value: FormDataEntryValue | null) {
-  if (typeof value !== "string" || value.length === 0) {
-    return null;
-  }
-  const parsed = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-  return {
-    logDate: value,
-    loggedAt: parsed.toISOString(),
-  };
-}
-
-function buildLogFields(formData: FormData):
-  | { ok: false; error: string }
-  | {
-      ok: true;
-      payload: {
-        log_date: string;
-        logged_at: string;
-        temperature: number | null;
-        humidity: number | null;
-        vpd: number | null;
-        ec: number | null;
-        ph: number | null;
-        irrigation_volume: number | null;
-        dryback_percent: number | null;
-        notes: string | null;
-      };
-    } {
-  const logDateValue = parseLogDate(formData.get("log_date"));
-
-  if (!logDateValue) {
-    return { ok: false, error: "Please provide a valid log date." };
-  }
-
-  return {
-    ok: true,
-    payload: {
-      log_date: logDateValue.logDate,
-      logged_at: logDateValue.loggedAt,
-      temperature: numericValue(formData.get("temperature")),
-      humidity: numericValue(formData.get("humidity")),
-      vpd: numericValue(formData.get("vpd")),
-      ec: numericValue(formData.get("ec")),
-      ph: numericValue(formData.get("ph")),
-      irrigation_volume: numericValue(formData.get("irrigation_volume")),
-      dryback_percent: numericValue(formData.get("dryback_percent")),
-      notes: String(formData.get("notes") ?? "").trim() || null,
-    },
-  };
-}
 
 async function verifyOwnedLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -122,7 +61,7 @@ export async function createRoomDailyLogAction(
     return { error: "Invalid grow room." };
   }
 
-  const fields = buildLogFields(formData);
+  const fields = parseDailyLogFormData(formData);
   if (!fields.ok) {
     return { error: fields.error };
   }
@@ -138,6 +77,8 @@ export async function createRoomDailyLogAction(
   }
 
   revalidatePath(`/rooms/${growRoomId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/journal");
   return { success: "Daily journal log saved." };
 }
 
@@ -159,7 +100,7 @@ export async function updateRoomDailyLogAction(
     return { error: "You cannot edit this log." };
   }
 
-  const fields = buildLogFields(formData);
+  const fields = parseDailyLogFormData(formData);
   if (!fields.ok) {
     return { error: fields.error };
   }
@@ -176,6 +117,8 @@ export async function updateRoomDailyLogAction(
   }
 
   revalidatePath(`/rooms/${growRoomId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/journal");
   return { success: "Journal log updated." };
 }
 
@@ -209,5 +152,7 @@ export async function deleteRoomDailyLogAction(
   }
 
   revalidatePath(`/rooms/${growRoomId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/journal");
   return { success: "Journal log deleted." };
 }

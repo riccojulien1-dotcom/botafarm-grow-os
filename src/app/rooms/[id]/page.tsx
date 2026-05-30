@@ -64,7 +64,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   const { data: logs } = await supabase
     .from("daily_logs")
     .select(
-      "id,log_date,logged_at,temperature,humidity,vpd,ec,ph,irrigation_volume,dryback_percent,notes",
+      "id,log_date,logged_at,temperature,humidity,vpd,ppfd,dli,ec_in,ph_in,ec_runoff,ph_runoff,irrigation_count,irrigation_volume_per_event,runoff_percent,dryback_percent,plant_height_cm,stretch_percent,notes",
     )
     .eq("grow_room_id", room.id)
     .eq("user_id", user.id)
