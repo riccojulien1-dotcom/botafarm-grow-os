@@ -10,8 +10,10 @@ import {
 } from "@/app/dashboard/grow-rooms/actions";
 import { RoomRecommendationSummaryLine } from "@/components/recommendations/room-recommendation-summary-line";
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
-import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import {
+  getCropCycleEngine,
+  getCultivationPhaseLabel,
+  getCurrentCycleDay,
   getNextHarvestPreview,
   type VarietyForHarvest,
 } from "@/lib/grow-rooms/crop-cycle";
@@ -41,6 +43,16 @@ type GrowRoomCardProps = {
 
 const initialState: { error?: string; success?: string } = {};
 
+function resolveActionLabel(
+  severity: ReturnType<typeof getRecommendationSummary>["severity"],
+  overdueCount: number,
+): string | null {
+  if (overdueCount > 0) return "ACTION REQUIRED";
+  if (severity === "action") return "ACTION REQUIRED";
+  if (severity === "watch") return "MONITOR";
+  return null;
+}
+
 export function GrowRoomCard({
   room,
   varieties = [],
@@ -64,6 +76,24 @@ export function GrowRoomCard({
     room.target_cycle_days,
     varieties,
   );
+  const currentDay = getCurrentCycleDay(room.cycle_start_date);
+  const cycle = getCropCycleEngine(room.status, room.cycle_start_date, room.target_cycle_days, {
+    varieties,
+  });
+  const phaseLabel = getCultivationPhaseLabel(
+    room.status,
+    currentDay,
+    room.target_cycle_days,
+  );
+  const daysLeft =
+    nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
+  const harvestDate =
+    nextHarvest?.estimatedHarvestDateLabel ?? cycle.estimatedHarvestDateLabel;
+  const actionLabel = resolveActionLabel(
+    recommendationSummary.severity,
+    taskSummary?.overdueCount ?? 0,
+  );
+
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
@@ -141,95 +171,131 @@ export function GrowRoomCard({
   }
 
   return (
-    <li className="bf-glass group rounded-2xl border border-white/5 p-5 transition duration-200 hover:border-cyan-500/20 hover:shadow-[0_0_24px_rgba(34,211,238,0.08)]">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-2.5">
+    <li className="bf-glass group overflow-hidden rounded-2xl border border-white/5 transition duration-200 hover:border-cyan-500/25 hover:shadow-[0_0_32px_rgba(34,211,238,0.1)]">
+      <Link href={`/rooms/${room.id}`} className="block p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h3 className="text-2xl font-bold uppercase tracking-tight text-white transition group-hover:text-cyan-200">
+            {room.name}
+          </h3>
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/rooms/${room.id}`}
-              className="text-lg font-bold text-white transition group-hover:text-cyan-200"
-            >
-              {room.name}
-            </Link>
-            <GrowRoomStatusBadge status={room.status} />
+            {actionLabel ? (
+              <span className="rounded-md border border-red-500/40 bg-red-950/50 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-red-200">
+                {actionLabel}
+              </span>
+            ) : null}
             <RecommendationStatusBadge
               severity={recommendationSummary.severity}
               compact
             />
           </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-4 border-y border-white/[0.06] py-5 sm:grid-cols-3 lg:grid-cols-5">
+          <CardStat
+            label="Current day"
+            value={currentDay != null ? `DAY ${currentDay}` : "—"}
+          />
+          <CardStat label="Plants" value={String(room.plant_count ?? 0)} />
+          <CardStat label="Phase" value={phaseLabel} accent="cyan" />
+          <CardStat
+            label="Days left"
+            value={daysLeft != null ? String(Math.max(daysLeft, 0)) : "—"}
+            accent="magenta"
+          />
+          <CardStat
+            label="Next harvest"
+            value={harvestDate !== "Not set" ? harvestDate : "—"}
+            className="col-span-2 sm:col-span-1"
+          />
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <GrowRoomStatusBadge status={room.status} />
+          <span className="text-xs text-zinc-500">{room.room_type ?? "No type"}</span>
+        </div>
+
+        <div className="mt-4 space-y-2 border-t border-white/[0.04] pt-4">
           <RoomRecommendationSummaryLine
             activeCount={recommendationSummary.activeItems.length}
             roomId={room.id}
             hasLog={latestLog != null}
           />
-          <p className="text-sm text-zinc-400">
-            {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
-          </p>
           <RoomVarietyIntelligenceLine summary={varietyIntelligence} />
           <RoomTaskStatusLine summary={taskSummary} />
-          <GrowRoomCycleSummary
-            status={room.status}
-            cycleStartDate={room.cycle_start_date}
-            targetCycleDays={room.target_cycle_days}
-            varieties={varieties}
-            compact
-          />
-          {nextHarvest ? (
-            <p className="rounded-lg border border-fuchsia-500/20 bg-fuchsia-950/20 px-2 py-1 text-xs text-fuchsia-300/90">
-              {nextHarvest.label}
-            </p>
-          ) : null}
-          {nextHarvest && room.status === "Flower" ? (
-            <p className="text-xs text-zinc-500">
-              Est. harvest: {nextHarvest.estimatedHarvestDateLabel}
-            </p>
-          ) : null}
         </div>
+      </Link>
 
-        <div className="flex gap-2">
+      <div className="flex justify-end gap-2 border-t border-white/[0.04] px-5 py-3 sm:px-6">
+        <button
+          type="button"
+          onClick={startEditing}
+          className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
+        >
+          Edit
+        </button>
+        <form
+          action={deleteAction}
+          onSubmit={(event) => {
+            const confirmed = window.confirm(
+              `Delete "${room.name}"? All journal logs for this room will also be deleted.`,
+            );
+            if (!confirmed) {
+              event.preventDefault();
+            }
+          }}
+        >
+          <input type="hidden" name="room_id" value={room.id} />
           <button
-            type="button"
-            onClick={startEditing}
-            className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
+            type="submit"
+            disabled={deletePending}
+            className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 hover:border-red-500 disabled:opacity-60"
           >
-            Edit
+            {deletePending ? "Deleting..." : "Delete"}
           </button>
-          <form
-            action={deleteAction}
-            onSubmit={(event) => {
-              const confirmed = window.confirm(
-                `Delete "${room.name}"? All journal logs for this room will also be deleted.`,
-              );
-              if (!confirmed) {
-                event.preventDefault();
-              }
-            }}
-          >
-            <input type="hidden" name="room_id" value={room.id} />
-            <button
-              type="submit"
-              disabled={deletePending}
-              className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 hover:border-red-500 disabled:opacity-60"
-            >
-              {deletePending ? "Deleting..." : "Delete"}
-            </button>
-          </form>
-        </div>
+        </form>
       </div>
 
       {updateState?.success ? (
-        <p className="mt-3 text-sm text-green-400">{updateState.success}</p>
+        <p className="px-5 pb-3 text-sm text-green-400 sm:px-6">{updateState.success}</p>
       ) : null}
       {updateState?.error ? (
-        <p className="mt-3 text-sm text-red-400" role="alert">
+        <p className="px-5 pb-3 text-sm text-red-400 sm:px-6" role="alert">
           {updateState.error}
         </p>
       ) : null}
       {deleteState?.error ? (
-        <p className="mt-3 text-sm text-red-400" role="alert">
+        <p className="px-5 pb-3 text-sm text-red-400 sm:px-6" role="alert">
           {deleteState.error}
         </p>
       ) : null}
     </li>
+  );
+}
+
+function CardStat({
+  label,
+  value,
+  accent,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  accent?: "cyan" | "magenta";
+  className?: string;
+}) {
+  const valueColor =
+    accent === "cyan"
+      ? "text-cyan-300"
+      : accent === "magenta"
+        ? "text-fuchsia-300"
+        : "text-white";
+
+  return (
+    <div className={className}>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">{label}</p>
+      <p className={`mt-1 text-sm font-bold uppercase tracking-wide sm:text-base ${valueColor}`}>
+        {value}
+      </p>
+    </div>
   );
 }

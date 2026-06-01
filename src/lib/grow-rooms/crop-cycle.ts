@@ -131,6 +131,26 @@ function getPhaseShortLabel(status: string): string {
   return status;
 }
 
+/** Display label for command center / room cards (e.g. MID FLOWER). */
+export function getCultivationPhaseLabel(
+  status: string,
+  currentDay: number | null,
+  targetCycleDays: number | null,
+): string {
+  if (status === "Flower" && currentDay != null && targetCycleDays != null && targetCycleDays > 0) {
+    const ratio = currentDay / targetCycleDays;
+    if (ratio < 0.33) return "EARLY FLOWER";
+    if (ratio < 0.66) return "MID FLOWER";
+    return "LATE FLOWER";
+  }
+
+  if (isGrowRoomStatus(status)) {
+    return status.replace("-", " ").toUpperCase();
+  }
+
+  return status.toUpperCase();
+}
+
 export function getCurrentCycleDay(
   cycleStartDate: string | null,
   today: Date = new Date(),

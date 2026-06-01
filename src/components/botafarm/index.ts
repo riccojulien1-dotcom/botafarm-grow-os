@@ -1,3 +1,4 @@
+export { BfAreaChart } from "@/components/botafarm/bf-area-chart";
 export { BfButton } from "@/components/botafarm/bf-button";
 export { BfHeading } from "@/components/botafarm/bf-heading";
 export { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
