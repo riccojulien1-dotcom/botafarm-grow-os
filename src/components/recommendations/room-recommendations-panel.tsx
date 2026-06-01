@@ -20,7 +20,7 @@ export function RoomRecommendationsPanel({
   const summary = getRecommendationSummary(latestLog, roomStatus, varieties);
 
   return (
-    <section className="space-y-4 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
+    <section className="bf-glass space-y-4 rounded-2xl p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold text-white">Recommendations</h2>

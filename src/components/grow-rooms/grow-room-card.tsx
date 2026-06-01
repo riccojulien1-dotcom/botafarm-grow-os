@@ -102,7 +102,7 @@ export function GrowRoomCard({
 
   if (isEditing) {
     return (
-      <li className="rounded-xl border border-fuchsia-900/50 bg-zinc-900 p-4">
+      <li className="bf-glass rounded-2xl border border-cyan-500/20 p-5">
         <form
           key={`edit-${room.id}-${editSession}`}
           action={updateAction}
@@ -122,7 +122,7 @@ export function GrowRoomCard({
             <button
               type="submit"
               disabled={updatePending}
-              className="rounded-md bg-fuchsia-600 px-3 py-1.5 text-sm text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
+              className="rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-500 px-3 py-1.5 text-sm font-semibold text-black shadow-[0_0_16px_rgba(34,211,238,0.3)] hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50"
             >
               {updatePending ? "Saving..." : "Save changes"}
             </button>
@@ -141,13 +141,13 @@ export function GrowRoomCard({
   }
 
   return (
-    <li className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <li className="bf-glass group rounded-2xl border border-white/5 p-5 transition duration-200 hover:border-cyan-500/20 hover:shadow-[0_0_24px_rgba(34,211,238,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-2">
+        <div className="min-w-0 flex-1 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/rooms/${room.id}`}
-              className="text-sm font-medium text-white hover:text-fuchsia-300"
+              className="text-lg font-bold text-white transition group-hover:text-cyan-200"
             >
               {room.name}
             </Link>
@@ -175,7 +175,9 @@ export function GrowRoomCard({
             compact
           />
           {nextHarvest ? (
-            <p className="text-xs text-emerald-300/90">{nextHarvest.label}</p>
+            <p className="rounded-lg border border-fuchsia-500/20 bg-fuchsia-950/20 px-2 py-1 text-xs text-fuchsia-300/90">
+              {nextHarvest.label}
+            </p>
           ) : null}
           {nextHarvest && room.status === "Flower" ? (
             <p className="text-xs text-zinc-500">

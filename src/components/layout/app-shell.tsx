@@ -11,18 +11,33 @@ type AppShellProps = {
 
 export function AppShell({ user, children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="font-semibold tracking-wide text-fuchsia-400">
-            BOTAFARM GROW OS
+    <div className="bf-lab-bg min-h-screen text-zinc-100">
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/80 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/dashboard" className="group flex items-center gap-3">
+            <span
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-950/40 font-mono text-xs font-bold text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+              aria-hidden
+            >
+              BF
+            </span>
+            <div>
+              <p className="text-sm font-bold tracking-[0.12em] text-white group-hover:text-cyan-200">
+                BOTAFARM
+              </p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-fuchsia-400/80">
+                Grow OS
+              </p>
+            </div>
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-zinc-400 sm:inline">{user.email}</span>
+            <span className="hidden max-w-[200px] truncate font-mono text-xs text-zinc-500 sm:inline">
+              {user.email}
+            </span>
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="rounded-md border border-zinc-700 px-3 py-1.5 hover:border-zinc-500"
+                className="rounded-lg border border-white/10 px-3 py-1.5 text-zinc-400 transition hover:border-fuchsia-500/30 hover:text-fuchsia-200"
               >
                 Log out
               </button>
@@ -30,7 +45,7 @@ export function AppShell({ user, children }: AppShellProps) {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl px-4 py-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

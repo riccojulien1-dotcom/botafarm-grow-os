@@ -18,7 +18,7 @@ export function CreateGrowRoomForm() {
     <form
       action={formAction}
       onKeyDown={preventImplicitFormSubmitOnEnter}
-      className="grid gap-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4 md:grid-cols-2"
+      className="grid gap-4 md:grid-cols-2"
     >
       <GrowRoomFields idPrefix="create" />
 
@@ -35,7 +35,7 @@ export function CreateGrowRoomForm() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-fuchsia-600 px-4 py-2 text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
+          className="rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-500 px-4 py-2.5 font-semibold text-black shadow-[0_0_20px_rgba(34,211,238,0.35)] hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50"
         >
           {pending ? "Saving..." : "Create grow room"}
         </button>

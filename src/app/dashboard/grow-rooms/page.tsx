@@ -1,7 +1,7 @@
-import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-form";
-import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
+import { GrowRoomsCommandLayout } from "@/components/grow-rooms/grow-rooms-command-layout";
+import type { GrowRoomListItem } from "@/components/grow-rooms/grow-room-card";
 import { requireUser } from "@/lib/auth/get-user";
-import type { VarietyForHarvest } from "@/lib/grow-rooms/crop-cycle";
+import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
 import {
   indexLatestLogsByRoom,
   type DailyLogForRecommendations,
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 function groupVarietiesByRoom(
   varieties: Array<RoomVarietyRecord & { grow_room_id: string }>,
 ) {
-  const harvestMap = new Map<string, VarietyForHarvest[]>();
+  const harvestMap = new Map<string, ReturnType<typeof toVarietyForHarvest>[]>();
   const recordMap = new Map<string, RoomVarietyRecord[]>();
 
   for (const variety of varieties) {
@@ -41,33 +41,34 @@ export default async function GrowRoomsPage() {
 
   const [{ data: rooms }, { data: varieties }, { data: logs }, { data: tasks }] =
     await Promise.all([
-    supabase
-      .from("grow_rooms")
-      .select(
-        "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,cycle_start_date,target_cycle_days,created_at",
-      )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("room_varieties")
-      .select(`${ROOM_VARIETY_SELECT},grow_room_id`)
-      .eq("user_id", user.id),
-    supabase
-      .from("daily_logs")
-      .select(
-        "grow_room_id,log_date,logged_at,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
-      )
-      .eq("user_id", user.id)
-      .order("log_date", { ascending: false })
-      .order("logged_at", { ascending: false }),
-    supabase
-      .from("grow_room_tasks")
-      .select(
-        "id,grow_room_id,title,description,due_date,completed,completed_at,priority,category,created_at,updated_at",
-      )
-      .eq("user_id", user.id),
-  ]);
+      supabase
+        .from("grow_rooms")
+        .select(
+          "id,name,status,room_type,plant_count,dimensions,lighting,substrate,genetics,irrigation,notes,cycle_start_date,target_cycle_days,created_at",
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("room_varieties")
+        .select(`${ROOM_VARIETY_SELECT},grow_room_id`)
+        .eq("user_id", user.id),
+      supabase
+        .from("daily_logs")
+        .select(
+          "grow_room_id,log_date,logged_at,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
+        )
+        .eq("user_id", user.id)
+        .order("log_date", { ascending: false })
+        .order("logged_at", { ascending: false }),
+      supabase
+        .from("grow_room_tasks")
+        .select(
+          "id,grow_room_id,title,description,due_date,completed,completed_at,priority,category,created_at,updated_at",
+        )
+        .eq("user_id", user.id),
+    ]);
 
+  const roomList = (rooms ?? []) as GrowRoomListItem[];
   const { harvestMap, recordMap } = groupVarietiesByRoom(
     (varieties ?? []) as Array<RoomVarietyRecord & { grow_room_id: string }>,
   );
@@ -76,38 +77,36 @@ export default async function GrowRoomsPage() {
   );
   const taskSummaryByRoom = indexTaskSummariesByRoom((tasks ?? []) as GrowRoomTask[]);
 
+  let alertRooms = 0;
+  let totalVarieties = 0;
+  const totalPlants = roomList.reduce((sum, room) => sum + (room.plant_count ?? 0), 0);
+
+  for (const room of roomList) {
+    const roomVarieties = recordMap.get(room.id) ?? [];
+    totalVarieties += roomVarieties.length;
+    const summary = getRecommendationSummary(
+      latestLogByRoom.get(room.id) ?? null,
+      room.status,
+      roomVarieties,
+    );
+    if (summary.severity !== "good") {
+      alertRooms += 1;
+    }
+  }
+
   return (
-    <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Grow rooms</h1>
-        <p className="text-sm text-zinc-400">Create and manage your rooms and tents.</p>
-      </div>
-
-      <div id="create-room">
-        <CreateGrowRoomForm />
-      </div>
-
-      <div className="space-y-3">
-        <p className="text-sm text-zinc-400">Existing rooms</p>
-        {rooms?.length ? (
-          <ul className="space-y-3">
-            {rooms.map((room) => (
-              <GrowRoomCard
-                key={room.id}
-                room={room}
-                varieties={harvestMap.get(room.id) ?? []}
-                roomVarieties={recordMap.get(room.id) ?? []}
-                latestLog={latestLogByRoom.get(room.id) ?? null}
-                taskSummary={taskSummaryByRoom.get(room.id)}
-              />
-            ))}
-          </ul>
-        ) : (
-          <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
-            No grow room yet. Create your first one above.
-          </p>
-        )}
-      </div>
-    </section>
+    <GrowRoomsCommandLayout
+      rooms={roomList}
+      harvestMap={harvestMap}
+      recordMap={recordMap}
+      latestLogByRoom={latestLogByRoom}
+      taskSummaryByRoom={taskSummaryByRoom}
+      stats={{
+        totalPlants,
+        totalVarieties,
+        alertRooms,
+        flowerRooms: roomList.filter((room) => room.status === "Flower").length,
+      }}
+    />
   );
 }

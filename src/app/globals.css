@@ -1,13 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+  --bf-black: #030304;
+  --bf-black-elevated: #0a0a0c;
+  --bf-panel: rgba(12, 14, 18, 0.72);
+  --bf-panel-border: rgba(255, 255, 255, 0.06);
+  --bf-cyan: #22d3ee;
+  --bf-cyan-dim: #0891b2;
+  --bf-magenta: #e879f9;
+  --bf-magenta-dim: #c026d3;
+  --bf-text: #f4f4f5;
+  --bf-text-muted: #a1a1aa;
+  --bf-text-dim: #71717a;
+  --bf-glow-cyan: 0 0 24px rgba(34, 211, 238, 0.35);
+  --bf-glow-magenta: 0 0 24px rgba(232, 121, 249, 0.3);
+  --background: var(--bf-black);
+  --foreground: var(--bf-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-bf-cyan: var(--bf-cyan);
+  --color-bf-magenta: var(--bf-magenta);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -18,7 +33,85 @@
 
 body {
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bf-black);
+  color: var(--bf-text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Lab grid atmosphere */
+.bf-lab-bg {
+  background-color: var(--bf-black);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 211, 238, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(232, 121, 249, 0.06), transparent),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    48px 48px,
+    48px 48px;
+}
+
+.bf-glass {
+  background: var(--bf-panel);
+  border: 1px solid var(--bf-panel-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bf-glass:hover {
+  border-color: rgba(34, 211, 238, 0.15);
+}
+
+.bf-glass-glow-cyan {
+  box-shadow: var(--bf-glow-cyan);
+  border-color: rgba(34, 211, 238, 0.25);
+}
+
+.bf-glass-glow-magenta {
+  box-shadow: var(--bf-glow-magenta);
+  border-color: rgba(232, 121, 249, 0.25);
+}
+
+.bf-gradient-text {
+  background: linear-gradient(135deg, var(--bf-cyan) 0%, var(--bf-magenta) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bf-scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.bf-scanline::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    transparent 50%,
+    rgba(0, 0, 0, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  opacity: 0.4;
+}
+
+@keyframes bf-pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+.bf-pulse-glow {
+  animation: bf-pulse-glow 3s ease-in-out infinite;
 }

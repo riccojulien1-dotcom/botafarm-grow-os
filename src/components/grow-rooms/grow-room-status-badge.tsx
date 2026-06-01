@@ -8,7 +8,7 @@ export function GrowRoomStatusBadge({ status }: GrowRoomStatusBadgeProps) {
   const label = status ?? "Vegetative";
 
   return (
-    <span className="inline-flex rounded-full border border-fuchsia-900/60 bg-fuchsia-950/40 px-2.5 py-0.5 text-xs font-medium text-fuchsia-300">
+    <span className="inline-flex rounded-lg border border-cyan-500/25 bg-cyan-950/25 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-cyan-300/90">
       {label}
     </span>
   );

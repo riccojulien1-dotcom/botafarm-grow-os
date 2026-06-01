@@ -35,7 +35,7 @@ export function CropTimelineSection({
   const activePhaseIndex = TIMELINE_PHASES.findIndex((phase) => phase === status);
 
   return (
-    <section className="space-y-4 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
+    <section className="bf-glass space-y-4 rounded-2xl p-5">
       <div>
         <h2 className="text-xl font-semibold text-white">Crop timeline</h2>
         <p className="mt-1 text-sm text-zinc-400">

@@ -1,3 +1,5 @@
+import { BfStatTile } from "@/components/botafarm/bf-stat-tile";
+
 type StatCardProps = {
   label: string;
   value: string;
@@ -6,10 +8,6 @@ type StatCardProps = {
 
 export function StatCard({ label, value, helpText }: StatCardProps) {
   return (
-    <article className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-      <p className="text-xs uppercase tracking-wide text-zinc-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      {helpText ? <p className="mt-2 text-sm text-zinc-400">{helpText}</p> : null}
-    </article>
+    <BfStatTile label={label} value={value} trend={helpText} accent="neutral" compact />
   );
 }

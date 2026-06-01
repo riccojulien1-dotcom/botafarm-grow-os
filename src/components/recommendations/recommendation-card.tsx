@@ -5,9 +5,9 @@ import { getKnowledgeLinkForRecommendationMetric } from "@/lib/knowledge-base";
 import type { Recommendation } from "@/lib/recommendations/types";
 
 const borderStyles = {
-  watch: "border-amber-900/50",
-  action: "border-red-900/50",
-  good: "border-emerald-900/50",
+  watch: "border-fuchsia-500/30 bg-fuchsia-950/10",
+  action: "border-red-500/40 bg-red-950/15",
+  good: "border-cyan-500/20 bg-cyan-950/10",
 };
 
 type RecommendationCardProps = {
@@ -46,9 +46,9 @@ export function RecommendationCard({ item }: RecommendationCardProps) {
               <p className="mt-1 text-sm text-zinc-400">{knowledgeLink.shortSummary}</p>
             </div>
             <Link
-              href={`/dashboard/knowledge/${knowledgeLink.entryId}`}
-              className="inline-block rounded-md border border-fuchsia-800/60 bg-fuchsia-950/30 px-3 py-1.5 text-sm text-fuchsia-200 hover:border-fuchsia-500 hover:bg-fuchsia-950/50"
-            >
+                href={`/dashboard/knowledge/${knowledgeLink.entryId}`}
+                className="inline-block rounded-lg border border-cyan-500/30 bg-cyan-950/40 px-3 py-1.5 text-sm text-cyan-200 transition hover:border-cyan-400/50 hover:shadow-[0_0_12px_rgba(34,211,238,0.2)]"
+              >
               View in Knowledge Library
             </Link>
           </div>
