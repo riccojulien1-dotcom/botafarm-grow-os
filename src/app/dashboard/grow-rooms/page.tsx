@@ -6,6 +6,8 @@ import {
   indexLatestLogsByRoom,
   type DailyLogForRecommendations,
 } from "@/lib/recommendations/latest-log-by-room";
+import { indexTaskSummariesByRoom } from "@/lib/tasks/task-stats";
+import type { GrowRoomTask } from "@/lib/tasks/types";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +31,8 @@ export default async function GrowRoomsPage() {
   const user = await requireUser();
   const supabase = await createClient();
 
-  const [{ data: rooms }, { data: varieties }, { data: logs }] = await Promise.all([
+  const [{ data: rooms }, { data: varieties }, { data: logs }, { data: tasks }] =
+    await Promise.all([
     supabase
       .from("grow_rooms")
       .select(
@@ -49,12 +52,19 @@ export default async function GrowRoomsPage() {
       .eq("user_id", user.id)
       .order("log_date", { ascending: false })
       .order("logged_at", { ascending: false }),
+    supabase
+      .from("grow_room_tasks")
+      .select(
+        "id,grow_room_id,title,description,due_date,completed,completed_at,priority,category,created_at,updated_at",
+      )
+      .eq("user_id", user.id),
   ]);
 
   const varietiesByRoom = groupVarietiesByRoom(varieties ?? []);
   const latestLogByRoom = indexLatestLogsByRoom(
     (logs ?? []) as DailyLogForRecommendations[],
   );
+  const taskSummaryByRoom = indexTaskSummariesByRoom((tasks ?? []) as GrowRoomTask[]);
 
   return (
     <section className="space-y-6">
@@ -77,6 +87,7 @@ export default async function GrowRoomsPage() {
                 room={room}
                 varieties={varietiesByRoom.get(room.id) ?? []}
                 latestLog={latestLogByRoom.get(room.id) ?? null}
+                taskSummary={taskSummaryByRoom.get(room.id)}
               />
             ))}
           </ul>

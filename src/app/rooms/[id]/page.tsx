@@ -11,7 +11,9 @@ import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
 import { CropTimelineSection } from "@/components/grow-rooms/crop-timeline-section";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
+import { RoomTasksSection } from "@/components/tasks/room-tasks-section";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
+import type { GrowRoomTask } from "@/lib/tasks/types";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -64,6 +66,15 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
     (sum, variety) => sum + (variety.plant_count ?? 0),
     0,
   );
+
+  const { data: tasks } = await supabase
+    .from("grow_room_tasks")
+    .select(
+      "id,grow_room_id,title,description,due_date,completed,completed_at,priority,category,created_at,updated_at",
+    )
+    .eq("grow_room_id", room.id)
+    .eq("user_id", user.id)
+    .order("due_date", { ascending: true });
 
   const { data: logsRaw } = await supabase
     .from("daily_logs")
@@ -136,6 +147,14 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
             plant_count: variety.plant_count,
             flowering_duration_days: variety.flowering_duration_days,
           }))}
+        />
+
+        <RoomTasksSection
+          growRoomId={room.id}
+          roomName={room.name}
+          roomStatus={room.status}
+          cycleStartDate={room.cycle_start_date}
+          tasks={(tasks ?? []) as GrowRoomTask[]}
         />
 
         <section className="space-y-4">
