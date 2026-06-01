@@ -26,7 +26,7 @@ export function DashboardQuickActions({ latestActiveRoomId }: DashboardQuickActi
           href="/dashboard/knowledge"
           className="rounded-md border border-zinc-700 px-3 py-2 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
         >
-          Knowledge base
+          Knowledge library
         </Link>
         {latestActiveRoomId ? (
           <Link

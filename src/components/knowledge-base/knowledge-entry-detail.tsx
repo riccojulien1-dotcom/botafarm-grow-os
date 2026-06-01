@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { KNOWLEDGE_SOURCE_TYPE_LABELS } from "@/lib/knowledge-base";
 import type { KnowledgeEntry } from "@/lib/knowledge-base/types";
 
 type KnowledgeEntryDetailProps = {
@@ -32,7 +33,7 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           href="/dashboard/knowledge"
           className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
         >
-          Back to knowledge base
+          Back to knowledge library
         </Link>
       </div>
 
@@ -41,16 +42,37 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           <span className="rounded-md border border-fuchsia-900/50 bg-fuchsia-950/30 px-2 py-0.5 text-xs text-fuchsia-200">
             {entry.category}
           </span>
-          <span className="text-xs text-zinc-500">Source: {entry.sourceType}</span>
+          <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
+            {KNOWLEDGE_SOURCE_TYPE_LABELS[entry.sourceType]}
+          </span>
+          <span className="text-xs uppercase text-zinc-500">{entry.priority} priority</span>
           <span className="text-xs text-zinc-500">ID: {entry.id}</span>
         </div>
         <h1 className="mt-3 text-2xl font-semibold text-white">{entry.title}</h1>
-        <p className="mt-2 text-sm text-zinc-400">{entry.shortExplanation}</p>
+        <p className="mt-2 text-sm text-zinc-400">{entry.shortSummary}</p>
       </header>
 
-      <SectionBlock title="Detailed explanation">
-        <p className="leading-relaxed">{entry.detailedExplanation}</p>
+      <SectionBlock title="Detailed content">
+        <p className="leading-relaxed">{entry.detailedContent}</p>
       </SectionBlock>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SectionBlock title="Practical actions">
+          <ul className="list-inside list-disc space-y-1">
+            {entry.practicalActions.map((action) => (
+              <li key={action}>{action}</li>
+            ))}
+          </ul>
+        </SectionBlock>
+
+        <SectionBlock title="Warnings">
+          <ul className="list-inside list-disc space-y-1 text-amber-100/90">
+            {entry.warnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </SectionBlock>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <SectionBlock title="Phase relevance">
@@ -90,7 +112,7 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
                 <p className="mt-1 text-zinc-300">
                   {range.min != null && range.max != null
                     ? `${range.min} – ${range.max}${range.unit ? ` ${range.unit}` : ""}`
-                    : range.notes ?? "—"}
+                    : (range.notes ?? "—")}
                 </p>
                 {range.notes && range.min != null ? (
                   <p className="mt-1 text-xs text-zinc-500">{range.notes}</p>
@@ -103,21 +125,40 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         )}
       </SectionBlock>
 
-      <SectionBlock title="Warning signs">
-        <ul className="list-inside list-disc space-y-1 text-amber-100/90">
-          {entry.warningSigns.map((sign) => (
-            <li key={sign}>{sign}</li>
-          ))}
-        </ul>
-      </SectionBlock>
+      {entry.sourceMetadata ? (
+        <SectionBlock title="Source metadata">
+          <dl className="grid gap-2 sm:grid-cols-2">
+            {entry.sourceMetadata.documentTitle ? (
+              <MetadataItem label="Document" value={entry.sourceMetadata.documentTitle} />
+            ) : null}
+            {entry.sourceMetadata.author ? (
+              <MetadataItem label="Author" value={entry.sourceMetadata.author} />
+            ) : null}
+            {entry.sourceMetadata.chapter ? (
+              <MetadataItem label="Chapter" value={entry.sourceMetadata.chapter} />
+            ) : null}
+            {entry.sourceMetadata.section ? (
+              <MetadataItem label="Section" value={entry.sourceMetadata.section} />
+            ) : null}
+            {entry.sourceMetadata.documentId ? (
+              <MetadataItem label="Document ID" value={entry.sourceMetadata.documentId} />
+            ) : null}
+            {entry.sourceMetadata.url ? (
+              <MetadataItem label="URL" value={entry.sourceMetadata.url} />
+            ) : null}
+          </dl>
+        </SectionBlock>
+      ) : null}
 
-      <SectionBlock title="Botafarm note">
-        <p className="rounded-lg border border-fuchsia-900/40 bg-fuchsia-950/20 p-3 text-fuchsia-100/90">
-          {entry.botafarmNote}
-        </p>
-      </SectionBlock>
+      {entry.botafarmNote ? (
+        <SectionBlock title="Botafarm note">
+          <p className="rounded-lg border border-fuchsia-900/40 bg-fuchsia-950/20 p-3 text-fuchsia-100/90">
+            {entry.botafarmNote}
+          </p>
+        </SectionBlock>
+      ) : null}
 
-      {entry.tags?.length ? (
+      {entry.tags.length ? (
         <SectionBlock title="Tags">
           <div className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (
@@ -131,6 +172,19 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           </div>
         </SectionBlock>
       ) : null}
+
+      <p className="text-xs text-zinc-600">
+        Updated {entry.updatedAt.slice(0, 10)} · Catalog entry for future RAG ingestion
+      </p>
     </article>
+  );
+}
+
+function MetadataItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-zinc-500">{label}</dt>
+      <dd className="text-sm text-zinc-200">{value}</dd>
+    </div>
   );
 }

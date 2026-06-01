@@ -1,82 +1,77 @@
-import Link from "next/link";
-
 import { KnowledgeEntryCard } from "@/components/knowledge-base/knowledge-entry-card";
+import { KnowledgeLibraryFilters } from "@/components/knowledge-base/knowledge-library-filters";
 import {
+  filterKnowledgeEntries,
   getAllKnowledgeEntries,
   getCategoriesWithEntryCounts,
+  getKnowledgeFilterFacets,
+  toKnowledgeSummary,
 } from "@/lib/knowledge-base";
+import type { KnowledgeSourceType } from "@/lib/knowledge-base";
 
 type KnowledgePageProps = {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    phase?: string;
+    metric?: string;
+    sourceType?: string;
+  }>;
 };
 
-export default async function KnowledgeBasePage({ searchParams }: KnowledgePageProps) {
-  const { category } = await searchParams;
-  const categoryFilter = category?.trim();
+function parseSourceType(value: string | undefined): KnowledgeSourceType | undefined {
+  const allowed: KnowledgeSourceType[] = ["book", "SOP", "blog", "protocol", "rule"];
+  if (!value) {
+    return undefined;
+  }
+  return allowed.includes(value as KnowledgeSourceType)
+    ? (value as KnowledgeSourceType)
+    : undefined;
+}
+
+export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePageProps) {
+  const params = await searchParams;
+  const category = params.category?.trim();
+  const phase = params.phase?.trim();
+  const metric = params.metric?.trim();
+  const sourceType = parseSourceType(params.sourceType?.trim());
+
   const allEntries = getAllKnowledgeEntries();
-  const entries = categoryFilter
-    ? allEntries.filter((entry) => entry.category === categoryFilter)
-    : allEntries;
+  const entries = filterKnowledgeEntries({
+    category,
+    phase,
+    metric,
+    sourceType,
+  });
   const categories = getCategoriesWithEntryCounts();
+  const facets = getKnowledgeFilterFacets();
 
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Knowledge base</h1>
+        <h1 className="text-2xl font-semibold text-white">Knowledge library</h1>
         <p className="mt-1 text-sm text-zinc-400">
-          Botafarm cultivation reference — foundation for recommendations, imports, and
-          future AI retrieval. No external AI connected yet.
+          Botafarm books, SOPs, protocols, and cultivation rules — structured for
+          recommendations today and RAG retrieval later. No external AI connected.
         </p>
       </div>
 
-      <aside className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-sm font-medium text-zinc-200">Categories</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Link
-            href="/dashboard/knowledge"
-            className={`rounded-md px-2.5 py-1 text-xs ${
-              !categoryFilter
-                ? "bg-fuchsia-600 text-white"
-                : "border border-zinc-700 text-zinc-400 hover:border-zinc-500"
-            }`}
-          >
-            All ({allEntries.length})
-          </Link>
-          {categories.map(({ category: name, count }) => (
-            <Link
-              key={name}
-              href={
-                count > 0
-                  ? `/dashboard/knowledge?category=${encodeURIComponent(name)}`
-                  : "/dashboard/knowledge"
-              }
-              className={`rounded-md px-2.5 py-1 text-xs ${
-                categoryFilter === name
-                  ? "bg-fuchsia-600 text-white"
-                  : count > 0
-                    ? "border border-zinc-700 text-zinc-400 hover:border-fuchsia-500/50"
-                    : "border border-zinc-800 text-zinc-600"
-              }`}
-            >
-              {name}
-              {count > 0 ? ` (${count})` : ""}
-            </Link>
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-zinc-500">
-          Empty categories are reserved for future book and article imports.
-        </p>
-      </aside>
+      <KnowledgeLibraryFilters
+        totalCount={allEntries.length}
+        filteredCount={entries.length}
+        facets={facets}
+        categories={categories}
+        active={{ category, phase, metric, sourceType }}
+      />
 
       {entries.length ? (
         <ul className="grid gap-3 md:grid-cols-2">
           {entries.map((entry) => (
-            <KnowledgeEntryCard key={entry.id} entry={entry} />
+            <KnowledgeEntryCard key={entry.id} entry={toKnowledgeSummary(entry)} />
           ))}
         </ul>
       ) : (
         <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
-          No entries in this category yet.
+          No entries match these filters.
         </p>
       )}
     </section>

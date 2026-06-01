@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { resolveKnowledgeEntryIdForRecommendationMetric } from "@/lib/knowledge-base";
 import type { Recommendation } from "@/lib/recommendations/types";
 
 const borderStyles = {
@@ -17,6 +20,8 @@ type RecommendationCardProps = {
 };
 
 export function RecommendationCard({ item }: RecommendationCardProps) {
+  const knowledgeEntryId = resolveKnowledgeEntryIdForRecommendationMetric(item.metric);
+
   return (
     <li
       className={`rounded-xl border bg-zinc-950/80 p-4 ${borderStyles[item.severity]}`}
@@ -31,6 +36,14 @@ export function RecommendationCard({ item }: RecommendationCardProps) {
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
               {item.metric}
             </p>
+            {knowledgeEntryId ? (
+              <Link
+                href={`/dashboard/knowledge/${knowledgeEntryId}`}
+                className="text-xs text-fuchsia-300 hover:text-fuchsia-200"
+              >
+                View in library
+              </Link>
+            ) : null}
           </div>
           <p className="font-medium text-zinc-100">{item.issue}</p>
           <p className="text-sm text-zinc-400">{item.recommendation}</p>

@@ -7,7 +7,7 @@ const links = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/grow-rooms", label: "Grow rooms" },
   { href: "/dashboard/journal", label: "Journal" },
-  { href: "/dashboard/knowledge", label: "Knowledge" },
+  { href: "/dashboard/knowledge", label: "Library" },
 ];
 
 export function DashboardNav() {
