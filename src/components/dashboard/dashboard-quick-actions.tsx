@@ -22,6 +22,12 @@ export function DashboardQuickActions({ latestActiveRoomId }: DashboardQuickActi
         >
           Create new grow room
         </Link>
+        <Link
+          href="/dashboard/knowledge"
+          className="rounded-md border border-zinc-700 px-3 py-2 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
+        >
+          Knowledge base
+        </Link>
         {latestActiveRoomId ? (
           <Link
             href={`/rooms/${latestActiveRoomId}`}
