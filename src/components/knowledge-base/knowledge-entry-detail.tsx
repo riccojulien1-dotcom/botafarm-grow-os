@@ -16,7 +16,7 @@ function SectionBlock({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <section className="bf-inset-panel p-4">
       <h2 className="text-sm font-medium uppercase tracking-wide text-fuchsia-300/90">
         {title}
       </h2>
@@ -31,13 +31,13 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
       <div className="flex flex-wrap gap-2">
         <Link
           href="/dashboard/knowledge"
-          className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
+          className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-cyan-500/30 hover:text-cyan-200"
         >
           Back to knowledge library
         </Link>
       </div>
 
-      <header className="rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
+      <header className="bf-glass bf-glass-shine rounded-2xl border border-fuchsia-500/25 p-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md border border-fuchsia-900/50 bg-fuchsia-950/30 px-2 py-0.5 text-xs text-fuchsia-200">
             {entry.category}
@@ -48,7 +48,7 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           <span className="text-xs uppercase text-zinc-500">{entry.priority} priority</span>
           <span className="text-xs text-zinc-500">ID: {entry.id}</span>
         </div>
-        <h1 className="mt-3 text-2xl font-semibold text-white">{entry.title}</h1>
+        <h1 className="mt-3 text-3xl font-bold uppercase tracking-tight text-white">{entry.title}</h1>
         <p className="mt-2 text-sm text-zinc-400">{entry.shortSummary}</p>
       </header>
 

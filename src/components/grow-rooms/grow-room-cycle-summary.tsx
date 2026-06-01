@@ -92,7 +92,7 @@ function CycleMetric({
   value: ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
+    <div className="rounded-lg bf-inset-panel p-3">
       <p className="text-xs uppercase tracking-wide text-zinc-400">{label}</p>
       <div className="mt-1 text-sm text-zinc-100">{value}</div>
     </div>

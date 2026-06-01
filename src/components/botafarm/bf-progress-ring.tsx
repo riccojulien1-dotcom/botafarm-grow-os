@@ -5,20 +5,23 @@ type BfProgressRingProps = {
   strokeWidth?: number;
   label?: string;
   sublabel?: string;
-  accent?: "cyan" | "magenta" | "healthy";
+  accent?: "cyan" | "magenta" | "healthy" | "alert";
   showPercent?: boolean;
+  showLabel?: boolean;
 };
 
 const strokeByAccent = {
   cyan: "#22d3ee",
   magenta: "#e879f9",
   healthy: "#34d399",
+  alert: "#f87171",
 };
 
 const glowByAccent = {
   cyan: "0 0 28px rgba(34, 211, 238, 0.55)",
   magenta: "0 0 28px rgba(232, 121, 249, 0.5)",
   healthy: "0 0 32px rgba(52, 211, 153, 0.45), 0 0 48px rgba(34, 211, 238, 0.25)",
+  alert: "0 0 28px rgba(248, 113, 113, 0.55)",
 };
 
 export function BfProgressRing({
@@ -30,6 +33,7 @@ export function BfProgressRing({
   sublabel,
   accent = "cyan",
   showPercent = true,
+  showLabel = true,
 }: BfProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -70,6 +74,7 @@ export function BfProgressRing({
           style={{ filter: glowByAccent[accent] }}
         />
       </svg>
+      {showLabel ? (
       <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
         <span className={`font-bold tabular-nums tracking-tight text-white ${scoreClass}`}>
           {displayScore}
@@ -89,6 +94,7 @@ export function BfProgressRing({
           </span>
         ) : null}
       </div>
+      ) : null}
     </div>
   );
 }

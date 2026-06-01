@@ -92,7 +92,7 @@ export function RoomDetailManagement({ room }: RoomDetailManagementProps) {
   }
 
   return (
-    <article className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <article className="rounded-xl bf-inset-panel p-4">
       <h2 className="font-medium text-white">Room management</h2>
       <p className="mt-1 text-sm text-zinc-400">Edit setup details or remove this room.</p>
 

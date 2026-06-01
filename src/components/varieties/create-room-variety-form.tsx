@@ -34,7 +34,7 @@ export function CreateRoomVarietyForm({ growRoomId, presets }: CreateRoomVariety
       key={`create-variety-${growRoomId}-${formSession}`}
       action={formAction}
       onKeyDown={preventImplicitFormSubmitOnEnter}
-      className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4 md:grid-cols-2"
+      className="grid gap-3 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
     >
       <input type="hidden" name="grow_room_id" value={growRoomId} />
 

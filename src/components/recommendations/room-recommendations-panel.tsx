@@ -33,7 +33,7 @@ export function RoomRecommendationsPanel({
       </div>
 
       {!latestLog ? (
-        <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
+        <p className="rounded-xl bf-inset-panel px-4 py-5 text-sm text-zinc-400">
           Add a daily journal log with EC, pH, dryback, VPD, or PPFD to receive recommendations.
         </p>
       ) : summary.activeItems.length ? (

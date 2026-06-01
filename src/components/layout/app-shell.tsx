@@ -12,7 +12,7 @@ type AppShellProps = {
 export function AppShell({ user, children }: AppShellProps) {
   return (
     <div className="bf-lab-bg min-h-screen text-zinc-100">
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black/85 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/dashboard" className="group flex items-center gap-3">
             <span
@@ -22,11 +22,11 @@ export function AppShell({ user, children }: AppShellProps) {
               BF
             </span>
             <div>
-              <p className="text-sm font-bold tracking-[0.12em] text-white group-hover:text-cyan-200">
+              <p className="text-sm font-bold tracking-[0.14em] text-white transition group-hover:text-cyan-200">
                 BOTAFARM
               </p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-fuchsia-400/80">
-                Grow OS
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-fuchsia-400/85">
+                Mission Control
               </p>
             </div>
           </Link>

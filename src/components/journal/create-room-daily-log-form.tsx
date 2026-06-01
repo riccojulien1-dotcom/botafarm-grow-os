@@ -26,7 +26,7 @@ export function CreateRoomDailyLogForm({ growRoomId }: CreateRoomDailyLogFormPro
     <form
       action={formAction}
       onKeyDown={preventImplicitFormSubmitOnEnter}
-      className="grid gap-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4 md:grid-cols-2"
+      className="grid gap-4 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
     >
       <input type="hidden" name="grow_room_id" value={growRoomId} />
       <DailyLogFields

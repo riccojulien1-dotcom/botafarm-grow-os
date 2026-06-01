@@ -26,7 +26,7 @@ export function RoomJournalCharts({ logs }: RoomJournalChartsProps) {
       </div>
 
       {!hasAnyChartData ? (
-        <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
+        <p className="rounded-xl bf-inset-panel px-4 py-5 text-sm text-zinc-400">
           Add journal entries with measurements to see charts here.
         </p>
       ) : null}

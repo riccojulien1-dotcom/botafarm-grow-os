@@ -1,4 +1,6 @@
 import { CreateDailyLogForm } from "@/components/journal/create-daily-log-form";
+import { BfPageHeader } from "@/components/botafarm/bf-page-header";
+import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { requireUser } from "@/lib/auth/get-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,18 +15,23 @@ export default async function JournalPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Daily journal</h1>
-        <p className="text-sm text-zinc-400">Log climate and irrigation values for each room.</p>
-      </div>
+    <section className="space-y-8">
+      <BfPageHeader
+        eyebrow="Mission Control"
+        title="Daily Journal"
+        subtitle="Log climate and irrigation values for each room."
+      />
 
       {rooms?.length ? (
-        <CreateDailyLogForm growRooms={rooms} />
+        <GlassPanel glow="cyan" padding="lg" interactive>
+          <CreateDailyLogForm growRooms={rooms} />
+        </GlassPanel>
       ) : (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-sm text-zinc-300">
-          You need at least one grow room before creating a journal log.
-        </div>
+        <GlassPanel padding="lg">
+          <p className="text-sm text-zinc-400">
+            You need at least one grow room before creating a journal log.
+          </p>
+        </GlassPanel>
       )}
     </section>
   );

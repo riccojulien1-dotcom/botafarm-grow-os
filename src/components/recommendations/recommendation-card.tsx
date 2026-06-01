@@ -35,7 +35,7 @@ export function RecommendationCard({ item }: RecommendationCardProps) {
         </div>
 
         {knowledgeLink ? (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-3 space-y-2">
+          <div className="rounded-lg bf-inset-panel/80 p-3 space-y-2">
             <p className="text-xs font-medium text-fuchsia-200/90">
               {knowledgeLink.title}
             </p>

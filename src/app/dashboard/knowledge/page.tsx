@@ -1,5 +1,7 @@
 import { KnowledgeEntryCard } from "@/components/knowledge-base/knowledge-entry-card";
 import { KnowledgeLibraryFilters } from "@/components/knowledge-base/knowledge-library-filters";
+import { BfPageHeader } from "@/components/botafarm/bf-page-header";
+import { GlassPanel } from "@/components/botafarm/glass-panel";
 import {
   filterKnowledgeEntries,
   getAllKnowledgeEntries,
@@ -46,33 +48,33 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
   const facets = getKnowledgeFilterFacets();
 
   return (
-    <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">Knowledge library</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Botafarm books, SOPs, protocols, and cultivation rules — structured for
-          recommendations today and RAG retrieval later. No external AI connected.
-        </p>
-      </div>
-
-      <KnowledgeLibraryFilters
-        totalCount={allEntries.length}
-        filteredCount={entries.length}
-        facets={facets}
-        categories={categories}
-        active={{ category, phase, metric, sourceType }}
+    <section className="space-y-8">
+      <BfPageHeader
+        eyebrow="Mission Control"
+        title="Knowledge Library"
+        subtitle="Botafarm books, SOPs, protocols, and cultivation rules — structured for recommendations and retrieval."
       />
 
+      <GlassPanel padding="lg">
+        <KnowledgeLibraryFilters
+          totalCount={allEntries.length}
+          filteredCount={entries.length}
+          facets={facets}
+          categories={categories}
+          active={{ category, phase, metric, sourceType }}
+        />
+      </GlassPanel>
+
       {entries.length ? (
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid gap-4 md:grid-cols-2">
           {entries.map((entry) => (
             <KnowledgeEntryCard key={entry.id} entry={toKnowledgeSummary(entry)} />
           ))}
         </ul>
       ) : (
-        <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
-          No entries match these filters.
-        </p>
+        <GlassPanel padding="lg">
+          <p className="text-sm text-zinc-400">No entries match these filters.</p>
+        </GlassPanel>
       )}
     </section>
   );

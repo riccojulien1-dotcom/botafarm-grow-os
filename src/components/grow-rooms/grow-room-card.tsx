@@ -8,11 +8,11 @@ import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
+import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { RoomRecommendationSummaryLine } from "@/components/recommendations/room-recommendation-summary-line";
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import {
   getCropCycleEngine,
-  getCultivationPhaseLabel,
   getCurrentCycleDay,
   getNextHarvestPreview,
   type VarietyForHarvest,
@@ -80,11 +80,6 @@ export function GrowRoomCard({
   const cycle = getCropCycleEngine(room.status, room.cycle_start_date, room.target_cycle_days, {
     varieties,
   });
-  const phaseLabel = getCultivationPhaseLabel(
-    room.status,
-    currentDay,
-    room.target_cycle_days,
-  );
   const daysLeft =
     nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
   const harvestDate =
@@ -132,7 +127,7 @@ export function GrowRoomCard({
 
   if (isEditing) {
     return (
-      <li className="bf-glass rounded-2xl border border-cyan-500/20 p-5">
+      <li className="bf-glass bf-glass-shine rounded-2xl border border-cyan-500/25 p-5">
         <form
           key={`edit-${room.id}-${editSession}`}
           action={updateAction}
@@ -160,7 +155,7 @@ export function GrowRoomCard({
               type="button"
               onClick={cancelEditing}
               disabled={updatePending}
-              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500 disabled:opacity-60"
+              className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm transition hover:border-zinc-500 disabled:opacity-60"
             >
               Cancel
             </button>
@@ -171,50 +166,32 @@ export function GrowRoomCard({
   }
 
   return (
-    <li className="bf-glass group overflow-hidden rounded-2xl border border-white/5 transition duration-200 hover:border-cyan-500/25 hover:shadow-[0_0_32px_rgba(34,211,238,0.1)]">
+    <li className="bf-glass bf-glass-shine bf-interactive overflow-hidden rounded-2xl border border-white/[0.07]">
       <Link href={`/rooms/${room.id}`} className="block p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h3 className="text-2xl font-bold uppercase tracking-tight text-white transition group-hover:text-cyan-200">
-            {room.name}
-          </h3>
-          <div className="flex flex-wrap items-center gap-2">
-            {actionLabel ? (
-              <span className="rounded-md border border-red-500/40 bg-red-950/50 px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-red-200">
-                {actionLabel}
-              </span>
-            ) : null}
-            <RecommendationStatusBadge
-              severity={recommendationSummary.severity}
-              compact
-            />
-          </div>
-        </div>
-
-        <div className="mt-6 grid grid-cols-2 gap-4 border-y border-white/[0.06] py-5 sm:grid-cols-3 lg:grid-cols-5">
-          <CardStat
-            label="Current day"
-            value={currentDay != null ? `DAY ${currentDay}` : "—"}
-          />
-          <CardStat label="Plants" value={String(room.plant_count ?? 0)} />
-          <CardStat label="Phase" value={phaseLabel} accent="cyan" />
-          <CardStat
-            label="Days left"
-            value={daysLeft != null ? String(Math.max(daysLeft, 0)) : "—"}
-            accent="magenta"
-          />
-          <CardStat
-            label="Next harvest"
-            value={harvestDate !== "Not set" ? harvestDate : "—"}
-            className="col-span-2 sm:col-span-1"
+        <div className="mb-4 flex justify-end">
+          <RecommendationStatusBadge
+            severity={recommendationSummary.severity}
+            compact
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <BfRoomStarMetrics
+          status={room.status}
+          roomName={room.name}
+          showRoomName
+          currentDay={currentDay}
+          daysLeft={daysLeft}
+          plantCount={room.plant_count ?? 0}
+          harvestDate={harvestDate}
+          actionLabel={actionLabel}
+        />
+
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/[0.05] pt-4">
           <GrowRoomStatusBadge status={room.status} />
           <span className="text-xs text-zinc-500">{room.room_type ?? "No type"}</span>
         </div>
 
-        <div className="mt-4 space-y-2 border-t border-white/[0.04] pt-4">
+        <div className="mt-4 space-y-2">
           <RoomRecommendationSummaryLine
             activeCount={recommendationSummary.activeItems.length}
             roomId={room.id}
@@ -225,11 +202,11 @@ export function GrowRoomCard({
         </div>
       </Link>
 
-      <div className="flex justify-end gap-2 border-t border-white/[0.04] px-5 py-3 sm:px-6">
+      <div className="flex justify-end gap-2 border-t border-white/[0.05] px-5 py-3 sm:px-6">
         <button
           type="button"
           onClick={startEditing}
-          className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
+          className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm transition hover:border-fuchsia-500/50 hover:text-fuchsia-300"
         >
           Edit
         </button>
@@ -248,7 +225,7 @@ export function GrowRoomCard({
           <button
             type="submit"
             disabled={deletePending}
-            className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 hover:border-red-500 disabled:opacity-60"
+            className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 transition hover:border-red-500 disabled:opacity-60"
           >
             {deletePending ? "Deleting..." : "Delete"}
           </button>
@@ -269,33 +246,5 @@ export function GrowRoomCard({
         </p>
       ) : null}
     </li>
-  );
-}
-
-function CardStat({
-  label,
-  value,
-  accent,
-  className = "",
-}: {
-  label: string;
-  value: string;
-  accent?: "cyan" | "magenta";
-  className?: string;
-}) {
-  const valueColor =
-    accent === "cyan"
-      ? "text-cyan-300"
-      : accent === "magenta"
-        ? "text-fuchsia-300"
-        : "text-white";
-
-  return (
-    <div className={className}>
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">{label}</p>
-      <p className={`mt-1 text-sm font-bold uppercase tracking-wide sm:text-base ${valueColor}`}>
-        {value}
-      </p>
-    </div>
   );
 }

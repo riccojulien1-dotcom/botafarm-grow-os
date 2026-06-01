@@ -8,7 +8,7 @@ type RoomDailyLogsListProps = {
 export function RoomDailyLogsList({ logs, growRoomId }: RoomDailyLogsListProps) {
   if (!logs.length) {
     return (
-      <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
+      <p className="rounded-xl bf-inset-panel px-4 py-5 text-sm text-zinc-400">
         No journal logs yet for this room.
       </p>
     );

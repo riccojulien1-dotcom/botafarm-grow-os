@@ -27,7 +27,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
     <form
       action={formAction}
       onKeyDown={preventImplicitFormSubmitOnEnter}
-      className="grid gap-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4 md:grid-cols-2"
+      className="grid gap-4 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
     >
       <div className="md:col-span-2">
         <label htmlFor="grow_room_id" className="text-sm text-zinc-200">

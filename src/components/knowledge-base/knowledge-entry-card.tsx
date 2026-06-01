@@ -18,7 +18,7 @@ export function KnowledgeEntryCard({ entry }: KnowledgeEntryCardProps) {
     <li>
       <Link
         href={`/dashboard/knowledge/${entry.id}`}
-        className="block rounded-xl border border-zinc-800 bg-zinc-900 p-4 transition hover:border-fuchsia-500/50 hover:bg-zinc-900/80"
+        className="bf-glass bf-glass-shine bf-interactive block rounded-2xl p-5 transition hover:border-fuchsia-500/35"
       >
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md border border-fuchsia-900/50 bg-fuchsia-950/30 px-2 py-0.5 text-xs text-fuchsia-200">

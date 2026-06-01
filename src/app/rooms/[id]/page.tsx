@@ -13,6 +13,13 @@ import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-ba
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
 import { RoomTasksSection } from "@/components/tasks/room-tasks-section";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
+import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
+import { GlassPanel } from "@/components/botafarm/glass-panel";
+import {
+  getCropCycleEngine,
+  getCurrentCycleDay,
+  getNextHarvestPreview,
+} from "@/lib/grow-rooms/crop-cycle";
 import type { GrowRoomTask } from "@/lib/tasks/types";
 import { requireUser } from "@/lib/auth/get-user";
 import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
@@ -33,9 +40,9 @@ type FieldRowProps = {
 
 function FieldRow({ label, value }: FieldRowProps) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-      <p className="text-xs uppercase tracking-wide text-zinc-400">{label}</p>
-      <p className="mt-1 text-sm text-zinc-100">{value ?? "Not set"}</p>
+    <div className="bf-inset-panel p-3">
+      <p className="bf-section-eyebrow text-zinc-500">{label}</p>
+      <p className="mt-2 text-sm font-medium text-zinc-100">{value ?? "Not set"}</p>
     </div>
   );
 }
@@ -69,6 +76,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   ]);
 
   const roomVarieties = (varieties ?? []) as RoomVarietyRecord[];
+  const harvestVarieties = roomVarieties.map(toVarietyForHarvest);
 
   const totalPlantsFromVarieties = roomVarieties.reduce(
     (sum, variety) => sum + (variety.plant_count ?? 0),
@@ -98,41 +106,73 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   const logsForList = [...logsAsc].reverse();
   const latestLog = logsForList[0] ?? null;
 
+  const currentDay = getCurrentCycleDay(room.cycle_start_date);
+  const cycle = getCropCycleEngine(
+    room.status,
+    room.cycle_start_date,
+    room.target_cycle_days,
+    { varieties: harvestVarieties },
+  );
+  const nextHarvest = getNextHarvestPreview(
+    room.status,
+    room.cycle_start_date,
+    room.target_cycle_days,
+    harvestVarieties,
+  );
+  const daysLeft = nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
+  const harvestDate =
+    nextHarvest?.estimatedHarvestDateLabel ?? cycle.estimatedHarvestDateLabel;
+
   return (
     <AppShell user={user}>
-      <section className="space-y-6">
+      <section className="space-y-8">
         <div className="flex flex-wrap gap-2">
           <Link
             href="/dashboard"
-            className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
+            className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-cyan-500/30 hover:text-cyan-200"
           >
-            Back to dashboard
+            Mission Control
           </Link>
           <Link
             href="/dashboard/grow-rooms"
-            className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500"
+            className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-fuchsia-500/30 hover:text-fuchsia-200"
           >
-            Back to grow rooms
+            Grow rooms
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold">{room.name}</h1>
-          <GrowRoomStatusBadge status={room.status} />
-        </div>
-        <p className="text-sm text-zinc-400">Room details</p>
+        <GlassPanel glow="cyan" padding="lg" className="bf-atmosphere-deep">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-bold uppercase tracking-tight text-white sm:text-4xl">
+              {room.name}
+            </h1>
+            <GrowRoomStatusBadge status={room.status} />
+          </div>
+          <div className="mt-8">
+            <BfRoomStarMetrics
+              status={room.status}
+              currentDay={currentDay}
+              daysLeft={daysLeft}
+              plantCount={room.plant_count ?? 0}
+              harvestDate={harvestDate}
+            />
+          </div>
+        </GlassPanel>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <FieldRow label="status" value={room.status} />
-          <FieldRow label="room_type" value={room.room_type} />
-          <FieldRow label="plant_count" value={room.plant_count} />
-          <FieldRow label="dimensions" value={room.dimensions} />
-          <FieldRow label="lighting" value={room.lighting} />
-          <FieldRow label="substrate" value={room.substrate} />
-          <FieldRow label="genetics" value={room.genetics} />
-          <FieldRow label="irrigation" value={room.irrigation} />
-          <FieldRow label="notes" value={room.notes} />
-        </div>
+        <GlassPanel padding="lg">
+          <h2 className="text-lg font-bold uppercase tracking-tight text-white">Room profile</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <FieldRow label="status" value={room.status} />
+            <FieldRow label="room_type" value={room.room_type} />
+            <FieldRow label="plant_count" value={room.plant_count} />
+            <FieldRow label="dimensions" value={room.dimensions} />
+            <FieldRow label="lighting" value={room.lighting} />
+            <FieldRow label="substrate" value={room.substrate} />
+            <FieldRow label="genetics" value={room.genetics} />
+            <FieldRow label="irrigation" value={room.irrigation} />
+            <FieldRow label="notes" value={room.notes} />
+          </div>
+        </GlassPanel>
 
         <RoomDetailManagement room={room} />
 
@@ -149,7 +189,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           cycleStartDate={room.cycle_start_date}
           targetCycleDays={room.target_cycle_days}
           roomName={room.name}
-          varieties={roomVarieties.map(toVarietyForHarvest)}
+          varieties={harvestVarieties}
         />
 
         <RoomTasksSection
@@ -160,17 +200,19 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           tasks={(tasks ?? []) as GrowRoomTask[]}
         />
 
-        <section className="space-y-4">
+        <GlassPanel glow="cyan" padding="lg" className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold">Daily Journal</h2>
-            <p className="text-sm text-zinc-400">
+            <h2 className="text-xl font-bold uppercase tracking-tight text-white">
+              Daily Journal
+            </h2>
+            <p className="mt-1 text-sm text-zinc-400">
               Track daily measurements for this grow room.
             </p>
           </div>
 
           <CreateRoomDailyLogForm growRoomId={room.id} />
           <RoomDailyLogsList logs={logsForList} growRoomId={room.id} />
-        </section>
+        </GlassPanel>
 
         <RoomRecommendationsPanel
           roomStatus={room.status}

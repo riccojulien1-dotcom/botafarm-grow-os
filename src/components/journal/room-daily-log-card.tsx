@@ -109,7 +109,7 @@ export function RoomDailyLogCard({ log, growRoomId }: RoomDailyLogCardProps) {
   }
 
   return (
-    <li className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <li className="rounded-xl bf-inset-panel p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <p className="text-sm font-medium text-fuchsia-300">{logDate}</p>
         <div className="flex gap-2">

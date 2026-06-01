@@ -55,7 +55,7 @@ function filterChipClassName(isActive: boolean, isDisabled = false) {
   if (isActive) {
     return "bg-fuchsia-600 text-white";
   }
-  return "border border-zinc-700 text-zinc-400 hover:border-fuchsia-500/50";
+  return "border border-white/10 text-zinc-400 transition hover:border-fuchsia-500/50 hover:text-fuchsia-200";
 }
 
 export function KnowledgeLibraryFilters({
@@ -69,7 +69,7 @@ export function KnowledgeLibraryFilters({
     !!active.category || !!active.phase || !!active.metric || !!active.sourceType;
 
   return (
-    <aside className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+    <aside className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-medium text-zinc-200">Filters</h2>
         <p className="text-xs text-zinc-500">

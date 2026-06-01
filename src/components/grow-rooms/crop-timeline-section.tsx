@@ -108,7 +108,7 @@ export function CropTimelineSection({
       ) : null}
 
       {cycle.showHarvestMetrics && cycle.harvestInDaysLabel ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-200">
+        <div className="rounded-lg bf-inset-panel p-3 text-sm text-zinc-200">
           <p>{cycle.harvestInDaysLabel}</p>
           {cycle.estimatedHarvestDateLabel !== "Not set" ? (
             <p className="mt-1 text-zinc-400">
