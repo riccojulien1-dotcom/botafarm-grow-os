@@ -10,6 +10,13 @@ export const RECOMMENDATION_METRIC_TO_KNOWLEDGE_ID: Record<string, string> = {
   Dryback: "dryback",
   VPD: "vpd",
   PPFD: "ppfd",
+  pH: "ph",
+};
+
+export type KnowledgeRecommendationLink = {
+  entryId: string;
+  title: string;
+  shortSummary: string;
 };
 
 export function resolveKnowledgeEntryIdForRecommendationMetric(
@@ -26,6 +33,22 @@ export function getKnowledgeEntryForRecommendationMetric(
     return undefined;
   }
   return KNOWLEDGE_BASE_ENTRIES.find((entry) => entry.id === id);
+}
+
+/** Context for recommendation UI — summaries come from the catalog, not hardcoded cards */
+export function getKnowledgeLinkForRecommendationMetric(
+  metric: string,
+): KnowledgeRecommendationLink | undefined {
+  const entry = getKnowledgeEntryForRecommendationMetric(metric);
+  if (!entry) {
+    return undefined;
+  }
+
+  return {
+    entryId: entry.id,
+    title: entry.title,
+    shortSummary: entry.shortSummary,
+  };
 }
 
 export function getKnowledgeEntriesForRecommendation(

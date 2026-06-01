@@ -8,6 +8,7 @@ import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
+import { RoomRecommendationSummaryLine } from "@/components/recommendations/room-recommendation-summary-line";
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import { GrowRoomCycleSummary } from "@/components/grow-rooms/grow-room-cycle-summary";
 import {
@@ -142,6 +143,11 @@ export function GrowRoomCard({
               compact
             />
           </div>
+          <RoomRecommendationSummaryLine
+            activeCount={recommendationSummary.activeItems.length}
+            roomId={room.id}
+            hasLog={latestLog != null}
+          />
           <p className="text-sm text-zinc-400">
             {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
           </p>

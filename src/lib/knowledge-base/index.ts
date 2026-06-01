@@ -21,8 +21,10 @@ export {
   RECOMMENDATION_METRIC_TO_KNOWLEDGE_ID,
   getKnowledgeEntriesForRecommendation,
   getKnowledgeEntryForRecommendationMetric,
+  getKnowledgeLinkForRecommendationMetric,
   resolveKnowledgeEntryIdForRecommendationMetric,
 } from "@/lib/knowledge-base/recommendations-bridge";
+export type { KnowledgeRecommendationLink } from "@/lib/knowledge-base/recommendations-bridge";
 export type { KnowledgeCategory } from "@/lib/knowledge-base/categories";
 export type {
   KnowledgeEntry,

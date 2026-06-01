@@ -44,7 +44,7 @@ export function RoomRecommendationsPanel({
         </ul>
       ) : (
         <p className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-5 text-sm text-emerald-200">
-          All checked metrics look good for this log. Keep monitoring daily.
+          All checked metrics look good. Keep monitoring daily.
         </p>
       )}
     </section>

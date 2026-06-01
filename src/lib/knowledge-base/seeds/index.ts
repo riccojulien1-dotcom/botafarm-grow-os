@@ -3,6 +3,7 @@ import { ecRunoffEntry } from "@/lib/knowledge-base/seeds/ec-runoff";
 import { generativeSteeringEntry } from "@/lib/knowledge-base/seeds/generative-steering";
 import { irrigationStrategyEntry } from "@/lib/knowledge-base/seeds/irrigation-strategy";
 import { p1P2P3Entry } from "@/lib/knowledge-base/seeds/p1-p2-p3";
+import { phEntry } from "@/lib/knowledge-base/seeds/ph";
 import { ppfdEntry } from "@/lib/knowledge-base/seeds/ppfd";
 import { vegetativeSteeringEntry } from "@/lib/knowledge-base/seeds/vegetative-steering";
 import { vpdEntry } from "@/lib/knowledge-base/seeds/vpd";
@@ -15,6 +16,7 @@ export const KNOWLEDGE_BASE_ENTRIES: KnowledgeEntry[] = [
   ecRunoffEntry,
   vpdEntry,
   ppfdEntry,
+  phEntry,
   p1P2P3Entry,
   generativeSteeringEntry,
   vegetativeSteeringEntry,

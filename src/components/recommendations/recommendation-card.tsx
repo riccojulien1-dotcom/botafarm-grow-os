@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { resolveKnowledgeEntryIdForRecommendationMetric } from "@/lib/knowledge-base";
+import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
+import { getKnowledgeLinkForRecommendationMetric } from "@/lib/knowledge-base";
 import type { Recommendation } from "@/lib/recommendations/types";
 
 const borderStyles = {
@@ -9,45 +10,49 @@ const borderStyles = {
   good: "border-emerald-900/50",
 };
 
-const dotStyles = {
-  watch: "bg-amber-400",
-  action: "bg-red-400",
-  good: "bg-emerald-400",
-};
-
 type RecommendationCardProps = {
   item: Recommendation;
 };
 
 export function RecommendationCard({ item }: RecommendationCardProps) {
-  const knowledgeEntryId = resolveKnowledgeEntryIdForRecommendationMetric(item.metric);
+  const knowledgeLink = getKnowledgeLinkForRecommendationMetric(item.metric);
 
   return (
     <li
       className={`rounded-xl border bg-zinc-950/80 p-4 ${borderStyles[item.severity]}`}
     >
-      <div className="flex items-start gap-3">
-        <span
-          className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${dotStyles[item.severity]}`}
-          aria-hidden
-        />
-        <div className="min-w-0 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-              {item.metric}
-            </p>
-            {knowledgeEntryId ? (
-              <Link
-                href={`/dashboard/knowledge/${knowledgeEntryId}`}
-                className="text-xs text-fuchsia-300 hover:text-fuchsia-200"
-              >
-                View in library
-              </Link>
-            ) : null}
-          </div>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <RecommendationStatusBadge severity={item.severity} compact />
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+            {item.metric}
+          </p>
+        </div>
+
+        <div className="space-y-2">
           <p className="font-medium text-zinc-100">{item.issue}</p>
           <p className="text-sm text-zinc-400">{item.recommendation}</p>
         </div>
+
+        {knowledgeLink ? (
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-3 space-y-2">
+            <p className="text-xs font-medium text-fuchsia-200/90">
+              {knowledgeLink.title}
+            </p>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                Why it matters
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">{knowledgeLink.shortSummary}</p>
+            </div>
+            <Link
+              href={`/dashboard/knowledge/${knowledgeLink.entryId}`}
+              className="inline-block rounded-md border border-fuchsia-800/60 bg-fuchsia-950/30 px-3 py-1.5 text-sm text-fuchsia-200 hover:border-fuchsia-500 hover:bg-fuchsia-950/50"
+            >
+              View in Knowledge Library
+            </Link>
+          </div>
+        ) : null}
       </div>
     </li>
   );
