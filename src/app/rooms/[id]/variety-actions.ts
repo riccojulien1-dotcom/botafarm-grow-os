@@ -3,9 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/get-user";
-import { createClient } from "@/lib/supabase/server";
+import { mergePresetWithFormPayload } from "@/lib/varieties/build-variety-payload";
 import { parseVarietyFormData } from "@/lib/varieties/parse-variety-form";
+import { VARIETY_PRESET_SELECT } from "@/lib/varieties/queries";
 import { syncRoomPlantCountFromVarieties } from "@/lib/varieties/sync-room-plant-count";
+import type { VarietyPreset } from "@/lib/varieties/types";
+import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string };
 
@@ -47,6 +50,23 @@ async function verifyOwnedVariety(
   return !error && !!variety;
 }
 
+async function loadPresetBySlug(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slug: string,
+): Promise<VarietyPreset | null> {
+  const { data, error } = await supabase
+    .from("variety_presets")
+    .select(VARIETY_PRESET_SELECT)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as VarietyPreset;
+}
+
 export async function createRoomVarietyAction(
   _: ActionState,
   formData: FormData,
@@ -68,10 +88,24 @@ export async function createRoomVarietyAction(
     return { error: parsed.error };
   }
 
+  let payload = parsed.payload;
+  const presetSlug = payload.preset_slug;
+
+  if (presetSlug) {
+    const preset = await loadPresetBySlug(supabase, presetSlug);
+    if (!preset) {
+      return { error: "Selected preset was not found." };
+    }
+    payload = mergePresetWithFormPayload(preset, parsed.payload);
+  }
+
+  const now = new Date().toISOString();
+
   const { error } = await supabase.from("room_varieties").insert({
     user_id: user.id,
     grow_room_id: growRoomId,
-    ...parsed.payload,
+    ...payload,
+    updated_at: now,
   });
 
   if (error) {
@@ -105,9 +139,14 @@ export async function updateRoomVarietyAction(
     return { error: parsed.error };
   }
 
+  const { preset_slug: _ignoredPresetSlug, ...updatePayload } = parsed.payload;
+
   const { error } = await supabase
     .from("room_varieties")
-    .update(parsed.payload)
+    .update({
+      ...updatePayload,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", varietyId)
     .eq("user_id", user.id)
     .eq("grow_room_id", growRoomId);

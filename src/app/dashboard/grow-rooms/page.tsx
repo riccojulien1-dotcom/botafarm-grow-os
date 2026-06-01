@@ -8,23 +8,31 @@ import {
 } from "@/lib/recommendations/latest-log-by-room";
 import { indexTaskSummariesByRoom } from "@/lib/tasks/task-stats";
 import type { GrowRoomTask } from "@/lib/tasks/types";
+import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
+import { ROOM_VARIETY_SELECT } from "@/lib/varieties/queries";
+import type { RoomVarietyRecord } from "@/lib/varieties/types";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 function groupVarietiesByRoom(
-  varieties: Array<VarietyForHarvest & { grow_room_id: string }>,
+  varieties: Array<RoomVarietyRecord & { grow_room_id: string }>,
 ) {
-  const map = new Map<string, VarietyForHarvest[]>();
+  const harvestMap = new Map<string, VarietyForHarvest[]>();
+  const recordMap = new Map<string, RoomVarietyRecord[]>();
 
   for (const variety of varieties) {
     const { grow_room_id: growRoomId, ...entry } = variety;
-    const existing = map.get(growRoomId) ?? [];
-    existing.push(entry);
-    map.set(growRoomId, existing);
+    const harvestList = harvestMap.get(growRoomId) ?? [];
+    harvestList.push(toVarietyForHarvest(entry));
+    harvestMap.set(growRoomId, harvestList);
+
+    const recordList = recordMap.get(growRoomId) ?? [];
+    recordList.push(entry);
+    recordMap.set(growRoomId, recordList);
   }
 
-  return map;
+  return { harvestMap, recordMap };
 }
 
 export default async function GrowRoomsPage() {
@@ -42,7 +50,7 @@ export default async function GrowRoomsPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("room_varieties")
-      .select("id,grow_room_id,name,genetics,plant_count,flowering_duration_days")
+      .select(`${ROOM_VARIETY_SELECT},grow_room_id`)
       .eq("user_id", user.id),
     supabase
       .from("daily_logs")
@@ -60,7 +68,9 @@ export default async function GrowRoomsPage() {
       .eq("user_id", user.id),
   ]);
 
-  const varietiesByRoom = groupVarietiesByRoom(varieties ?? []);
+  const { harvestMap, recordMap } = groupVarietiesByRoom(
+    (varieties ?? []) as Array<RoomVarietyRecord & { grow_room_id: string }>,
+  );
   const latestLogByRoom = indexLatestLogsByRoom(
     (logs ?? []) as DailyLogForRecommendations[],
   );
@@ -85,7 +95,8 @@ export default async function GrowRoomsPage() {
               <GrowRoomCard
                 key={room.id}
                 room={room}
-                varieties={varietiesByRoom.get(room.id) ?? []}
+                varieties={harvestMap.get(room.id) ?? []}
+                roomVarieties={recordMap.get(room.id) ?? []}
                 latestLog={latestLogByRoom.get(room.id) ?? null}
                 taskSummary={taskSummaryByRoom.get(room.id)}
               />

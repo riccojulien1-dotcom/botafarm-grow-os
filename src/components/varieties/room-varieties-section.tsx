@@ -1,11 +1,13 @@
 import { CreateRoomVarietyForm } from "@/components/varieties/create-room-variety-form";
-import { RoomVarietyCard, type RoomVariety } from "@/components/varieties/room-variety-card";
+import { RoomVarietyCard } from "@/components/varieties/room-variety-card";
+import type { RoomVarietyRecord, VarietyPreset } from "@/lib/varieties/types";
 
 type RoomVarietiesSectionProps = {
   growRoomId: string;
   roomName: string;
-  varieties: RoomVariety[];
+  varieties: RoomVarietyRecord[];
   totalPlantsFromVarieties: number;
+  presets: VarietyPreset[];
 };
 
 export function RoomVarietiesSection({
@@ -13,6 +15,7 @@ export function RoomVarietiesSection({
   roomName,
   varieties,
   totalPlantsFromVarieties,
+  presets,
 }: RoomVarietiesSectionProps) {
   return (
     <section className="space-y-4 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">
@@ -24,7 +27,7 @@ export function RoomVarietiesSection({
         </p>
       </div>
 
-      <CreateRoomVarietyForm growRoomId={growRoomId} />
+      <CreateRoomVarietyForm growRoomId={growRoomId} presets={presets} />
 
       {varieties.length ? (
         <ul className="space-y-3">

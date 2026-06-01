@@ -15,10 +15,13 @@ import {
   getNextHarvestPreview,
   type VarietyForHarvest,
 } from "@/lib/grow-rooms/crop-cycle";
+import { RoomVarietyIntelligenceLine } from "@/components/grow-rooms/room-variety-intelligence-line";
 import { RoomTaskStatusLine } from "@/components/tasks/room-task-status-line";
 import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
 import type { RecommendationLogInput } from "@/lib/recommendations/types";
 import type { RoomTaskSummary } from "@/lib/tasks/task-stats";
+import { getRoomVarietyIntelligence } from "@/lib/varieties/intelligence";
+import type { RoomVarietyRecord } from "@/lib/varieties/types";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
@@ -33,6 +36,7 @@ type GrowRoomCardProps = {
   varieties?: VarietyForHarvest[];
   latestLog?: RecommendationLogInput | null;
   taskSummary?: RoomTaskSummary;
+  roomVarieties?: RoomVarietyRecord[];
 };
 
 const initialState: { error?: string; success?: string } = {};
@@ -42,8 +46,18 @@ export function GrowRoomCard({
   varieties = [],
   latestLog = null,
   taskSummary,
+  roomVarieties = [],
 }: GrowRoomCardProps) {
-  const recommendationSummary = getRecommendationSummary(latestLog, room.status);
+  const recommendationSummary = getRecommendationSummary(
+    latestLog,
+    room.status,
+    roomVarieties,
+  );
+  const varietyIntelligence = getRoomVarietyIntelligence(
+    roomVarieties,
+    room.cycle_start_date,
+    room.status,
+  );
   const nextHarvest = getNextHarvestPreview(
     room.status,
     room.cycle_start_date,
@@ -151,6 +165,7 @@ export function GrowRoomCard({
           <p className="text-sm text-zinc-400">
             {room.room_type ?? "No type"} · {room.plant_count ?? 0} plants
           </p>
+          <RoomVarietyIntelligenceLine summary={varietyIntelligence} />
           <RoomTaskStatusLine summary={taskSummary} />
           <GrowRoomCycleSummary
             status={room.status}

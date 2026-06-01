@@ -15,6 +15,9 @@ import { RoomTasksSection } from "@/components/tasks/room-tasks-section";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
 import type { GrowRoomTask } from "@/lib/tasks/types";
 import { requireUser } from "@/lib/auth/get-user";
+import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
+import { ROOM_VARIETY_SELECT, VARIETY_PRESET_SELECT } from "@/lib/varieties/queries";
+import type { RoomVarietyRecord, VarietyPreset } from "@/lib/varieties/types";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -55,14 +58,19 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
     notFound();
   }
 
-  const { data: varieties } = await supabase
-    .from("room_varieties")
-    .select("id,name,genetics,plant_count,flowering_duration_days,notes,created_at")
-    .eq("grow_room_id", room.id)
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: true });
+  const [{ data: varieties }, { data: presets }] = await Promise.all([
+    supabase
+      .from("room_varieties")
+      .select(ROOM_VARIETY_SELECT)
+      .eq("grow_room_id", room.id)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+    supabase.from("variety_presets").select(VARIETY_PRESET_SELECT).order("name"),
+  ]);
 
-  const totalPlantsFromVarieties = (varieties ?? []).reduce(
+  const roomVarieties = (varieties ?? []) as RoomVarietyRecord[];
+
+  const totalPlantsFromVarieties = roomVarieties.reduce(
     (sum, variety) => sum + (variety.plant_count ?? 0),
     0,
   );
@@ -131,8 +139,9 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         <RoomVarietiesSection
           growRoomId={room.id}
           roomName={room.name}
-          varieties={varieties ?? []}
+          varieties={roomVarieties}
           totalPlantsFromVarieties={totalPlantsFromVarieties}
+          presets={(presets ?? []) as VarietyPreset[]}
         />
 
         <CropTimelineSection
@@ -140,13 +149,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           cycleStartDate={room.cycle_start_date}
           targetCycleDays={room.target_cycle_days}
           roomName={room.name}
-          varieties={(varieties ?? []).map((variety) => ({
-            id: variety.id,
-            name: variety.name,
-            genetics: variety.genetics,
-            plant_count: variety.plant_count,
-            flowering_duration_days: variety.flowering_duration_days,
-          }))}
+          varieties={roomVarieties.map(toVarietyForHarvest)}
         />
 
         <RoomTasksSection
@@ -172,6 +175,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         <RoomRecommendationsPanel
           roomStatus={room.status}
           latestLog={latestLog}
+          varieties={roomVarieties}
           logDateLabel={formatLogDateLabel(
             latestLog
               ? { ...latestLog, grow_room_id: room.id }

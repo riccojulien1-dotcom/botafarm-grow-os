@@ -17,6 +17,8 @@ export type VarietyForHarvest = {
   genetics: string | null;
   plant_count: number | null;
   flowering_duration_days: number | null;
+  harvest_window_start_days?: number | null;
+  harvest_window_end_days?: number | null;
 };
 
 export type VarietyHarvestTimeline = {
@@ -26,10 +28,15 @@ export type VarietyHarvestTimeline = {
   plantCount: number | null;
   currentFlowerDay: number;
   floweringDurationLabel: string;
+  harvestWindowLabel: string | null;
   phaseDayLabel: string;
   daysRemaining: number | null;
+  daysRemainingStart: number | null;
+  daysRemainingEnd: number | null;
   daysRemainingLabel: string;
   estimatedHarvestDateLabel: string;
+  estimatedHarvestDateStartLabel: string;
+  estimatedHarvestDateEndLabel: string;
   harvestInDaysLabel: string | null;
   harvestAlert: string | null;
 };
@@ -143,7 +150,7 @@ export function getCurrentCycleDay(
   return dayOffset + 1;
 }
 
-function getEstimatedHarvestDate(
+export function getEstimatedHarvestDateFromCycle(
   cycleStartDate: string,
   durationDays: number,
 ): Date | null {
@@ -153,6 +160,35 @@ function getEstimatedHarvestDate(
   }
 
   return addCalendarDays(start, durationDays - 1);
+}
+
+function getEstimatedHarvestDate(
+  cycleStartDate: string,
+  durationDays: number,
+): Date | null {
+  return getEstimatedHarvestDateFromCycle(cycleStartDate, durationDays);
+}
+
+function varietyHasHarvestTiming(variety: VarietyForHarvest): boolean {
+  return (
+    variety.flowering_duration_days != null ||
+    variety.harvest_window_start_days != null ||
+    variety.harvest_window_end_days != null
+  );
+}
+
+function resolveHarvestDayRange(variety: VarietyForHarvest): {
+  startDays: number | null;
+  endDays: number | null;
+} {
+  const startDays =
+    variety.harvest_window_start_days ?? variety.flowering_duration_days ?? null;
+  const endDays =
+    variety.harvest_window_end_days ??
+    variety.flowering_duration_days ??
+    startDays;
+
+  return { startDays, endDays };
 }
 
 function buildHarvestCountdown(daysRemaining: number): {
@@ -189,31 +225,73 @@ export function getVarietyHarvestTimelines(
     return [];
   }
 
-  return varieties
-    .filter((variety) => variety.flowering_duration_days != null)
-    .map((variety) => {
-      const duration = variety.flowering_duration_days as number;
-      const daysRemaining = duration - currentDay;
-      const harvestDate = getEstimatedHarvestDate(cycleStartDate, duration);
-      const countdown = buildHarvestCountdown(daysRemaining);
+  return varieties.filter(varietyHasHarvestTiming).map((variety) => {
+    const { startDays, endDays } = resolveHarvestDayRange(variety);
+    const daysRemainingStart =
+      startDays != null ? startDays - currentDay : null;
+    const daysRemainingEnd = endDays != null ? endDays - currentDay : null;
+    const daysRemaining = daysRemainingStart;
 
-      return {
-        varietyId: variety.id,
-        name: variety.name,
-        genetics: variety.genetics,
-        plantCount: variety.plant_count,
-        currentFlowerDay: currentDay,
-        floweringDurationLabel: `${duration} days`,
-        phaseDayLabel: `Day ${currentDay} Flower`,
-        daysRemaining,
-        daysRemainingLabel: String(daysRemaining),
-        estimatedHarvestDateLabel: harvestDate
-          ? formatDisplayDate(harvestDate)
-          : "Not set",
-        harvestInDaysLabel: countdown.harvestInDaysLabel,
-        harvestAlert: countdown.harvestAlert,
-      };
-    });
+    const harvestDateStart =
+      startDays != null ? getEstimatedHarvestDate(cycleStartDate, startDays) : null;
+    const harvestDateEnd =
+      endDays != null ? getEstimatedHarvestDate(cycleStartDate, endDays) : null;
+
+    const countdown = buildHarvestCountdown(
+      daysRemainingStart ?? daysRemainingEnd ?? 0,
+    );
+
+    const floweringDurationLabel =
+      startDays != null && endDays != null && startDays !== endDays
+        ? `Window day ${startDays}–${endDays}`
+        : startDays != null
+          ? `${startDays} days`
+          : endDays != null
+            ? `${endDays} days`
+            : "Not set";
+
+    const harvestWindowLabel =
+      variety.harvest_window_start_days != null &&
+      variety.harvest_window_end_days != null
+        ? `Harvest window: day ${variety.harvest_window_start_days}–${variety.harvest_window_end_days}`
+        : null;
+
+    const daysRemainingLabel =
+      daysRemainingStart != null && daysRemainingEnd != null && daysRemainingStart !== daysRemainingEnd
+        ? `${daysRemainingStart} – ${daysRemainingEnd}`
+        : daysRemainingStart != null
+          ? String(daysRemainingStart)
+          : daysRemainingEnd != null
+            ? String(daysRemainingEnd)
+            : "Not set";
+
+    const estimatedHarvestDateStartLabel = harvestDateStart
+      ? formatDisplayDate(harvestDateStart)
+      : "Not set";
+    const estimatedHarvestDateEndLabel = harvestDateEnd
+      ? formatDisplayDate(harvestDateEnd)
+      : "Not set";
+
+    return {
+      varietyId: variety.id,
+      name: variety.name,
+      genetics: variety.genetics,
+      plantCount: variety.plant_count,
+      currentFlowerDay: currentDay,
+      floweringDurationLabel,
+      harvestWindowLabel,
+      phaseDayLabel: `Day ${currentDay} Flower`,
+      daysRemaining,
+      daysRemainingStart,
+      daysRemainingEnd,
+      daysRemainingLabel,
+      estimatedHarvestDateLabel: estimatedHarvestDateStartLabel,
+      estimatedHarvestDateStartLabel,
+      estimatedHarvestDateEndLabel,
+      harvestInDaysLabel: countdown.harvestInDaysLabel,
+      harvestAlert: countdown.harvestAlert,
+    };
+  });
 }
 
 export function getNextHarvestPreview(
@@ -227,29 +305,37 @@ export function getNextHarvestPreview(
     return null;
   }
 
-  const varietiesWithDuration = varieties.filter(
-    (variety) => variety.flowering_duration_days != null,
-  );
+  const varietiesWithTiming = varieties.filter(varietyHasHarvestTiming);
   const timelines =
-    varietiesWithDuration.length > 0
-      ? getVarietyHarvestTimelines(varietiesWithDuration, cycleStartDate, today)
+    varietiesWithTiming.length > 0
+      ? getVarietyHarvestTimelines(varietiesWithTiming, cycleStartDate, today)
       : [];
 
   if (timelines.length > 0) {
     const upcoming = timelines
-      .filter((entry) => entry.daysRemaining != null && entry.daysRemaining >= 0)
-      .sort((left, right) => (left.daysRemaining ?? 0) - (right.daysRemaining ?? 0));
+      .filter(
+        (entry) =>
+          (entry.daysRemainingStart != null && entry.daysRemainingStart >= 0) ||
+          (entry.daysRemainingEnd != null && entry.daysRemainingEnd >= 0),
+      )
+      .sort(
+        (left, right) =>
+          (left.daysRemainingStart ?? left.daysRemainingEnd ?? 0) -
+          (right.daysRemainingStart ?? right.daysRemainingEnd ?? 0),
+      );
 
     const next = upcoming[0] ?? timelines[0];
     if (!next) {
       return null;
     }
 
+    const daysRemaining = next.daysRemainingStart ?? next.daysRemainingEnd ?? 0;
+
     return {
       varietyName: next.name,
-      daysRemaining: next.daysRemaining ?? 0,
-      estimatedHarvestDateLabel: next.estimatedHarvestDateLabel,
-      label: `Next harvest: ${next.name} in ${Math.max(next.daysRemaining ?? 0, 0)} days`,
+      daysRemaining,
+      estimatedHarvestDateLabel: next.estimatedHarvestDateStartLabel,
+      label: `Next harvest: ${next.name} in ${Math.max(daysRemaining, 0)} days`,
     };
   }
 
@@ -282,10 +368,8 @@ export function getCropCycleEngine(
   const varieties = options?.varieties ?? [];
   const isPostHarvest = status === "Drying" || status === "Cure";
   const isFlower = status === "Flower";
-  const varietiesWithDuration = varieties.filter(
-    (variety) => variety.flowering_duration_days != null,
-  );
-  const hasVarietyTimelines = isFlower && varietiesWithDuration.length > 0;
+  const varietiesWithTiming = varieties.filter(varietyHasHarvestTiming);
+  const hasVarietyTimelines = isFlower && varietiesWithTiming.length > 0;
 
   const cycleStartLabel = formatCycleStartDate(cycleStartDate);
   const targetCycleDaysLabel =

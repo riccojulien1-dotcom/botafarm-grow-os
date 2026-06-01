@@ -4,6 +4,8 @@ import type {
   RecommendationSeverity,
 } from "@/lib/recommendations/types";
 import { SEVERITY_RANK } from "@/lib/recommendations/types";
+import { applyVarietyRecommendationHooks } from "@/lib/varieties/recommendation-hooks";
+import type { RoomVarietyRecord } from "@/lib/varieties/types";
 
 const VEG_STATUSES = new Set(["Clone", "Mother", "Vegetative", "Pre-Flower"]);
 
@@ -252,8 +254,13 @@ export function getHighestSeverity(
 export function getRecommendationSummary(
   log: RecommendationLogInput | null | undefined,
   roomStatus: string,
+  varieties: RoomVarietyRecord[] = [],
 ) {
-  const items = evaluateRecommendations(log, roomStatus);
+  const baseItems = evaluateRecommendations(log, roomStatus);
+  const items =
+    log && varieties.length
+      ? applyVarietyRecommendationHooks(baseItems, log, varieties)
+      : baseItems;
   const severity = getHighestSeverity(items);
 
   return {

@@ -10,24 +10,46 @@ import {
 import { VarietyFields } from "@/components/varieties/variety-fields";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
+import { SENSITIVITY_LABELS } from "@/lib/varieties/constants";
 import type { VarietyFieldValues } from "@/lib/varieties/parse-variety-form";
+import type { RoomVarietyRecord } from "@/lib/varieties/types";
 
-export type RoomVariety = VarietyFieldValues & {
-  id: string;
-};
+function varietyToFieldValues(variety: RoomVarietyRecord): VarietyFieldValues {
+  return {
+    name: variety.name,
+    genetics: variety.genetics,
+    plant_count: variety.plant_count ?? 0,
+    variety_type: variety.variety_type,
+    flowering_duration_days: variety.flowering_duration_days,
+    harvest_window_start_days: variety.harvest_window_start_days,
+    harvest_window_end_days: variety.harvest_window_end_days,
+    stretch: variety.stretch,
+    ec_sensitivity: variety.ec_sensitivity,
+    irrigation_sensitivity: variety.irrigation_sensitivity,
+    phenotype_notes: variety.phenotype_notes,
+    notes: variety.notes,
+    preset_slug: variety.preset_slug,
+  };
+}
 
 type RoomVarietyCardProps = {
-  variety: RoomVariety;
+  variety: RoomVarietyRecord;
   growRoomId: string;
 };
 
 const initialState: { error?: string; success?: string } = {};
 
-function formatFloweringDays(days: number | null) {
-  if (days == null) {
-    return "Duration not set";
+function formatTiming(variety: RoomVarietyRecord) {
+  if (
+    variety.harvest_window_start_days != null &&
+    variety.harvest_window_end_days != null
+  ) {
+    return `Harvest window: day ${variety.harvest_window_start_days}–${variety.harvest_window_end_days}`;
   }
-  return `${days} days`;
+  if (variety.flowering_duration_days != null) {
+    return `Flowering target: ${variety.flowering_duration_days} days`;
+  }
+  return "Set harvest window or flowering target";
 }
 
 export function RoomVarietyCard({ variety, growRoomId }: RoomVarietyCardProps) {
@@ -74,7 +96,13 @@ export function RoomVarietyCard({ variety, growRoomId }: RoomVarietyCardProps) {
         >
           <input type="hidden" name="variety_id" value={variety.id} />
           <input type="hidden" name="grow_room_id" value={growRoomId} />
-          <VarietyFields idPrefix={`edit-variety-${variety.id}`} values={variety} />
+          {variety.preset_slug ? (
+            <input type="hidden" name="preset_slug" value={variety.preset_slug} />
+          ) : null}
+          <VarietyFields
+            idPrefix={`edit-variety-${variety.id}`}
+            values={varietyToFieldValues(variety)}
+          />
 
           {updateState?.error ? (
             <p className="md:col-span-2 text-sm text-red-400" role="alert">
@@ -108,17 +136,34 @@ export function RoomVarietyCard({ variety, growRoomId }: RoomVarietyCardProps) {
     <li className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-base font-medium text-white">
-            {variety.plant_count ?? 0} {variety.name}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-base font-medium text-white">
+              {variety.plant_count ?? 0} {variety.name}
+            </p>
+            <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
+              {variety.variety_type}
+            </span>
+            {variety.preset_slug ? (
+              <span className="text-xs text-zinc-500">from preset</span>
+            ) : null}
+          </div>
           <p className="text-sm text-zinc-300">
             {variety.genetics ?? "Cross / genetics not set"}
           </p>
-          <p className="text-sm text-fuchsia-300/90">
-            {formatFloweringDays(variety.flowering_duration_days)}
+          <p className="text-sm text-fuchsia-300/90">{formatTiming(variety)}</p>
+          <p className="text-xs text-zinc-500">
+            Stretch {SENSITIVITY_LABELS[variety.stretch]} · EC{" "}
+            {SENSITIVITY_LABELS[variety.ec_sensitivity]} · Irrigation{" "}
+            {SENSITIVITY_LABELS[variety.irrigation_sensitivity]}
           </p>
+          {variety.phenotype_notes ? (
+            <p className="pt-1 text-sm text-zinc-400">
+              <span className="text-zinc-500">Phenotype: </span>
+              {variety.phenotype_notes}
+            </p>
+          ) : null}
           {variety.notes ? (
-            <p className="pt-1 text-sm text-zinc-400">{variety.notes}</p>
+            <p className="text-sm text-zinc-500">{variety.notes}</p>
           ) : null}
         </div>
 

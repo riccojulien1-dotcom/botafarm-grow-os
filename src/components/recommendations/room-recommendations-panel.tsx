@@ -2,19 +2,22 @@ import { RecommendationCard } from "@/components/recommendations/recommendation-
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
 import type { RecommendationLogInput } from "@/lib/recommendations/types";
+import type { RoomVarietyRecord } from "@/lib/varieties/types";
 
 type RoomRecommendationsPanelProps = {
   roomStatus: string;
   latestLog: RecommendationLogInput | null;
   logDateLabel?: string | null;
+  varieties?: RoomVarietyRecord[];
 };
 
 export function RoomRecommendationsPanel({
   roomStatus,
   latestLog,
   logDateLabel,
+  varieties = [],
 }: RoomRecommendationsPanelProps) {
-  const summary = getRecommendationSummary(latestLog, roomStatus);
+  const summary = getRecommendationSummary(latestLog, roomStatus, varieties);
 
   return (
     <section className="space-y-4 rounded-xl border border-fuchsia-900/30 bg-zinc-900/50 p-4">

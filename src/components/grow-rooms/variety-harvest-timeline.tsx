@@ -8,7 +8,7 @@ export function VarietyHarvestTimelineList({ entries }: VarietyHarvestTimelinePr
   if (!entries.length) {
     return (
       <p className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-5 text-sm text-zinc-400">
-        Add varieties with flowering duration to see per-strain harvest timing.
+        Add varieties with a harvest window or flowering target to see per-strain timing.
       </p>
     );
   }
@@ -34,8 +34,8 @@ export function VarietyHarvestTimelineList({ entries }: VarietyHarvestTimelinePr
 
           <div className="mt-3 grid gap-2 text-sm text-zinc-300 sm:grid-cols-2">
             <p>
-              <span className="text-zinc-500">Flowering duration: </span>
-              {entry.floweringDurationLabel}
+              <span className="text-zinc-500">Timing: </span>
+              {entry.harvestWindowLabel ?? entry.floweringDurationLabel}
             </p>
             <p>
               <span className="text-zinc-500">Days remaining: </span>
@@ -43,7 +43,9 @@ export function VarietyHarvestTimelineList({ entries }: VarietyHarvestTimelinePr
             </p>
             <p>
               <span className="text-zinc-500">Est. harvest: </span>
-              {entry.estimatedHarvestDateLabel}
+              {entry.estimatedHarvestDateStartLabel !== entry.estimatedHarvestDateEndLabel
+                ? `${entry.estimatedHarvestDateStartLabel} – ${entry.estimatedHarvestDateEndLabel}`
+                : entry.estimatedHarvestDateLabel}
             </p>
             {entry.harvestInDaysLabel ? (
               <p>
