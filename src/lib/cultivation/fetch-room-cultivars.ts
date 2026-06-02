@@ -1,7 +1,9 @@
 import { computeBatchMetrics } from "@/lib/cultivation/compute-batch";
+import { groupRoomCultivarsForDisplay } from "@/lib/cultivation/group-room-cultivars";
 import { CULTIVAR_BATCH_SELECT } from "@/lib/cultivation/queries";
 import type {
   CultivarBatchRecord,
+  GroupedRoomCultivarView,
   RoomCultivarView,
   VarietyDetailContext,
 } from "@/lib/cultivation/types";
@@ -85,10 +87,10 @@ export async function fetchBatchesForVarieties(
   return map;
 }
 
-export async function fetchRoomCultivars(
+async function fetchRoomCultivarViews(
   userId: string,
   growRoomId: string,
-): Promise<RoomCultivarView[]> {
+): Promise<{ views: RoomCultivarView[]; batchMap: Map<string, CultivarBatchRecord[]>; room: RoomRow } | null> {
   const supabase = await createClient();
 
   const { data: room, error: roomError } = await supabase
@@ -99,7 +101,7 @@ export async function fetchRoomCultivars(
     .maybeSingle();
 
   if (roomError || !room) {
-    return [];
+    return null;
   }
 
   const { data: varieties, error: varietiesError } = await supabase
@@ -110,7 +112,7 @@ export async function fetchRoomCultivars(
     .order("created_at", { ascending: true });
 
   if (varietiesError || !varieties?.length) {
-    return [];
+    return { views: [], batchMap: new Map(), room: room as RoomRow };
   }
 
   const varietyRecords = varieties as RoomVarietyRecord[];
@@ -121,7 +123,7 @@ export async function fetchRoomCultivars(
 
   const roomRow = room as RoomRow;
 
-  return varietyRecords.map((variety) => {
+  const views = varietyRecords.map((variety) => {
     const batches = batchMap.get(variety.id) ?? [];
     const batch =
       pickPrimaryBatch(batches, variety.id) ?? synthesizeBatchFromVariety(variety, roomRow, userId);
@@ -135,6 +137,30 @@ export async function fetchRoomCultivars(
       growRoomName: roomRow.name,
     };
   });
+
+  return { views, batchMap, room: roomRow };
+}
+
+/** Ungrouped cultivar rows (one per variety record) */
+export async function fetchRoomCultivars(
+  userId: string,
+  growRoomId: string,
+): Promise<RoomCultivarView[]> {
+  const result = await fetchRoomCultivarViews(userId, growRoomId);
+  return result?.views ?? [];
+}
+
+/** Grouped for room cards: same name + lineage → one displayed cultivar */
+export async function fetchGroupedRoomCultivars(
+  userId: string,
+  growRoomId: string,
+): Promise<GroupedRoomCultivarView[]> {
+  const result = await fetchRoomCultivarViews(userId, growRoomId);
+  if (!result || !result.views.length) {
+    return [];
+  }
+
+  return groupRoomCultivarsForDisplay(result.views, result.batchMap, result.room);
 }
 
 export async function fetchVarietyDetail(

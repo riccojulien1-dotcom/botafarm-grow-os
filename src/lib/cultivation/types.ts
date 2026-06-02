@@ -30,6 +30,23 @@ export type RoomCultivarView = {
   growRoomName: string;
 };
 
+/** Display-only aggregate — multiple variety/batch rows, one room card */
+export type GroupedRoomCultivarView = {
+  groupKey: string;
+  displayName: string;
+  lineage: string | null;
+  growRoomId: string;
+  growRoomName: string;
+  varietyIds: string[];
+  primaryVarietyId: string;
+  batchCount: number;
+  totalPlantCount: number;
+  status: CultivarBatchStatus;
+  computed: CultivarBatchComputed;
+  representativeVariety: RoomVarietyRecord;
+  members: RoomCultivarView[];
+};
+
 export type VarietyDetailContext = {
   variety: RoomVarietyRecord;
   batches: CultivarBatchRecord[];

@@ -1,10 +1,10 @@
 import { CultivarInRoomCard } from "@/components/cultivation/cultivar-in-room-card";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
-import type { RoomCultivarView } from "@/lib/cultivation/types";
+import type { GroupedRoomCultivarView } from "@/lib/cultivation/types";
 
 type CultivarsInRoomSectionProps = {
   roomName: string;
-  cultivars: RoomCultivarView[];
+  cultivars: GroupedRoomCultivarView[];
 };
 
 export function CultivarsInRoomSection({ roomName, cultivars }: CultivarsInRoomSectionProps) {
@@ -24,7 +24,7 @@ export function CultivarsInRoomSection({ roomName, cultivars }: CultivarsInRoomS
       {cultivars.length ? (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {cultivars.map((cultivar) => (
-            <li key={cultivar.variety.id}>
+            <li key={cultivar.groupKey}>
               <CultivarInRoomCard cultivar={cultivar} />
             </li>
           ))}
