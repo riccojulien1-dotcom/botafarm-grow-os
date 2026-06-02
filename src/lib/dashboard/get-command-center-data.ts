@@ -18,14 +18,21 @@ import type { GrowRoomTask } from "@/lib/tasks/types";
 import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
 import { ROOM_VARIETY_SELECT } from "@/lib/varieties/queries";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
+import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
 import { createClient } from "@/lib/supabase/server";
 
 export type CommandCenterHarvest = {
   roomId: string;
   roomName: string;
   varietyName: string;
+  genetics: string | null;
   daysRemaining: number;
   dateLabel: string;
+  phaseLabel: string;
+  progressPercent: number | null;
+  status: string;
+  currentDay: number | null;
+  targetCycleDays: number | null;
 };
 
 export type CommandCenterRoom = {
@@ -45,6 +52,9 @@ export type CommandCenterRoom = {
   phaseLabel: string;
   harvestDateLabel: string | null;
   nextVarietyName: string | null;
+  cultivarName: string | null;
+  genetics: string | null;
+  varietyCount: number;
   actionRequired: string | null;
 };
 
@@ -204,6 +214,9 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
       (task) => task.due_date < new Date().toISOString().slice(0, 10),
     );
 
+    const primaryVariety = pickPrimaryVariety(roomVarieties, harvest?.varietyName ?? null);
+    const geneticsLine = primaryVariety ? toGeneticsLine(primaryVariety) : null;
+
     return {
       id: room.id,
       name: room.name,
@@ -225,6 +238,9 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
       ),
       harvestDateLabel,
       nextVarietyName: harvest?.varietyName ?? null,
+      cultivarName: geneticsLine?.cultivarName ?? null,
+      genetics: geneticsLine?.genetics ?? null,
+      varietyCount: roomVarieties.length,
       actionRequired: resolveActionRequired(
         summary.severity,
         summary.activeItems,
@@ -249,9 +265,15 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     .map((room) => ({
       roomId: room.id,
       roomName: room.name,
-      varietyName: room.nextVarietyName ?? "Room cycle",
+      varietyName: room.cultivarName ?? room.nextVarietyName ?? "Room cycle",
+      genetics: room.genetics,
       daysRemaining: Math.max(room.daysRemaining ?? 0, 0),
       dateLabel: room.harvestDateLabel ?? "—",
+      phaseLabel: room.phaseLabel,
+      progressPercent: room.progressPercent,
+      status: room.status,
+      currentDay: room.currentDay,
+      targetCycleDays: room.targetCycleDays,
     }))
     .sort((left, right) => left.daysRemaining - right.daysRemaining);
 

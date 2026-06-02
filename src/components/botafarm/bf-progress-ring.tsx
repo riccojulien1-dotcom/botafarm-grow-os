@@ -44,7 +44,13 @@ export function BfProgressRing({
   const displayScore = showPercent ? Math.round(percent) : Math.round(value);
 
   const scoreClass =
-    size >= 160 ? "text-5xl sm:text-6xl" : size >= 120 ? "text-4xl" : "text-lg";
+    size >= 220
+      ? "text-6xl sm:text-7xl"
+      : size >= 160
+        ? "text-5xl sm:text-6xl"
+        : size >= 120
+          ? "text-4xl"
+          : "text-lg";
 
   return (
     <div

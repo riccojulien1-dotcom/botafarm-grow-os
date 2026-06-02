@@ -17,6 +17,7 @@ import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import {
   getCropCycleEngine,
+  getCultivationPhaseLabel,
   getCurrentCycleDay,
   getNextHarvestPreview,
 } from "@/lib/grow-rooms/crop-cycle";
@@ -25,6 +26,7 @@ import { requireUser } from "@/lib/auth/get-user";
 import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
 import { ROOM_VARIETY_SELECT, VARIETY_PRESET_SELECT } from "@/lib/varieties/queries";
 import type { RoomVarietyRecord, VarietyPreset } from "@/lib/varieties/types";
+import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -122,6 +124,13 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   const daysLeft = nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
   const harvestDate =
     nextHarvest?.estimatedHarvestDateLabel ?? cycle.estimatedHarvestDateLabel;
+  const primaryVariety = pickPrimaryVariety(roomVarieties, nextHarvest?.varietyName ?? null);
+  const geneticsLine = primaryVariety ? toGeneticsLine(primaryVariety) : null;
+  const phaseLabel = getCultivationPhaseLabel(
+    room.status,
+    currentDay,
+    room.target_cycle_days,
+  );
 
   return (
     <AppShell user={user}>
@@ -151,10 +160,16 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <div className="mt-8">
             <BfRoomStarMetrics
               status={room.status}
+              cultivarName={geneticsLine?.cultivarName ?? null}
+              genetics={geneticsLine?.genetics ?? null}
+              varietyCount={roomVarieties.length}
               currentDay={currentDay}
+              targetCycleDays={room.target_cycle_days}
               daysLeft={daysLeft}
               plantCount={room.plant_count ?? 0}
               harvestDate={harvestDate}
+              phaseLabel={phaseLabel}
+              progressPercent={cycle.progressPercent}
             />
           </div>
         </GlassPanel>

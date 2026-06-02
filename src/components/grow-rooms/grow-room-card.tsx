@@ -13,6 +13,7 @@ import { RoomRecommendationSummaryLine } from "@/components/recommendations/room
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import {
   getCropCycleEngine,
+  getCultivationPhaseLabel,
   getCurrentCycleDay,
   getNextHarvestPreview,
   type VarietyForHarvest,
@@ -28,6 +29,7 @@ import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-room
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
+import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
 
 export type GrowRoomListItem = GrowRoomFieldValues & {
   id: string;
@@ -87,6 +89,13 @@ export function GrowRoomCard({
   const actionLabel = resolveActionLabel(
     recommendationSummary.severity,
     taskSummary?.overdueCount ?? 0,
+  );
+  const primaryVariety = pickPrimaryVariety(roomVarieties, nextHarvest?.varietyName ?? null);
+  const geneticsLine = primaryVariety ? toGeneticsLine(primaryVariety) : null;
+  const phaseLabel = getCultivationPhaseLabel(
+    room.status,
+    currentDay,
+    room.target_cycle_days,
   );
 
   const router = useRouter();
@@ -179,10 +188,16 @@ export function GrowRoomCard({
           status={room.status}
           roomName={room.name}
           showRoomName
+          cultivarName={geneticsLine?.cultivarName ?? null}
+          genetics={geneticsLine?.genetics ?? null}
+          varietyCount={roomVarieties.length}
           currentDay={currentDay}
+          targetCycleDays={room.target_cycle_days}
           daysLeft={daysLeft}
           plantCount={room.plant_count ?? 0}
           harvestDate={harvestDate}
+          phaseLabel={phaseLabel}
+          progressPercent={cycle.progressPercent}
           actionLabel={actionLabel}
         />
 

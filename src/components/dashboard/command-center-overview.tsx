@@ -4,17 +4,13 @@ import { BfAreaChart } from "@/components/botafarm/bf-area-chart";
 import { BfButton } from "@/components/botafarm/bf-button";
 import { BfHealthScore } from "@/components/botafarm/bf-health-score";
 import { BfMissionKpi } from "@/components/botafarm/bf-mission-kpi";
-import { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
+import { BfHarvestEventCard } from "@/components/botafarm/bf-harvest-event-card";
 import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { BfStatTile } from "@/components/botafarm/bf-stat-tile";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterData, CommandCenterRoom } from "@/lib/dashboard/get-command-center-data";
-import {
-  formatHarvestCountdownLine,
-  formatMissionDate,
-  formatRoomStatusLabel,
-} from "@/lib/ui/format-mission-labels";
+import { formatHarvestCountdownLine } from "@/lib/ui/format-mission-labels";
 
 type CommandCenterOverviewProps = {
   data: CommandCenterData;
@@ -191,35 +187,15 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
       {/* Harvest event */}
       {data.primaryHarvest ? (
         <section className="space-y-4">
-          <SectionHeader title="Harvest countdown" />
+          <SectionHeader title="Harvest event" subtitle="Facility priority" />
           <Link href={`/rooms/${data.primaryHarvest.roomId}`} className="block">
             <GlassPanel
               glow="magenta"
               padding="lg"
               interactive
-              className="bf-atmosphere-deep !p-8 sm:!p-10"
+              className="bf-atmosphere-deep bf-lab-scan !p-6 sm:!p-8"
             >
-              <p className="bf-section-eyebrow text-fuchsia-400/90">Next harvest</p>
-              <p className="mt-4 text-3xl font-bold uppercase tracking-tight text-white sm:text-4xl">
-                {data.primaryHarvest.varietyName}
-              </p>
-              <div className="mt-6 flex flex-wrap items-end gap-4">
-                <p className="bf-countdown-days tabular-nums text-fuchsia-300">
-                  {data.primaryHarvest.daysRemaining}
-                </p>
-                <p className="pb-2 font-mono text-2xl font-bold uppercase tracking-[0.3em] text-fuchsia-400/80">
-                  Days
-                </p>
-              </div>
-              <p className="mt-6 font-mono text-xl font-bold uppercase tracking-[0.28em] text-zinc-200 sm:text-2xl">
-                {formatMissionDate(data.primaryHarvest.dateLabel)}
-              </p>
-              <p className="mt-3 font-mono text-sm uppercase tracking-[0.22em] text-zinc-500">
-                {formatRoomStatusLabel(
-                  sortedRooms.find((r) => r.id === data.primaryHarvest?.roomId)?.status ??
-                    "Flower",
-                )}
-              </p>
+              <BfHarvestEventCard harvest={data.primaryHarvest} />
             </GlassPanel>
           </Link>
         </section>
@@ -356,36 +332,24 @@ function RoomStarCard({ room }: { room: CommandCenterRoom }) {
         }
         padding="lg"
         interactive
-        className="bf-atmosphere-deep"
+        className="bf-atmosphere-deep bf-lab-scan"
       >
         <BfRoomStarMetrics
           status={room.status}
           roomName={room.name}
           showRoomName
+          cultivarName={room.cultivarName}
+          genetics={room.genetics}
+          varietyCount={room.varietyCount}
           currentDay={room.currentDay}
+          targetCycleDays={room.targetCycleDays}
           daysLeft={daysLeft}
           plantCount={room.plantCount}
           harvestDate={room.harvestDateLabel}
+          phaseLabel={room.phaseLabel}
+          progressPercent={room.progressPercent}
           actionLabel={room.actionRequired}
         />
-
-        {room.progressPercent != null ? (
-          <div className="mt-4 space-y-2">
-            <BfProgressBar
-              value={room.progressPercent}
-              accent="magenta"
-              showValue={false}
-              size="large"
-            />
-            <p className="text-right font-mono text-[10px] uppercase tracking-wider text-zinc-600">
-              {room.progressPercent}% cycle · {room.phaseLabel}
-            </p>
-          </div>
-        ) : (
-          <p className="mt-4 font-mono text-xs uppercase tracking-wider text-zinc-500">
-            {room.phaseLabel}
-          </p>
-        )}
       </GlassPanel>
     </Link>
   );

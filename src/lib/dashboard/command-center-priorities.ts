@@ -12,16 +12,40 @@ export type CommandCenterPriority = {
   sortRank: number;
 };
 
-function recommendationTitle(item: Recommendation): string {
+function recommendationTitle(item: Recommendation, roomName: string): string {
+  const room = roomName.toUpperCase();
+
   const byMetric: Record<string, string> = {
-    "EC Management": "CHECK RUNOFF EC",
-    pH: "CHECK PH LEVELS",
-    Dryback: "CHECK DRYBACK",
-    VPD: "ADJUST VPD",
-    PPFD: "CHECK LIGHT LEVELS",
+    "EC Management":
+      item.severity === "action"
+        ? "RUNOFF EC OUT OF TARGET RANGE"
+        : "RUNOFF EC TRENDING OUT OF RANGE",
+    pH:
+      item.severity === "action"
+        ? "ROOT ZONE DATA REQUIRES REVIEW"
+        : "ROOT ZONE PH DRIFT DETECTED",
+    Dryback: "IRRIGATION STRATEGY REVIEW REQUIRED",
+    VPD: "VPD OUTSIDE TARGET WINDOW",
+    PPFD: "ENVIRONMENTAL TARGET MISSED",
   };
 
-  return byMetric[item.metric] ?? item.issue.toUpperCase();
+  if (byMetric[item.metric]) {
+    return byMetric[item.metric];
+  }
+
+  if (item.severity === "action") {
+    return `${room} REQUIRES ATTENTION`;
+  }
+
+  return item.issue.toUpperCase();
+}
+
+function taskTitle(task: GrowRoomTask, overdue: boolean): string {
+  const label = task.title.toUpperCase();
+  if (overdue) {
+    return `${label} — OVERDUE`;
+  }
+  return `${label} — DUE TODAY`;
 }
 
 function todayIsoDate() {
@@ -48,7 +72,7 @@ export function buildCommandCenterPriorities(
 
     items.push({
       id: `task-${task.id}`,
-      title: task.title.toUpperCase(),
+      title: taskTitle(task, overdue),
       roomName: room.name.toUpperCase(),
       roomId: task.grow_room_id,
       kind: "task",
@@ -65,7 +89,7 @@ export function buildCommandCenterPriorities(
       if (rec.severity === "good") continue;
       items.push({
         id: `alert-${roomId}-${rec.metric}`,
-        title: recommendationTitle(rec),
+        title: recommendationTitle(rec, room.name),
         roomName: room.name.toUpperCase(),
         roomId,
         kind: "alert",
