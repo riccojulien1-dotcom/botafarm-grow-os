@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { KnowledgeEntryDetail } from "@/components/knowledge-base/knowledge-entry-detail";
-import { getKnowledgeEntryById } from "@/lib/knowledge-base";
+import { getKnowledgeEntryById, toPublicKnowledgeEntry } from "@/lib/knowledge-base";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +17,5 @@ export default async function KnowledgeEntryPage({ params }: KnowledgeEntryPageP
     notFound();
   }
 
-  return <KnowledgeEntryDetail entry={entry} />;
+  return <KnowledgeEntryDetail entry={toPublicKnowledgeEntry(entry)} />;
 }

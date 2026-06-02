@@ -7,7 +7,7 @@ export const vegetativeSteeringEntry = seedEntry({
   category: "Vegetative steering",
   shortSummary:
     "Substrate and climate program that favors structural growth, root development, and moderate dryback.",
-  detailedContent:
+  knowledgeSummary:
     "Vegetative steering uses lower dryback targets, balanced EC runoff, moderate VPD, and consistent P1/P2 moisture to keep the plant in a vegetative hormonal balance. The goal is node development and canopy fill without premature generative signaling. Steering fails when dryback is too aggressive, EC accumulates, or VPD is too high for the current PPFD.",
   phaseRelevance: ["Clone", "Mother", "Vegetative", "Pre-Flower"],
   relatedMetrics: ["dryback_percent", "ec_in", "ec_runoff", "vpd", "ppfd"],

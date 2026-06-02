@@ -7,7 +7,7 @@ export const ecRunoffEntry = seedEntry({
   category: "Runoff",
   shortSummary:
     "Electrical conductivity of runoff water. Reveals salt accumulation, uptake balance, and feed alignment with root-zone demand.",
-  detailedContent:
+  knowledgeSummary:
     "Comparing EC in (feed) to EC runoff shows whether the substrate is accumulating salts or depleting nutrients faster than replenishment. Runoff EC should be tracked every irrigation cycle in precision cultivation, especially during generative steering and late-flower ripening.",
   phaseRelevance: ["Vegetative", "Flower"],
   relatedMetrics: ["ec_in", "ec_runoff", "runoff_percent"],

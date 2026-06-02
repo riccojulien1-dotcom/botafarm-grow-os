@@ -7,7 +7,7 @@ export const vpdEntry = seedEntry({
   category: "VPD",
   shortSummary:
     "Driver of transpiration and calcium mobility. Target bands differ between vegetative and flower phases.",
-  detailedContent:
+  knowledgeSummary:
     "VPD combines temperature and humidity into a single transpiration demand signal. Too low reduces uptake and can favor pathogens; too high stresses stomata and can slow growth. VPD should be staged with crop phase rather than held constant across the entire cycle.",
   phaseRelevance: ["Vegetative", "Pre-Flower", "Flower"],
   relatedMetrics: ["vpd", "temperature", "humidity"],

@@ -36,7 +36,10 @@ export function KnowledgeEntryCard({ entry }: KnowledgeEntryCardProps) {
         </div>
         <h3 className="mt-2 font-medium text-white">{entry.title}</h3>
         <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{entry.shortSummary}</p>
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="mt-2 font-mono text-[10px] text-fuchsia-400/70">
+          Ref {entry.sourceReference.internalReferenceId}
+        </p>
+        <p className="mt-1 text-xs text-zinc-500">
           Phases: {entry.phaseRelevance.join(" · ")}
         </p>
         <p className="mt-1 text-xs text-zinc-500">

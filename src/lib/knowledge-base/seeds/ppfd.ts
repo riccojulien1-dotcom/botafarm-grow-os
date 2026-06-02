@@ -7,7 +7,7 @@ export const ppfdEntry = seedEntry({
   category: "PPFD",
   shortSummary:
     "Instantaneous light intensity at canopy level (µmol/m²/s). Drives photosynthesis when paired with photoperiod.",
-  detailedContent:
+  knowledgeSummary:
     "PPFD describes how many photosynthetically active photons reach the canopy each second. It is the primary lighting metric for tuning intensity without guessing from wattage alone. PPFD should be measured at canopy height and tracked through phase changes because plant tolerance and demand shift from vegetative to generative growth.",
   phaseRelevance: ["Vegetative", "Pre-Flower", "Flower"],
   relatedMetrics: ["ppfd", "dli"],

@@ -7,7 +7,7 @@ export const p1P2P3Entry = seedEntry({
   category: "P1 / P2 / P3 irrigation",
   shortSummary:
     "Three-phase daily irrigation model: ramp-up (P1), maintenance (P2), and dryback (P3) before lights off.",
-  detailedContent:
+  knowledgeSummary:
     "P1 is the first irrigation after lights on, establishing substrate moisture and starting transpiration. P2 maintains moisture through peak PPFD and peak VPD demand. P3 is the final shot or withholding window that sets overnight dryback. Timing and volume of each phase depend on container size, substrate, and whether the room is in vegetative or generative steering.",
   phaseRelevance: ["Vegetative", "Flower"],
   relatedMetrics: ["irrigation_count", "irrigation_volume_per_event", "dryback_percent"],

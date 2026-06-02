@@ -4,8 +4,48 @@ export {
   KNOWLEDGE_PHASES,
   KNOWLEDGE_RELATED_METRICS,
   KNOWLEDGE_SOURCE_TYPE_LABELS,
+  KNOWLEDGE_CONTENT_STATUS_LABELS,
+  KNOWLEDGE_CONFIDENCE_LABELS,
   KNOWLEDGE_TOPICS,
 } from "@/lib/knowledge-base/constants";
+export {
+  KNOWLEDGE_ACCESS_POLICY,
+  assertNoForbiddenKnowledgeFields,
+  toPublicKnowledgeEntry,
+} from "@/lib/knowledge-base/privacy";
+export {
+  getCitedKnowledgeSources,
+  getKnowledgeBrainStats,
+  getKnowledgeSourceRegistry,
+  RESERVED_BOTAFARM_SOURCES,
+} from "@/lib/knowledge-base/sources/registry";
+export {
+  validateIngestionPayload,
+  ingestExtractedEntry,
+  registerKnowledgeSource,
+} from "@/lib/knowledge-base/layers/ingestion";
+export {
+  buildKnowledgeIndex,
+  buildKnowledgeIndexRecord,
+  buildEmbeddingCandidates,
+} from "@/lib/knowledge-base/layers/indexing";
+export {
+  searchPublicKnowledge,
+  retrievePublicKnowledgeForRoom,
+  retrievePublicKnowledgeForAlert,
+  getPublicKnowledgeByMetric,
+  getPublicRelatedKnowledge,
+  getKnowledgeIndexSnapshot,
+} from "@/lib/knowledge-base/layers/retrieval";
+export {
+  buildKnowledgeCitation,
+  formatCitationBlock,
+} from "@/lib/knowledge-base/layers/citation";
+export {
+  buildKnowledgeRelationships,
+  getKnowledgeRelationshipsForEntry,
+  countKnowledgeRelationships,
+} from "@/lib/knowledge-base/layers/relationships";
 export {
   buildKnowledgeRagCatalog,
   buildKnowledgeRagDocument,
@@ -54,12 +94,22 @@ export type { RoomCultivationMetricId } from "@/lib/knowledge-base/metric-aliase
 export type {
   KnowledgeEntry,
   KnowledgeEntrySummary,
+  PublicKnowledgeEntry,
   KnowledgeFilterParams,
   KnowledgePriority,
   KnowledgeRagDocument,
   KnowledgeRecommendedRange,
   KnowledgeSourceMetadata,
+  KnowledgeSourceReference,
   KnowledgeSourceType,
   KnowledgeTopic,
+  KnowledgeBrainCategory,
+  KnowledgeBrainStats,
+  KnowledgeContentStatus,
+  KnowledgeConfidenceLevel,
+  KnowledgeIngestionPayload,
+  KnowledgeSourceRegistryEntry,
   GrowPhase,
 } from "@/lib/knowledge-base/types";
+export type { KnowledgeCitation } from "@/lib/knowledge-base/layers/citation";
+export type { KnowledgeRelationship } from "@/lib/knowledge-base/layers/relationships";

@@ -1,6 +1,8 @@
+import { KnowledgeBrainLayers } from "@/components/knowledge-base/knowledge-brain-layers";
 import { KnowledgeEntryCard } from "@/components/knowledge-base/knowledge-entry-card";
 import { KnowledgeLibraryFilters } from "@/components/knowledge-base/knowledge-library-filters";
 import { KnowledgeSearchForm } from "@/components/knowledge-base/knowledge-search-form";
+import { KnowledgeSourcesOverview } from "@/components/knowledge-base/knowledge-sources-overview";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import {
@@ -31,6 +33,7 @@ function parseSourceType(value: string | undefined): KnowledgeSourceType | undef
     "blog",
     "protocol",
     "guide",
+    "article",
     "rule",
   ];
   if (!value) {
@@ -68,9 +71,30 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
     <section className="space-y-8">
       <BfPageHeader
         eyebrow="Botafarm Brain"
-        title="Knowledge Library"
-        subtitle="Validated Botafarm books, SOPs, protocols, and guides — every future recommendation must trace to a catalog entry."
+        title="Knowledge extraction"
+        subtitle="Extracted rules, SOP summaries, and diagnostics — traceable citations only. No books, PDFs, or raw source text."
       />
+
+      <GlassPanel padding="lg" glow="magenta">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Knowledge sources</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Source registry for Sprint 25 ingestion — documents are not loaded or visible.
+        </p>
+        <div className="mt-4">
+          <KnowledgeSourcesOverview />
+        </div>
+      </GlassPanel>
+
+      <GlassPanel padding="lg">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Brain architecture</h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Ingestion, indexing, retrieval, citation, and relationship layers — ready without OpenAI or
+          embeddings.
+        </p>
+        <div className="mt-4">
+          <KnowledgeBrainLayers />
+        </div>
+      </GlassPanel>
 
       <GlassPanel padding="lg" glow="magenta">
         <KnowledgeSearchForm
@@ -78,7 +102,7 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
           hiddenParams={{ category, phase, metric, topic, tag, sourceType }}
         />
         <p className="mt-3 text-xs text-zinc-500">
-          Search only returns indexed Botafarm content. Nothing is generated or invented.
+          Search returns extracted Botafarm knowledge only. Nothing is generated or invented.
         </p>
       </GlassPanel>
 
@@ -101,8 +125,8 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
       ) : (
         <GlassPanel padding="lg">
           <p className="text-sm text-zinc-400">
-            No entries match these filters. Import books and SOPs in a future sprint to populate
-            reserved categories.
+            No extracted entries match these filters. Reserved sources await Sprint 25 book &amp; SOP
+            ingestion.
           </p>
         </GlassPanel>
       )}

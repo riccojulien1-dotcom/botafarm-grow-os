@@ -1,27 +1,6 @@
-/** Internal Botafarm knowledge categories — extend as the library grows */
-export const KNOWLEDGE_CATEGORIES = [
-  "PPFD",
-  "DLI",
-  "EC",
-  "pH",
-  "VPD",
-  "Environment",
-  "Dryback",
-  "Runoff",
-  "Irrigation strategy",
-  "P1 / P2 / P3 irrigation",
-  "Vegetative steering",
-  "Generative steering",
-  "Crop steering",
-  "Nutrition",
-  "Flowering phases",
-  "Stretch",
-  "Harvest window",
-  "Harvest",
-  "Curing",
-  "Breeding",
-  "Tissue culture",
-  "Variety behavior",
-] as const;
+import { KNOWLEDGE_BRAIN_CATEGORIES } from "@/lib/knowledge-base/types";
+
+/** Primary Brain categories for ingestion and library filters */
+export const KNOWLEDGE_CATEGORIES = KNOWLEDGE_BRAIN_CATEGORIES;
 
 export type KnowledgeCategory = (typeof KNOWLEDGE_CATEGORIES)[number];

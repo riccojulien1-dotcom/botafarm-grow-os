@@ -7,14 +7,27 @@ export const drybackEntry = seedEntry({
   category: "Dryback",
   shortSummary:
     "Percent moisture loss in substrate between irrigation events. Key lever for root oxygen, uptake rhythm, and crop steering.",
-  detailedContent:
+  knowledgeSummary:
     "Dryback expresses how much the substrate dries between feeds. Low dryback keeps roots wetter and favors vegetative momentum; higher controlled dryback increases oxygen and can support generative development when paired with stable EC and runoff strategy. Dryback must be interpreted with irrigation count, shot size, and room phase.",
   phaseRelevance: ["Vegetative", "Pre-Flower", "Flower"],
-  relatedMetrics: ["dryback_percent", "irrigation_count", "irrigation_volume_per_event"],
+  relatedMetrics: [
+    "dryback_percent",
+    "ec_in",
+    "ec_runoff",
+    "runoff_percent",
+    "irrigation_count",
+    "irrigation_volume_per_event",
+  ],
   practicalActions: [
     "Record dryback percent in every daily journal entry after the first feed.",
     "Compare dryback trend with EC runoff and plant turgor before changing shot size.",
     "Adjust irrigation count before chasing extreme dryback targets.",
+  ],
+  commonMistakes: [
+    "Chasing dryback targets without logging EC In and EC Out on the same day",
+    "Increasing shot size when runoff percent is already declining",
+    "Ignoring phase — applying late-flower dryback targets during vegetative growth",
+    "Treating a single low dryback reading as a substrate failure without trend context",
   ],
   warnings: [
     "Dryback below 8% with sluggish growth or weak roots",
@@ -40,10 +53,6 @@ export const drybackEntry = seedEntry({
   ],
   tags: ["irrigation", "substrate", "crop-steering"],
   priority: "high",
-  sourceMetadata: {
-    documentTitle: "Botafarm Irrigation Rules",
-    section: "Dryback targets",
-  },
   botafarmNote:
     "Grow OS rule engine uses dryback from the daily journal for watch and action alerts.",
   createdAt: "2026-05-29T00:00:00.000Z",

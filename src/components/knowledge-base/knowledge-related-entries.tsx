@@ -1,5 +1,5 @@
 import { KnowledgeEntryCard } from "@/components/knowledge-base/knowledge-entry-card";
-import { getRelatedKnowledge, toKnowledgeSummary } from "@/lib/knowledge-base";
+import { getRelatedKnowledge, toKnowledgeSummary, toPublicKnowledgeEntry } from "@/lib/knowledge-base";
 
 type KnowledgeRelatedEntriesProps = {
   entryId: string;
@@ -17,7 +17,10 @@ export function KnowledgeRelatedEntries({ entryId }: KnowledgeRelatedEntriesProp
   return (
     <ul className="grid gap-4 md:grid-cols-2">
       {related.map((entry) => (
-        <KnowledgeEntryCard key={entry.id} entry={toKnowledgeSummary(entry)} />
+        <KnowledgeEntryCard
+          key={entry.id}
+          entry={toKnowledgeSummary(toPublicKnowledgeEntry(entry))}
+        />
       ))}
     </ul>
   );

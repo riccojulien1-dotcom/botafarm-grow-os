@@ -5,8 +5,26 @@ export const KNOWLEDGE_SOURCE_TYPES = [
   "blog",
   "protocol",
   "guide",
+  "article",
   "rule",
 ] as const;
+
+/** Sprint 24 Brain categories — ingestion-ready, no raw documents */
+export const KNOWLEDGE_BRAIN_CATEGORIES = [
+  "Irrigation",
+  "Crop Steering",
+  "Environment",
+  "Nutrition",
+  "Genetics",
+  "Breeding",
+  "Tissue Culture",
+  "Harvest",
+  "Drying",
+  "Curing",
+  "SOPs",
+] as const;
+
+export type KnowledgeBrainCategory = (typeof KNOWLEDGE_BRAIN_CATEGORIES)[number];
 
 /** High-level Botafarm knowledge domains for Brain retrieval */
 export const KNOWLEDGE_TOPIC_VALUES = [
@@ -15,6 +33,7 @@ export const KNOWLEDGE_TOPIC_VALUES = [
   "Crop steering",
   "Nutrition",
   "Lighting",
+  "Genetics",
   "Harvest",
   "Curing",
   "Breeding",
@@ -29,6 +48,29 @@ export type KnowledgeSourceType = (typeof KNOWLEDGE_SOURCE_TYPES)[number];
 export const KNOWLEDGE_PRIORITIES = ["low", "medium", "high"] as const;
 
 export type KnowledgePriority = (typeof KNOWLEDGE_PRIORITIES)[number];
+
+export const KNOWLEDGE_CONFIDENCE_LEVELS = ["high", "medium", "low"] as const;
+
+export type KnowledgeConfidenceLevel = (typeof KNOWLEDGE_CONFIDENCE_LEVELS)[number];
+
+export const KNOWLEDGE_CONTENT_STATUSES = [
+  "extracted",
+  "draft",
+  "reviewed",
+  "published",
+] as const;
+
+export type KnowledgeContentStatus = (typeof KNOWLEDGE_CONTENT_STATUSES)[number];
+
+export const KNOWLEDGE_SOURCE_INGESTION_STATUSES = [
+  "not_ingested",
+  "registered",
+  "ingesting",
+  "indexed",
+] as const;
+
+export type KnowledgeSourceIngestionStatus =
+  (typeof KNOWLEDGE_SOURCE_INGESTION_STATUSES)[number];
 
 export type GrowPhase =
   | "Clone"
@@ -49,53 +91,70 @@ export type KnowledgeRecommendedRange = {
   notes?: string;
 };
 
-/** Provenance for books, SOPs, articles — used by future import pipelines and RAG citations */
+/**
+ * Citation-only source reference — never exposes raw document text, PDFs, or chapters.
+ */
+export type KnowledgeSourceReference = {
+  sourceType: KnowledgeSourceType;
+  sourceTitle: string;
+  section?: string;
+  internalReferenceId: string;
+};
+
+/** Internal ingestion metadata — not shown to users */
 export type KnowledgeSourceMetadata = {
   documentTitle?: string;
   author?: string;
   edition?: string;
   chapter?: string;
   section?: string;
-  url?: string;
   documentId?: string;
   importedBatchId?: string;
   locale?: string;
+  /** Blocked from user UI — ingestion pipeline only */
+  ingestionOnly?: boolean;
 };
 
 /**
- * Canonical knowledge entry — stored in lib catalog today; same shape for DB/RAG later.
+ * Canonical extracted knowledge entry — never contains full book chapters or raw source text.
  */
 export type KnowledgeEntry = {
-  /** Stable slug for URLs, recommendations, and vector store document ids */
   id: string;
   title: string;
   sourceType: KnowledgeSourceType;
   category: string;
-  /** Brain domain — e.g. Environment, Irrigation */
+  subcategory: string;
   topic: KnowledgeTopic | string;
-  /** Specific subject within the topic — e.g. VPD, Dryback */
   subject: string;
   phaseRelevance: GrowPhase[];
   relatedMetrics: string[];
   shortSummary: string;
-  detailedContent: string;
+  /** Extracted knowledge only — not original proprietary document text */
+  knowledgeSummary: string;
   practicalActions: string[];
+  commonMistakes: string[];
   warnings: string[];
   recommendedRanges: KnowledgeRecommendedRange[];
   tags: string[];
   priority: KnowledgePriority;
+  confidenceLevel: KnowledgeConfidenceLevel;
+  contentStatus: KnowledgeContentStatus;
+  sourceReference: KnowledgeSourceReference;
   sourceMetadata?: KnowledgeSourceMetadata;
-  /** Optional Botafarm operational note for Grow OS context */
   botafarmNote?: string;
   createdAt: string;
   updatedAt: string;
 };
 
+/** User-safe view — strips internal-only ingestion fields */
+export type PublicKnowledgeEntry = Omit<KnowledgeEntry, "sourceMetadata">;
+
 export type KnowledgeEntrySummary = Pick<
-  KnowledgeEntry,
+  PublicKnowledgeEntry,
   | "id"
   | "title"
   | "category"
+  | "subcategory"
   | "topic"
   | "subject"
   | "shortSummary"
@@ -104,10 +163,14 @@ export type KnowledgeEntrySummary = Pick<
   | "sourceType"
   | "priority"
   | "tags"
+  | "confidenceLevel"
+  | "contentStatus"
+  | "sourceReference"
 >;
 
 export type KnowledgeFilterParams = {
   category?: string;
+  subcategory?: string;
   phase?: string;
   metric?: string;
   topic?: string;
@@ -116,7 +179,49 @@ export type KnowledgeFilterParams = {
   query?: string;
 };
 
-/** Flat document shape for future embedding / RAG chunking */
+/** Registry row — source exists as citation anchor, not as a readable document */
+export type KnowledgeSourceRegistryEntry = {
+  id: string;
+  sourceTitle: string;
+  sourceType: KnowledgeSourceType;
+  ingestionStatus: KnowledgeSourceIngestionStatus;
+  extractedEntryCount: number;
+  internalReferencePrefix?: string;
+  plannedForSprint?: number;
+};
+
+export type KnowledgeBrainStats = {
+  sourceCount: number;
+  entryCount: number;
+  categoryCount: number;
+  documentsLoaded: number;
+  relationshipsMapped: number;
+};
+
+/** Future ingestion payload — extracted fields only */
+export type KnowledgeIngestionPayload = {
+  id: string;
+  title: string;
+  sourceReference: KnowledgeSourceReference;
+  category: string;
+  subcategory: string;
+  topic: string;
+  subject: string;
+  phaseRelevance: GrowPhase[];
+  relatedMetrics: string[];
+  shortSummary: string;
+  knowledgeSummary: string;
+  practicalActions: string[];
+  commonMistakes: string[];
+  warnings: string[];
+  recommendedRanges?: KnowledgeRecommendedRange[];
+  tags: string[];
+  priority?: KnowledgePriority;
+  confidenceLevel?: KnowledgeConfidenceLevel;
+  contentStatus?: KnowledgeContentStatus;
+};
+
+/** Flat document shape for future embedding / RAG chunking (pipeline-internal) */
 export type KnowledgeRagDocument = {
   id: string;
   title: string;
@@ -126,10 +231,13 @@ export type KnowledgeRagDocument = {
   relatedMetrics: string[];
   priority: KnowledgePriority;
   content: string;
-  metadata: KnowledgeSourceMetadata & {
+  metadata: {
+    sourceReference: KnowledgeSourceReference;
     tags: string[];
     practicalActions: string[];
+    commonMistakes: string[];
     warnings: string[];
+    confidenceLevel: KnowledgeConfidenceLevel;
     createdAt: string;
     updatedAt: string;
   };

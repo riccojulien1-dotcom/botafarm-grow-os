@@ -7,7 +7,7 @@ export const phEntry = seedEntry({
   category: "pH",
   shortSummary:
     "Feed and runoff pH control nutrient availability and root-zone stability. Drift between input and runoff signals imbalance.",
-  detailedContent:
+  knowledgeSummary:
     "Hydroponic and coco programs typically target input pH between 5.5 and 6.5. Runoff pH should be tracked alongside input pH; a delta greater than 0.5 may indicate root-zone drift, weak buffering, or uneven irrigation passage.",
   phaseRelevance: ["Vegetative", "Flower"],
   relatedMetrics: ["ph_in", "ph_runoff"],

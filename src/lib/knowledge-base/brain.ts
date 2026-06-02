@@ -6,7 +6,7 @@ import {
   searchKnowledgeEntries,
 } from "@/lib/knowledge-base/catalog";
 import { resolveMetricSearchKeys } from "@/lib/knowledge-base/metric-aliases";
-import { KNOWLEDGE_SOURCE_TYPE_LABELS } from "@/lib/knowledge-base/constants";
+import { formatCitationBlock } from "@/lib/knowledge-base/layers/citation";
 import type {
   GrowPhase,
   KnowledgeEntry,
@@ -185,25 +185,5 @@ export function getKnowledgeForRoomMetric(
 }
 
 export function formatKnowledgeSourceCitation(entry: KnowledgeEntry): string {
-  const meta = entry.sourceMetadata;
-  const parts: string[] = [];
-
-  if (meta?.documentTitle) {
-    parts.push(meta.documentTitle);
-  }
-  if (meta?.author) {
-    parts.push(meta.author);
-  }
-  if (meta?.chapter) {
-    parts.push(meta.chapter);
-  }
-  if (meta?.section) {
-    parts.push(meta.section);
-  }
-
-  if (parts.length) {
-    return parts.join(" · ");
-  }
-
-  return `${KNOWLEDGE_SOURCE_TYPE_LABELS[entry.sourceType]} · ${entry.category} · ID ${entry.id}`;
+  return formatCitationBlock(entry);
 }

@@ -38,7 +38,27 @@ export const KNOWLEDGE_SOURCE_TYPE_LABELS: Record<KnowledgeSourceType, string> =
   blog: "Blog",
   protocol: "Protocol",
   guide: "Guide",
+  article: "Article",
   rule: "Rule",
+};
+
+export const KNOWLEDGE_CONTENT_STATUS_LABELS: Record<
+  import("@/lib/knowledge-base/types").KnowledgeContentStatus,
+  string
+> = {
+  extracted: "Extracted",
+  draft: "Draft",
+  reviewed: "Reviewed",
+  published: "Published",
+};
+
+export const KNOWLEDGE_CONFIDENCE_LABELS: Record<
+  import("@/lib/knowledge-base/types").KnowledgeConfidenceLevel,
+  string
+> = {
+  high: "High",
+  medium: "Medium",
+  low: "Low",
 };
 
 export { KNOWLEDGE_TOPIC_VALUES as KNOWLEDGE_TOPICS } from "@/lib/knowledge-base/types";

@@ -7,7 +7,7 @@ export const generativeSteeringEntry = seedEntry({
   category: "Generative steering",
   shortSummary:
     "Irrigation and environment program that favors flower set, bud swell, and ripening through controlled dryback and EC dynamics.",
-  detailedContent:
+  knowledgeSummary:
     "Generative steering increases dryback between events, manages EC in/out balance, and pairs higher flower VPD with appropriate PPFD. It is not a single-day adjustment — it is a multi-week rhythm especially through mid and late flower. Successful generative programs log dryback, runoff EC, and plant response daily so the operator can separate intentional stress from harmful drift.",
   phaseRelevance: ["Pre-Flower", "Flower"],
   relatedMetrics: ["dryback_percent", "ec_in", "ec_runoff", "vpd", "ppfd"],

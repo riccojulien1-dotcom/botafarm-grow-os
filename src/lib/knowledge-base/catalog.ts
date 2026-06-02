@@ -57,7 +57,14 @@ export function filterKnowledgeEntries(params: KnowledgeFilterParams): Knowledge
   let entries = getAllKnowledgeEntries();
 
   if (params.category?.trim()) {
-    entries = entries.filter((entry) => entry.category === params.category?.trim());
+    const category = params.category.trim();
+    entries = entries.filter(
+      (entry) => entry.category === category || entry.subcategory === category,
+    );
+  }
+
+  if (params.subcategory?.trim()) {
+    entries = entries.filter((entry) => entry.subcategory === params.subcategory?.trim());
   }
 
   if (params.phase?.trim()) {
@@ -108,6 +115,7 @@ export function toKnowledgeSummary(entry: KnowledgeEntry): KnowledgeEntrySummary
     id: entry.id,
     title: entry.title,
     category: entry.category,
+    subcategory: entry.subcategory,
     topic: entry.topic,
     subject: entry.subject,
     shortSummary: entry.shortSummary,
@@ -116,6 +124,9 @@ export function toKnowledgeSummary(entry: KnowledgeEntry): KnowledgeEntrySummary
     sourceType: entry.sourceType,
     priority: entry.priority,
     tags: entry.tags,
+    confidenceLevel: entry.confidenceLevel,
+    contentStatus: entry.contentStatus,
+    sourceReference: entry.sourceReference,
   };
 }
 
@@ -146,6 +157,7 @@ export function getKnowledgeFilterFacets() {
   const metrics = new Set<string>();
   const topics = new Set<string>();
   const tags = new Set<string>();
+  const subcategories = new Set<string>();
 
   for (const entry of KNOWLEDGE_BASE_ENTRIES) {
     sourceTypes.add(entry.sourceType);
@@ -161,6 +173,7 @@ export function getKnowledgeFilterFacets() {
     for (const tag of entry.tags) {
       tags.add(tag);
     }
+    subcategories.add(entry.subcategory);
   }
 
   return {
@@ -169,6 +182,7 @@ export function getKnowledgeFilterFacets() {
     metrics: [...metrics].sort(),
     topics: [...topics].sort(),
     tags: [...tags].sort(),
+    subcategories: [...subcategories].sort(),
   };
 }
 
@@ -207,7 +221,8 @@ export function searchKnowledgeEntries(
         entry.topic ?? "",
         entry.subject ?? "",
         entry.shortSummary,
-        entry.detailedContent,
+        entry.knowledgeSummary,
+        ...entry.commonMistakes,
         entry.botafarmNote ?? "",
         entry.sourceType,
         entry.sourceMetadata?.author ?? "",

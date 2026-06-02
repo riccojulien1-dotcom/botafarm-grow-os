@@ -7,7 +7,7 @@ export const irrigationStrategyEntry = seedEntry({
   category: "Irrigation strategy",
   shortSummary:
     "Framework for shot timing, volume, runoff targets, and phase-appropriate substrate moisture management.",
-  detailedContent:
+  knowledgeSummary:
     "A Botafarm irrigation strategy defines how many events occur per day, what percent of container volume each shot represents, and what runoff percent confirms passage without chronic saturation. Strategy must align with crop phase: vegetative programs prioritize consistent moisture and moderate dryback; flower programs layer generative dryback and EC steering on top of stable timing.",
   phaseRelevance: ["Vegetative", "Pre-Flower", "Flower"],
   relatedMetrics: [

@@ -2,12 +2,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { KnowledgeRelatedEntries } from "@/components/knowledge-base/knowledge-related-entries";
+import { KnowledgeRelationshipsPanel } from "@/components/knowledge-base/knowledge-relationships-panel";
 import { KnowledgeSourceCitation } from "@/components/knowledge-base/knowledge-source-citation";
-import { KNOWLEDGE_SOURCE_TYPE_LABELS } from "@/lib/knowledge-base";
-import type { KnowledgeEntry } from "@/lib/knowledge-base/types";
+import {
+  KNOWLEDGE_CONFIDENCE_LABELS,
+  KNOWLEDGE_CONTENT_STATUS_LABELS,
+  KNOWLEDGE_SOURCE_TYPE_LABELS,
+} from "@/lib/knowledge-base";
+import type { PublicKnowledgeEntry } from "@/lib/knowledge-base/types";
 
 type KnowledgeEntryDetailProps = {
-  entry: KnowledgeEntry;
+  entry: PublicKnowledgeEntry;
 };
 
 function SectionBlock({
@@ -35,7 +40,7 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           href="/dashboard/knowledge"
           className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-cyan-500/30 hover:text-cyan-200"
         >
-          Back to knowledge library
+          Back to Brain
         </Link>
         <Link
           href={`/dashboard/knowledge?topic=${encodeURIComponent(entry.topic)}`}
@@ -48,25 +53,33 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
       <header className="bf-glass bf-glass-shine rounded-2xl border border-fuchsia-500/25 p-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md border border-fuchsia-900/50 bg-fuchsia-950/30 px-2 py-0.5 text-xs text-fuchsia-200">
-            {entry.topic}
-          </span>
-          <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
             {entry.category}
+          </span>
+          <span className="rounded-md border border-zinc-800 px-2 py-0.5 text-xs text-zinc-500">
+            {entry.subcategory}
           </span>
           <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
             {KNOWLEDGE_SOURCE_TYPE_LABELS[entry.sourceType]}
           </span>
-          <span className="text-xs uppercase text-zinc-500">{entry.priority} priority</span>
+          <span className="text-xs text-zinc-500">
+            {KNOWLEDGE_CONTENT_STATUS_LABELS[entry.contentStatus]} ·{" "}
+            {KNOWLEDGE_CONFIDENCE_LABELS[entry.confidenceLevel]} confidence
+          </span>
         </div>
         <h1 className="mt-3 text-3xl font-bold uppercase tracking-tight text-white">{entry.title}</h1>
-        <p className="mt-1 text-sm text-fuchsia-300/80">Subject: {entry.subject}</p>
+        <p className="mt-1 text-sm text-fuchsia-300/80">
+          {entry.topic} · {entry.subject}
+        </p>
         <p className="mt-2 text-sm text-zinc-400">{entry.shortSummary}</p>
       </header>
 
       <KnowledgeSourceCitation entry={entry} />
 
-      <SectionBlock title="Detailed content">
-        <p className="leading-relaxed">{entry.detailedContent}</p>
+      <SectionBlock title="Extracted knowledge">
+        <p className="leading-relaxed">{entry.knowledgeSummary}</p>
+        <p className="text-xs text-zinc-600">
+          This is Botafarm-extracted guidance — not a full book chapter or downloadable document.
+        </p>
       </SectionBlock>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -78,17 +91,25 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           </ul>
         </SectionBlock>
 
-        <SectionBlock title="Warnings">
+        <SectionBlock title="Common mistakes">
           <ul className="list-inside list-disc space-y-1 text-amber-100/90">
-            {entry.warnings.map((warning) => (
-              <li key={warning}>{warning}</li>
+            {entry.commonMistakes.map((mistake) => (
+              <li key={mistake}>{mistake}</li>
             ))}
           </ul>
         </SectionBlock>
       </div>
 
+      <SectionBlock title="Warnings">
+        <ul className="list-inside list-disc space-y-1 text-amber-100/90">
+          {entry.warnings.map((warning) => (
+            <li key={warning}>{warning}</li>
+          ))}
+        </ul>
+      </SectionBlock>
+
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionBlock title="Phase relevance">
+        <SectionBlock title="Growth phases">
           <ul className="list-inside list-disc space-y-1">
             {entry.phaseRelevance.map((phase) => (
               <li key={phase}>
@@ -135,9 +156,6 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
                     ? `${range.min} – ${range.max}${range.unit ? ` ${range.unit}` : ""}`
                     : (range.notes ?? "—")}
                 </p>
-                {range.notes && range.min != null ? (
-                  <p className="mt-1 text-xs text-zinc-500">{range.notes}</p>
-                ) : null}
               </li>
             ))}
           </ul>
@@ -163,13 +181,22 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
       ) : null}
 
       <section className="space-y-3">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">
+          Knowledge relationships
+        </h2>
+        <GlassInset>
+          <KnowledgeRelationshipsPanel entryId={entry.id} />
+        </GlassInset>
+      </section>
+
+      <section className="space-y-3">
         <h2 className="text-lg font-bold uppercase tracking-tight text-white">Related knowledge</h2>
         <KnowledgeRelatedEntries entryId={entry.id} />
       </section>
-
-      <p className="text-xs text-zinc-600">
-        Updated {entry.updatedAt.slice(0, 10)} · Botafarm Brain catalog · Sprint 25 RAG-ready
-      </p>
     </article>
   );
+}
+
+function GlassInset({ children }: { children: ReactNode }) {
+  return <div className="bf-inset-panel p-4">{children}</div>;
 }
