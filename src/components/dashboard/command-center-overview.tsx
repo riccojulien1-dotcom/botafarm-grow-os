@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import { BfAreaChart } from "@/components/botafarm/bf-area-chart";
 import { BfButton } from "@/components/botafarm/bf-button";
+import { BfCultivarSpotlight } from "@/components/botafarm/bf-cultivar-spotlight";
+import { BfGeneticsOverview } from "@/components/botafarm/bf-genetics-overview";
 import { BfHealthScore } from "@/components/botafarm/bf-health-score";
 import { BfMissionKpi } from "@/components/botafarm/bf-mission-kpi";
-import { BfHarvestEventCard } from "@/components/botafarm/bf-harvest-event-card";
 import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
-import { BfStatTile } from "@/components/botafarm/bf-stat-tile";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterData, CommandCenterRoom } from "@/lib/dashboard/get-command-center-data";
@@ -28,22 +28,26 @@ function severityRank(severity: string) {
   return 2;
 }
 
-function priorityPresentation(item: CommandCenterPriority) {
+function pickSpotlightRoom(data: CommandCenterData): CommandCenterRoom | null {
+  if (data.primaryHarvest) {
+    const match = data.rooms.find((room) => room.id === data.primaryHarvest?.roomId);
+    if (match) return match;
+  }
+  return data.rooms.find((room) => room.cultivarName) ?? data.rooms[0] ?? null;
+}
+
+function priorityTone(item: CommandCenterPriority) {
   if (item.severity === "action") {
     return {
-      tier: "Critique",
-      tierClass: "border-red-500/50 bg-red-950/55 text-red-200",
-      icon: "⚠",
-      badge: "ACTION REQUIRED",
-      badgeClass: "border-red-500/50 bg-red-950/60 text-red-200",
+      label: "Urgent",
+      rowClass: "border-red-500/25 bg-red-950/20 hover:border-red-400/40",
+      labelClass: "border-red-500/30 bg-red-950/40 text-red-200/90",
     };
   }
   return {
-    tier: "Attention",
-    tierClass: "border-amber-500/40 bg-amber-950/45 text-amber-100",
-    icon: "◆",
-    badge: null,
-    badgeClass: "",
+    label: "Review",
+    rowClass: "border-white/[0.06] bg-black/20 hover:border-amber-500/25",
+    labelClass: "border-amber-500/25 bg-amber-950/35 text-amber-100/90",
   };
 }
 
@@ -51,23 +55,26 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
   const sortedRooms = [...data.rooms].sort(
     (left, right) => severityRank(left.severity) - severityRank(right.severity),
   );
+  const spotlightRoom = pickSpotlightRoom(data);
 
   const heroHarvest = data.primaryHarvest
     ? formatHarvestCountdownLine(data.primaryHarvest.daysRemaining)
-    : "NO HARVEST WINDOW SET";
+    : "No harvest window set";
 
   return (
-    <div className="space-y-12 pb-6">
-      {/* Mission Control Hero */}
-      <section className="bf-mission-hero bf-atmosphere-deep px-6 py-10 sm:px-10 sm:py-14">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_0%_0%,rgba(34,211,238,0.16),transparent_55%),radial-gradient(ellipse_65%_45%_at_100%_100%,rgba(232,121,249,0.12),transparent_50%)]" />
-        <div className="relative space-y-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-2">
+    <div className="space-y-6 pb-4">
+      {/* Hero — compact */}
+      <section className="bf-mission-hero bf-atmosphere-deep px-5 py-7 sm:px-8 sm:py-9">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_0%_0%,rgba(34,211,238,0.14),transparent_55%),radial-gradient(ellipse_65%_45%_at_100%_100%,rgba(232,121,249,0.1),transparent_50%)]" />
+        <div className="relative space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-1">
               <p className="bf-section-eyebrow text-cyan-500/80">Botafarm California</p>
-              <h1 className="bf-hero-display bf-gradient-text">GROW OS</h1>
-              <p className="font-mono text-base uppercase tracking-[0.42em] text-zinc-300 sm:text-lg">
-                Mission Control
+              <h1 className="bf-hero-display bf-gradient-text text-[clamp(2.5rem,8vw,5.5rem)]">
+                GROW OS
+              </h1>
+              <p className="font-mono text-sm uppercase tracking-[0.38em] text-zinc-400">
+                Cultivar command center
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -80,202 +87,183 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <BfMissionKpi
-              value={data.base.totalPlantCount}
-              label="Plants"
-              accent="white"
-            />
-            <BfMissionKpi
-              value={data.base.totalGrowRooms}
-              label="Rooms"
-              accent="cyan"
-            />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <BfMissionKpi value={data.base.totalPlantCount} label="Plants" accent="white" />
+            <BfMissionKpi value={data.base.totalGrowRooms} label="Rooms" accent="cyan" />
             <BfMissionKpi
               value={data.taskOpen}
               label="Tasks"
               accent={data.taskOverdue > 0 ? "alert" : "white"}
             />
-            <BfMissionKpi
-              value={heroHarvest}
-              label="Harvest window"
-              accent="magenta"
-              multiline
-            />
+            <BfMissionKpi value={heroHarvest} label="Harvest" accent="magenta" multiline />
           </div>
         </div>
       </section>
 
-      {/* Health Score — centerpiece */}
-      <section className="space-y-4">
-        <SectionHeader title="Garden health" />
+      {/* Cultivar spotlight + compact health */}
+      <section className="grid gap-4 lg:grid-cols-[1.65fr_1fr] lg:items-stretch">
+        {spotlightRoom ? (
+          <BfCultivarSpotlight
+            cultivarName={spotlightRoom.cultivarName ?? spotlightRoom.nextVarietyName ?? spotlightRoom.name}
+            genetics={spotlightRoom.genetics}
+            phaseLabel={spotlightRoom.phaseLabel}
+            daysRemaining={spotlightRoom.daysRemaining}
+            harvestDateLabel={spotlightRoom.harvestDateLabel}
+            progressPercent={spotlightRoom.progressPercent}
+            roomHref={`/rooms/${spotlightRoom.id}`}
+          />
+        ) : (
+          <GlassPanel padding="md">
+            <p className="text-sm text-zinc-500">Assign a cultivar to a room to activate spotlight.</p>
+          </GlassPanel>
+        )}
+
         <BfHealthScore
           score={data.healthScore}
           statusLabel={healthStatusLabel(data.healthStatus)}
           actionCount={data.alertCounts.action}
           watchCount={data.alertCounts.watch}
           goodCount={data.alertCounts.good}
+          compact
         />
       </section>
 
-      {/* Quick ops metrics */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <BfStatTile label="Rooms" value={data.base.totalGrowRooms} accent="cyan" hero />
-        <BfStatTile label="Plants" value={data.base.totalPlantCount} accent="neutral" hero />
-        <BfStatTile
-          label="Tasks"
-          value={data.taskOpen}
-          accent={data.taskOverdue > 0 ? "magenta" : "cyan"}
-          trend={data.taskOverdue > 0 ? `${data.taskOverdue} overdue` : undefined}
-          hero
+      {/* Genetics datasheet */}
+      {spotlightRoom ? (
+        <BfGeneticsOverview
+          cultivarName={spotlightRoom.cultivarName}
+          genetics={spotlightRoom.genetics}
+          roomName={spotlightRoom.name}
+          roomStatus={spotlightRoom.status}
+          plantCount={spotlightRoom.plantCount}
         />
-        <BfStatTile label="Logs" value={data.base.totalJournalLogs} accent="neutral" hero />
-      </section>
-
-      {/* Today's priorities */}
-      <section className="space-y-4">
-        <SectionHeader title="Today's priorities" subtitle="Critique · Attention" />
-        <GlassPanel padding="lg" glow={data.priorities.some((p) => p.severity === "action") ? "red" : "none"}>
-          {data.priorities.length ? (
-            <ul className="space-y-3">
-              {data.priorities.map((item) => {
-                const presentation = priorityPresentation(item);
-                return (
-                  <li key={item.id}>
-                    <Link
-                      href={`/rooms/${item.roomId}`}
-                      className={`bf-interactive block rounded-2xl border px-5 py-5 transition sm:px-6 ${
-                        item.severity === "action"
-                          ? "border-red-500/35 bg-red-950/25 hover:border-red-400/50"
-                          : "border-white/[0.06] bg-black/25 hover:border-amber-500/30"
-                      }`}
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <span
-                          className={`rounded-md border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.2em] ${presentation.tierClass}`}
-                        >
-                          {presentation.tier}
-                        </span>
-                        {presentation.badge ? (
-                          <span
-                            className={`rounded-md border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.15em] ${presentation.badgeClass}`}
-                          >
-                            {presentation.badge}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-4 text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-                        <span className="mr-2 opacity-90">{presentation.icon}</span>
-                        {item.title}
-                      </p>
-                      <p className="mt-2 font-mono text-sm uppercase tracking-[0.22em] text-fuchsia-400/90">
-                        {item.roomName}
-                      </p>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 px-6 py-8 text-center text-sm text-emerald-300">
-              No urgent priorities — operation is on track.
-            </p>
-          )}
-        </GlassPanel>
-      </section>
-
-      {/* Harvest event */}
-      {data.primaryHarvest ? (
-        <section className="space-y-4">
-          <SectionHeader title="Harvest event" subtitle="Facility priority" />
-          <Link href={`/rooms/${data.primaryHarvest.roomId}`} className="block">
-            <GlassPanel
-              glow="magenta"
-              padding="lg"
-              interactive
-              className="bf-atmosphere-deep bf-lab-scan !p-6 sm:!p-8"
-            >
-              <BfHarvestEventCard harvest={data.primaryHarvest} />
-            </GlassPanel>
-          </Link>
-        </section>
       ) : null}
 
-      {/* Environmental trends */}
-      <section className="space-y-4">
-        <SectionHeader title="Environmental trends" subtitle="Recent journal logs" />
-        <GlassPanel glow="cyan" padding="lg" interactive className="bf-atmosphere-deep">
-          <div className="grid gap-10 lg:grid-cols-2 xl:grid-cols-4">
-            <EnvChart
-              title="Temperature"
-              data={data.envTrend.temp}
-              labels={data.envTrend.labels}
-              accent="cyan"
-              latestValue={
-                data.base.latestTemperature != null
-                  ? String(data.base.latestTemperature)
-                  : null
-              }
-              unit="°C"
-            />
-            <EnvChart
-              title="Humidity"
-              data={data.envTrend.humidity}
-              labels={data.envTrend.labels}
-              accent="magenta"
-              latestValue={
-                data.base.latestHumidity != null ? String(data.base.latestHumidity) : null
-              }
-              unit="%"
-            />
-            <EnvChart
-              title="EC in"
-              data={data.envTrend.ec}
-              labels={data.envTrend.labels}
-              accent="cyan"
-              latestValue={data.base.latestEc != null ? String(data.base.latestEc) : null}
-            />
-            <EnvChart
-              title="VPD"
-              data={data.envTrend.vpd}
-              labels={data.envTrend.labels}
-              accent="magenta"
-              latestValue={
-                data.envTrend.vpd.length ? String(data.envTrend.vpd.at(-1)) : null
-              }
-              unit="kPa"
-            />
-          </div>
-        </GlassPanel>
+      {/* Priorities + environment */}
+      <section className="grid gap-4 xl:grid-cols-2">
+        <div className="space-y-3">
+          <SectionHeader title="Cultivation notes" subtitle="Today" compact />
+          <GlassPanel padding="md" glow={data.priorities.some((p) => p.severity === "action") ? "red" : "none"}>
+            {data.priorities.length ? (
+              <ul className="divide-y divide-white/[0.06]">
+                {data.priorities.map((item) => {
+                  const tone = priorityTone(item);
+                  return (
+                    <li key={item.id}>
+                      <Link
+                        href={`/rooms/${item.roomId}`}
+                        className={`bf-interactive -mx-1 block rounded-xl border px-4 py-3.5 transition ${tone.rowClass}`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span
+                            className={`rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${tone.labelClass}`}
+                          >
+                            {tone.label}
+                          </span>
+                          <span className="text-xs text-zinc-500">{item.roomName}</span>
+                        </div>
+                        <p className="mt-2 text-base font-semibold leading-snug text-zinc-100">
+                          {item.title}
+                        </p>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="py-4 text-center text-sm text-emerald-300/90">
+                No urgent cultivation notes — operation is on track.
+              </p>
+            )}
+          </GlassPanel>
+        </div>
+
+        <div className="space-y-3">
+          <SectionHeader title="Environment" subtitle="Recent logs" compact />
+          <GlassPanel glow="cyan" padding="md" className="bf-atmosphere-deep">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <EnvChart
+                title="Temperature"
+                data={data.envTrend.temp}
+                labels={data.envTrend.labels}
+                accent="cyan"
+                latestValue={
+                  data.base.latestTemperature != null
+                    ? String(data.base.latestTemperature)
+                    : null
+                }
+                unit="°C"
+              />
+              <EnvChart
+                title="Humidity"
+                data={data.envTrend.humidity}
+                labels={data.envTrend.labels}
+                accent="magenta"
+                latestValue={
+                  data.base.latestHumidity != null ? String(data.base.latestHumidity) : null
+                }
+                unit="%"
+              />
+              <EnvChart
+                title="EC in"
+                data={data.envTrend.ec}
+                labels={data.envTrend.labels}
+                accent="cyan"
+                latestValue={data.base.latestEc != null ? String(data.base.latestEc) : null}
+              />
+              <EnvChart
+                title="VPD"
+                data={data.envTrend.vpd}
+                labels={data.envTrend.labels}
+                accent="magenta"
+                latestValue={
+                  data.envTrend.vpd.length ? String(data.envTrend.vpd.at(-1)) : null
+                }
+                unit="kPa"
+              />
+            </div>
+          </GlassPanel>
+        </div>
       </section>
 
-      {/* Room stars */}
-      <section className="space-y-4">
-        <SectionHeader title="Active zones" subtitle="Lifecycle priority" />
-        <div className="space-y-4">
-          {sortedRooms.map((room) => (
-            <RoomStarCard key={room.id} room={room} />
-          ))}
-          {!data.rooms.length ? (
-            <GlassPanel padding="lg">
-              <p className="text-sm text-zinc-500">
-                Deploy your first grow room to see cycle progress here.
-              </p>
-              <BfButton href="/dashboard/grow-rooms" variant="primary" className="mt-4">
-                Open grow rooms
-              </BfButton>
-            </GlassPanel>
-          ) : null}
-        </div>
+      {/* Active zones — dense grid */}
+      <section className="space-y-3">
+        <SectionHeader title="Active zones" subtitle={`${sortedRooms.length} rooms`} compact />
+        {sortedRooms.length ? (
+          <ul className="grid gap-3 lg:grid-cols-2">
+            {sortedRooms.map((room) => (
+              <RoomStarCard key={room.id} room={room} />
+            ))}
+          </ul>
+        ) : (
+          <GlassPanel padding="md">
+            <p className="text-sm text-zinc-500">Deploy your first grow room to begin tracking cultivars.</p>
+            <BfButton href="/dashboard/grow-rooms" variant="primary" className="mt-3">
+              Open grow rooms
+            </BfButton>
+          </GlassPanel>
+        )}
       </section>
     </div>
   );
 }
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+function SectionHeader({
+  title,
+  subtitle,
+  compact,
+}: {
+  title: string;
+  subtitle?: string;
+  compact?: boolean;
+}) {
   return (
-    <div className="flex items-end justify-between gap-4">
-      <h2 className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
+    <div className="flex items-end justify-between gap-3">
+      <h2
+        className={`font-bold uppercase tracking-tight text-white ${
+          compact ? "text-lg sm:text-xl" : "text-2xl sm:text-3xl"
+        }`}
+      >
         {title}
       </h2>
       {subtitle ? <span className="bf-section-eyebrow">{subtitle}</span> : null}
@@ -299,9 +287,9 @@ function EnvChart({
   unit?: string;
 }) {
   return (
-    <div className="bf-interactive rounded-xl p-2 transition">
+    <div>
       <p
-        className={`mb-4 font-mono text-xs uppercase tracking-[0.22em] ${
+        className={`mb-2 font-mono text-[10px] uppercase tracking-[0.2em] ${
           accent === "cyan" ? "text-cyan-400/90" : "text-fuchsia-400/90"
         }`}
       >
@@ -311,8 +299,8 @@ function EnvChart({
         data={data}
         labels={labels}
         accent={accent}
-        width={280}
-        height={96}
+        width={240}
+        height={72}
         latestValue={latestValue}
         unit={unit}
       />
@@ -325,32 +313,34 @@ function RoomStarCard({ room }: { room: CommandCenterRoom }) {
     room.daysRemaining != null ? Math.max(room.daysRemaining, 0) : null;
 
   return (
-    <Link href={`/rooms/${room.id}`} className="block">
-      <GlassPanel
-        glow={
-          room.severity === "action" ? "red" : room.severity === "watch" ? "magenta" : "cyan"
-        }
-        padding="lg"
-        interactive
-        className="bf-atmosphere-deep bf-lab-scan"
-      >
-        <BfRoomStarMetrics
-          status={room.status}
-          roomName={room.name}
-          showRoomName
-          cultivarName={room.cultivarName}
-          genetics={room.genetics}
-          varietyCount={room.varietyCount}
-          currentDay={room.currentDay}
-          targetCycleDays={room.targetCycleDays}
-          daysLeft={daysLeft}
-          plantCount={room.plantCount}
-          harvestDate={room.harvestDateLabel}
-          phaseLabel={room.phaseLabel}
-          progressPercent={room.progressPercent}
-          actionLabel={room.actionRequired}
-        />
-      </GlassPanel>
-    </Link>
+    <li>
+      <Link href={`/rooms/${room.id}`} className="block h-full">
+        <GlassPanel
+          glow={
+            room.severity === "action" ? "red" : room.severity === "watch" ? "magenta" : "none"
+          }
+          padding="md"
+          interactive
+          className="h-full"
+        >
+          <BfRoomStarMetrics
+            status={room.status}
+            roomName={room.name}
+            cultivarName={room.cultivarName}
+            genetics={room.genetics}
+            varietyCount={room.varietyCount}
+            currentDay={room.currentDay}
+            targetCycleDays={room.targetCycleDays}
+            daysLeft={daysLeft}
+            plantCount={room.plantCount}
+            harvestDate={room.harvestDateLabel}
+            phaseLabel={room.phaseLabel}
+            progressPercent={room.progressPercent}
+            actionLabel={room.actionRequired}
+            compact
+          />
+        </GlassPanel>
+      </Link>
+    </li>
   );
 }

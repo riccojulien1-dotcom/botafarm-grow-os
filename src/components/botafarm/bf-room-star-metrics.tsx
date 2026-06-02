@@ -1,7 +1,11 @@
 import { BfCycleBlocks } from "@/components/botafarm/bf-cycle-blocks";
-import { BfGeneticsHeader } from "@/components/botafarm/bf-genetics-header";
 import { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
-import { formatMissionDate, formatRoomStatusLabel } from "@/lib/ui/format-mission-labels";
+import {
+  formatHarvestSpotlightDate,
+  formatPhaseLabel,
+  formatRoomStatusTitle,
+  toTitleCase,
+} from "@/lib/ui/format-mission-labels";
 
 type BfRoomStarMetricsProps = {
   status: string;
@@ -17,7 +21,7 @@ type BfRoomStarMetricsProps = {
   phaseLabel?: string;
   progressPercent?: number | null;
   actionLabel?: string | null;
-  showRoomName?: boolean;
+  compact?: boolean;
 };
 
 export function BfRoomStarMetrics({
@@ -34,77 +38,93 @@ export function BfRoomStarMetrics({
   phaseLabel,
   progressPercent = null,
   actionLabel,
-  showRoomName = false,
+  compact = false,
 }: BfRoomStarMetricsProps) {
-  const harvestDisplay =
-    harvestDate && harvestDate !== "Not set"
-      ? formatMissionDate(harvestDate)
-      : "—";
+  const displayCultivar = cultivarName
+    ? cultivarName.includes(" ")
+      ? toTitleCase(cultivarName)
+      : cultivarName.toUpperCase()
+    : null;
 
   const dayLine =
     currentDay != null && targetCycleDays != null
-      ? `DAY ${currentDay} OF ${targetCycleDays}`
+      ? `Day ${currentDay} of ${targetCycleDays}`
       : currentDay != null
-        ? `DAY ${currentDay}`
-        : "CYCLE NOT SET";
+        ? `Day ${currentDay}`
+        : "Cycle not set";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-4">
-          <BfGeneticsHeader cultivarName={cultivarName} genetics={genetics} />
-          <div className="flex flex-wrap gap-2">
-            <span className="bf-lab-label rounded border border-cyan-500/25 bg-cyan-950/30 px-2 py-1 text-cyan-300/90">
-              {formatRoomStatusLabel(status)}
-            </span>
-            {showRoomName && roomName ? (
-              <span className="bf-lab-label text-zinc-500">{roomName.toUpperCase()}</span>
+    <div className={compact ? "space-y-4" : "space-y-5"}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-2">
+          {displayCultivar ? (
+            <>
+              <h3
+                className={`font-bold uppercase tracking-tight text-white ${
+                  compact ? "text-2xl" : "text-3xl sm:text-4xl"
+                }`}
+              >
+                {displayCultivar}
+              </h3>
+              {genetics ? (
+                <p className="text-base font-medium text-fuchsia-300/90">{genetics}</p>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-lg font-medium text-zinc-500">No cultivar assigned</p>
+          )}
+
+          <p className="text-sm font-medium text-zinc-400">
+            {formatRoomStatusTitle(status)}
+            {roomName ? (
+              <span className="text-zinc-600"> · {toTitleCase(roomName)}</span>
             ) : null}
-            {varietyCount > 1 ? (
-              <span className="bf-lab-label text-zinc-600">
-                +{varietyCount - 1} additional cultivar{varietyCount > 2 ? "s" : ""}
-              </span>
-            ) : null}
-          </div>
+          </p>
+
+          {varietyCount > 1 ? (
+            <p className="bf-lab-label text-zinc-600">
+              +{varietyCount - 1} additional cultivar{varietyCount > 2 ? "s" : ""}
+            </p>
+          ) : null}
         </div>
+
         {actionLabel ? (
-          <span className="shrink-0 rounded-lg border border-red-500/45 bg-red-950/55 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-red-200">
-            {actionLabel}
+          <span className="shrink-0 rounded-md border border-amber-500/35 bg-amber-950/40 px-2 py-1 text-[10px] font-medium text-amber-100">
+            Review
           </span>
         ) : null}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end">
-        <div className="space-y-3">
-          <p className="text-3xl font-bold uppercase tracking-tight text-cyan-300 sm:text-4xl lg:text-5xl">
-            {dayLine}
-          </p>
-          {daysLeft != null ? (
-            <p className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
-              {Math.max(daysLeft, 0)}
-              <span className="ml-2 text-base font-medium text-zinc-400 sm:text-lg">
-                days remaining
-              </span>
-            </p>
-          ) : null}
-          {phaseLabel ? (
-            <p className="font-mono text-sm font-bold uppercase tracking-[0.24em] text-fuchsia-400/90">
-              {phaseLabel}
-            </p>
-          ) : null}
-        </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <HudMeta label="Cycle" value={dayLine} />
+        <HudMeta
+          label="Remaining"
+          value={daysLeft != null ? `${Math.max(daysLeft, 0)} days` : "—"}
+          accent="magenta"
+        />
+        <HudMeta
+          label="Harvest"
+          value={
+            harvestDate && harvestDate !== "Not set"
+              ? formatHarvestSpotlightDate(harvestDate)
+              : "—"
+          }
+        />
+      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <HudMeta label="Plants" value={String(plantCount)} />
-          <HudMeta label="Harvest" value={harvestDisplay} accent="cyan" />
-        </div>
+      {phaseLabel ? (
+        <p className="text-sm font-semibold text-fuchsia-300/90">{formatPhaseLabel(phaseLabel)}</p>
+      ) : null}
+
+      <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
+        <span>{plantCount} plants</span>
       </div>
 
       {progressPercent != null ? (
-        <div className="space-y-3 border-t border-white/[0.06] pt-5">
+        <div className="space-y-2 border-t border-white/[0.06] pt-4">
           <BfProgressBar value={progressPercent} accent="magenta" showValue={false} size="large" />
-          <BfCycleBlocks percent={progressPercent} />
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.22em] text-zinc-500">
+          {!compact ? <BfCycleBlocks percent={progressPercent} /> : null}
+          <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-600">
             {Math.round(progressPercent)}% cycle complete
           </p>
         </div>
@@ -120,14 +140,14 @@ function HudMeta({
 }: {
   label: string;
   value: string;
-  accent?: "cyan";
+  accent?: "magenta";
 }) {
   return (
-    <div className="bf-inset-panel p-3">
+    <div className="bf-inset-panel p-2.5">
       <p className="bf-lab-label">{label}</p>
       <p
-        className={`mt-1 text-sm font-bold uppercase tracking-wide ${
-          accent === "cyan" ? "text-cyan-300" : "text-white"
+        className={`mt-1 text-xs font-semibold leading-snug sm:text-sm ${
+          accent === "magenta" ? "text-fuchsia-300" : "text-zinc-200"
         }`}
       >
         {value}

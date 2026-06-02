@@ -160,6 +160,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           <div className="mt-8">
             <BfRoomStarMetrics
               status={room.status}
+              roomName={room.name}
               cultivarName={geneticsLine?.cultivarName ?? null}
               genetics={geneticsLine?.genetics ?? null}
               varietyCount={roomVarieties.length}

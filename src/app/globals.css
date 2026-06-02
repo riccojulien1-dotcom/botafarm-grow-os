@@ -256,6 +256,41 @@ body {
   opacity: 0.35;
 }
 
+.bf-collector-card {
+  border: 1px solid rgba(232, 121, 249, 0.22);
+  background: linear-gradient(
+    155deg,
+    rgba(20, 12, 28, 0.95) 0%,
+    rgba(8, 10, 14, 0.98) 45%,
+    rgba(6, 14, 18, 0.96) 100%
+  );
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(232, 121, 249, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.bf-collector-card:hover {
+  border-color: rgba(232, 121, 249, 0.38);
+  box-shadow:
+    0 16px 56px rgba(0, 0, 0, 0.6),
+    0 0 48px rgba(232, 121, 249, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.bf-genetics-sheet {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 12, 16, 0.9) 0%,
+    rgba(6, 8, 12, 0.95) 100%
+  );
+}
+
 .bf-section-eyebrow {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.6875rem;

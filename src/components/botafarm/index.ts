@@ -1,7 +1,9 @@
 export { BfAreaChart } from "@/components/botafarm/bf-area-chart";
 export { BfButton } from "@/components/botafarm/bf-button";
 export { BfCycleBlocks } from "@/components/botafarm/bf-cycle-blocks";
+export { BfCultivarSpotlight } from "@/components/botafarm/bf-cultivar-spotlight";
 export { BfGeneticsHeader } from "@/components/botafarm/bf-genetics-header";
+export { BfGeneticsOverview } from "@/components/botafarm/bf-genetics-overview";
 export { BfHarvestEventCard } from "@/components/botafarm/bf-harvest-event-card";
 export { BfHealthScore, healthGlowTier } from "@/components/botafarm/bf-health-score";
 export { BfHeading } from "@/components/botafarm/bf-heading";

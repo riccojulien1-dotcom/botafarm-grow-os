@@ -187,7 +187,6 @@ export function GrowRoomCard({
         <BfRoomStarMetrics
           status={room.status}
           roomName={room.name}
-          showRoomName
           cultivarName={geneticsLine?.cultivarName ?? null}
           genetics={geneticsLine?.genetics ?? null}
           varietyCount={roomVarieties.length}
@@ -199,6 +198,7 @@ export function GrowRoomCard({
           phaseLabel={phaseLabel}
           progressPercent={cycle.progressPercent}
           actionLabel={actionLabel}
+          compact
         />
 
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/[0.05] pt-4">

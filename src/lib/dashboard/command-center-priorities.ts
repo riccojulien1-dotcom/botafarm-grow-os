@@ -1,6 +1,7 @@
 import type { Recommendation } from "@/lib/recommendations/types";
 import { SEVERITY_RANK } from "@/lib/recommendations/types";
 import type { GrowRoomTask } from "@/lib/tasks/types";
+import { toTitleCase } from "@/lib/ui/format-mission-labels";
 
 export type CommandCenterPriority = {
   id: string;
@@ -13,39 +14,62 @@ export type CommandCenterPriority = {
 };
 
 function recommendationTitle(item: Recommendation, roomName: string): string {
-  const room = roomName.toUpperCase();
-
-  const byMetric: Record<string, string> = {
-    "EC Management":
-      item.severity === "action"
-        ? "RUNOFF EC OUT OF TARGET RANGE"
-        : "RUNOFF EC TRENDING OUT OF RANGE",
-    pH:
-      item.severity === "action"
-        ? "ROOT ZONE DATA REQUIRES REVIEW"
-        : "ROOT ZONE PH DRIFT DETECTED",
-    Dryback: "IRRIGATION STRATEGY REVIEW REQUIRED",
-    VPD: "VPD OUTSIDE TARGET WINDOW",
-    PPFD: "ENVIRONMENTAL TARGET MISSED",
+  const byMetric: Record<string, { action: string; watch: string }> = {
+    "EC Management": {
+      action: "Runoff EC out of target range",
+      watch: "Runoff check recommended",
+    },
+    pH: {
+      action: "Root zone review suggested",
+      watch: "Root zone pH drift noted",
+    },
+    Dryback: {
+      action: "Irrigation strategy review required",
+      watch: "Irrigation strategy review suggested",
+    },
+    VPD: {
+      action: "VPD outside target window",
+      watch: "Environment review suggested",
+    },
+    PPFD: {
+      action: "Environmental target missed",
+      watch: "Light level review suggested",
+    },
   };
 
-  if (byMetric[item.metric]) {
-    return byMetric[item.metric];
+  const copy = byMetric[item.metric];
+  if (copy) {
+    return item.severity === "action" ? copy.action : copy.watch;
   }
 
   if (item.severity === "action") {
-    return `${room} REQUIRES ATTENTION`;
+    return `${toTitleCase(roomName)} requires attention`;
   }
 
-  return item.issue.toUpperCase();
+  return toTitleCase(item.issue);
 }
 
 function taskTitle(task: GrowRoomTask, overdue: boolean): string {
-  const label = task.title.toUpperCase();
-  if (overdue) {
-    return `${label} — OVERDUE`;
+  const normalized = task.title.trim().toLowerCase();
+
+  if (normalized.includes("flip") && normalized.includes("flower")) {
+    return overdue ? "Flower transition due" : "Flower transition scheduled today";
   }
-  return `${label} — DUE TODAY`;
+  if (normalized.includes("defoliat")) {
+    return overdue ? "Defoliation due" : "Defoliation scheduled today";
+  }
+  if (normalized.includes("runoff") || normalized.includes("ec")) {
+    return overdue ? "Runoff check due" : "Runoff check scheduled today";
+  }
+  if (normalized.includes("ph") && normalized.includes("pen")) {
+    return overdue ? "pH pen calibration due" : "pH pen calibration scheduled today";
+  }
+  if (normalized.includes("calibrat")) {
+    return overdue ? `${toTitleCase(task.title)} due` : `${toTitleCase(task.title)} scheduled today`;
+  }
+
+  const label = toTitleCase(task.title);
+  return overdue ? `${label} due` : `${label} scheduled today`;
 }
 
 function todayIsoDate() {
@@ -73,7 +97,7 @@ export function buildCommandCenterPriorities(
     items.push({
       id: `task-${task.id}`,
       title: taskTitle(task, overdue),
-      roomName: room.name.toUpperCase(),
+      roomName: toTitleCase(room.name),
       roomId: task.grow_room_id,
       kind: "task",
       severity: overdue ? "action" : "watch",
@@ -90,7 +114,7 @@ export function buildCommandCenterPriorities(
       items.push({
         id: `alert-${roomId}-${rec.metric}`,
         title: recommendationTitle(rec, room.name),
-        roomName: room.name.toUpperCase(),
+        roomName: toTitleCase(room.name),
         roomId,
         kind: "alert",
         severity: rec.severity,
