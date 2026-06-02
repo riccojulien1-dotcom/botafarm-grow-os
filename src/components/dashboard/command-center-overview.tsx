@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { BfAreaChart } from "@/components/botafarm/bf-area-chart";
 import { BfButton } from "@/components/botafarm/bf-button";
+import { EnvironmentIntelligenceCard } from "@/components/environment/environment-intelligence-card";
 import { BfCultivarSpotlight } from "@/components/botafarm/bf-cultivar-spotlight";
 import { BfGeneticsOverview } from "@/components/botafarm/bf-genetics-overview";
 import { BfHealthScore } from "@/components/botafarm/bf-health-score";
@@ -10,10 +10,12 @@ import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterData, CommandCenterRoom } from "@/lib/dashboard/get-command-center-data";
+import type { EnvironmentIntelligence } from "@/lib/environment/get-environment-intelligence";
 import { formatHarvestCountdownLine } from "@/lib/ui/format-mission-labels";
 
 type CommandCenterOverviewProps = {
   data: CommandCenterData;
+  environment: EnvironmentIntelligence;
 };
 
 function healthStatusLabel(status: CommandCenterData["healthStatus"]) {
@@ -51,7 +53,7 @@ function priorityTone(item: CommandCenterPriority) {
   };
 }
 
-export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
+export function CommandCenterOverview({ data, environment }: CommandCenterOverviewProps) {
   const sortedRooms = [...data.rooms].sort(
     (left, right) => severityRank(left.severity) - severityRank(right.severity),
   );
@@ -139,10 +141,15 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
         />
       ) : null}
 
-      {/* Priorities + environment */}
-      <section className="grid gap-4 xl:grid-cols-2">
-        <div className="space-y-3">
-          <SectionHeader title="Cultivation notes" subtitle="Today" compact />
+      {/* Environment intelligence — decision center */}
+      <section className="space-y-3">
+        <SectionHeader title="Environment" subtitle="Irrigation & climate" compact />
+        <EnvironmentIntelligenceCard data={environment} />
+      </section>
+
+      {/* Cultivation notes */}
+      <section className="space-y-3">
+        <SectionHeader title="Cultivation notes" subtitle="Today" compact />
           <GlassPanel padding="md" glow={data.priorities.some((p) => p.severity === "action") ? "red" : "none"}>
             {data.priorities.length ? (
               <ul className="divide-y divide-white/[0.06]">
@@ -176,54 +183,6 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
               </p>
             )}
           </GlassPanel>
-        </div>
-
-        <div className="space-y-3">
-          <SectionHeader title="Environment" subtitle="Recent logs" compact />
-          <GlassPanel glow="cyan" padding="md" className="bf-atmosphere-deep">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <EnvChart
-                title="Temperature"
-                data={data.envTrend.temp}
-                labels={data.envTrend.labels}
-                accent="cyan"
-                latestValue={
-                  data.base.latestTemperature != null
-                    ? String(data.base.latestTemperature)
-                    : null
-                }
-                unit="°C"
-              />
-              <EnvChart
-                title="Humidity"
-                data={data.envTrend.humidity}
-                labels={data.envTrend.labels}
-                accent="magenta"
-                latestValue={
-                  data.base.latestHumidity != null ? String(data.base.latestHumidity) : null
-                }
-                unit="%"
-              />
-              <EnvChart
-                title="EC in"
-                data={data.envTrend.ec}
-                labels={data.envTrend.labels}
-                accent="cyan"
-                latestValue={data.base.latestEc != null ? String(data.base.latestEc) : null}
-              />
-              <EnvChart
-                title="VPD"
-                data={data.envTrend.vpd}
-                labels={data.envTrend.labels}
-                accent="magenta"
-                latestValue={
-                  data.envTrend.vpd.length ? String(data.envTrend.vpd.at(-1)) : null
-                }
-                unit="kPa"
-              />
-            </div>
-          </GlassPanel>
-        </div>
       </section>
 
       {/* Active zones — dense grid */}
@@ -267,43 +226,6 @@ function SectionHeader({
         {title}
       </h2>
       {subtitle ? <span className="bf-section-eyebrow">{subtitle}</span> : null}
-    </div>
-  );
-}
-
-function EnvChart({
-  title,
-  data,
-  labels,
-  accent,
-  latestValue,
-  unit,
-}: {
-  title: string;
-  data: number[];
-  labels: string[];
-  accent: "cyan" | "magenta";
-  latestValue: string | null;
-  unit?: string;
-}) {
-  return (
-    <div>
-      <p
-        className={`mb-2 font-mono text-[10px] uppercase tracking-[0.2em] ${
-          accent === "cyan" ? "text-cyan-400/90" : "text-fuchsia-400/90"
-        }`}
-      >
-        {title}
-      </p>
-      <BfAreaChart
-        data={data}
-        labels={labels}
-        accent={accent}
-        width={240}
-        height={72}
-        latestValue={latestValue}
-        unit={unit}
-      />
     </div>
   );
 }
