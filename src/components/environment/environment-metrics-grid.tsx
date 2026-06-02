@@ -5,78 +5,77 @@ import type {
 } from "@/lib/environment/get-environment-intelligence";
 
 const CLIMATE_KEYS: EnvironmentMetricKey[] = ["temperature", "humidity", "vpd"];
-const IRRIGATION_ROW_KEYS: EnvironmentMetricKey[] = ["ec_in", "ec_runoff", "ph_in"];
-const IRRIGATION_FULL_KEYS: EnvironmentMetricKey[] = ["ph_runoff"];
+const IRRIGATION_KEYS: EnvironmentMetricKey[] = [
+  "ec_in",
+  "ec_runoff",
+  "ph_in",
+  "ph_runoff",
+];
 
 type EnvironmentMetricsGridProps = {
   metrics: EnvironmentMetricSnapshot[];
-  compact?: boolean;
-  showChart?: boolean;
+  variant?: "cockpit" | "deck";
 };
 
 function metricMap(metrics: EnvironmentMetricSnapshot[]) {
   return new Map(metrics.map((metric) => [metric.key, metric]));
 }
 
-function GroupLabel({ children }: { children: string }) {
+function CockpitSectionHeader({
+  title,
+  accent,
+}: {
+  title: string;
+  accent: "cyan" | "magenta";
+}) {
+  const line =
+    accent === "cyan"
+      ? "from-cyan-500/50 via-cyan-500/20"
+      : "from-fuchsia-500/50 via-fuchsia-500/20";
+  const text = accent === "cyan" ? "text-cyan-400/90" : "text-fuchsia-400/90";
+
   return (
-    <p className="bf-lab-label border-b border-white/[0.06] pb-2 text-zinc-500">{children}</p>
+    <div className="flex items-center gap-3">
+      <div className={`h-px flex-1 bg-gradient-to-r ${line} to-transparent`} />
+      <p className={`font-mono text-[10px] uppercase tracking-[0.28em] ${text}`}>{title}</p>
+      <div className={`h-px flex-1 bg-gradient-to-l ${line} to-transparent`} />
+    </div>
   );
 }
 
 export function EnvironmentMetricsGrid({
   metrics,
-  compact = false,
-  showChart = false,
+  variant = "cockpit",
 }: EnvironmentMetricsGridProps) {
   const byKey = metricMap(metrics);
 
   const climate = CLIMATE_KEYS.map((key) => byKey.get(key)).filter(
     (metric): metric is EnvironmentMetricSnapshot => metric != null,
   );
-  const irrigationRow = IRRIGATION_ROW_KEYS.map((key) => byKey.get(key)).filter(
-    (metric): metric is EnvironmentMetricSnapshot => metric != null,
-  );
-  const irrigationFull = IRRIGATION_FULL_KEYS.map((key) => byKey.get(key)).filter(
+  const irrigation = IRRIGATION_KEYS.map((key) => byKey.get(key)).filter(
     (metric): metric is EnvironmentMetricSnapshot => metric != null,
   );
 
+  const gap = variant === "cockpit" ? "gap-2 sm:gap-2.5" : "gap-3 sm:gap-4";
+
   return (
-    <div className={compact ? "space-y-3" : "space-y-5"}>
+    <div className={variant === "cockpit" ? "space-y-3" : "space-y-5"}>
       <div className="space-y-2">
-        <GroupLabel>Climate</GroupLabel>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <CockpitSectionHeader title="Climate" accent="cyan" />
+        <div className={`grid grid-cols-3 ${gap}`}>
           {climate.map((metric) => (
-            <EnvironmentMetricTile
-              key={metric.key}
-              metric={metric}
-              compact={compact}
-              showChart={showChart}
-            />
+            <EnvironmentMetricTile key={metric.key} metric={metric} variant={variant} />
           ))}
         </div>
       </div>
 
       <div className="space-y-2">
-        <GroupLabel>Irrigation</GroupLabel>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {irrigationRow.map((metric) => (
-            <EnvironmentMetricTile
-              key={metric.key}
-              metric={metric}
-              compact={compact}
-              showChart={showChart}
-            />
+        <CockpitSectionHeader title="Irrigation" accent="magenta" />
+        <div className={`grid grid-cols-2 ${gap}`}>
+          {irrigation.map((metric) => (
+            <EnvironmentMetricTile key={metric.key} metric={metric} variant={variant} />
           ))}
         </div>
-        {irrigationFull.map((metric) => (
-          <EnvironmentMetricTile
-            key={metric.key}
-            metric={metric}
-            compact={compact}
-            showChart={showChart}
-          />
-        ))}
       </div>
     </div>
   );

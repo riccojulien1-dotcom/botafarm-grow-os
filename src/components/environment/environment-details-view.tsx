@@ -31,8 +31,8 @@ export function EnvironmentDetailsView({ data }: EnvironmentDetailsViewProps) {
         subtitle="Decision center for room climate, feed, and runoff — built from your manual journal entries."
       />
 
-      <GlassPanel glow="cyan" padding="md">
-        <EnvironmentMetricsGrid metrics={data.metrics} showChart />
+      <GlassPanel glow="cyan" padding="md" className="bf-atmosphere-deep">
+        <EnvironmentMetricsGrid metrics={data.metrics} variant="deck" />
       </GlassPanel>
 
       <section className="space-y-3">

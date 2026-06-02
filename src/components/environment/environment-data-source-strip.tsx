@@ -9,37 +9,59 @@ export function EnvironmentDataSourceStrip({
   quality,
   dense = false,
 }: EnvironmentDataSourceStripProps) {
+  const items = [
+    { label: "Last update", value: quality.lastReadingLabel },
+    { label: "Records", value: String(quality.recordCount), accent: true },
+    { label: "Source", value: quality.sourceLabel },
+  ];
+
+  if (dense) {
+    return (
+      <div className="flex flex-wrap items-stretch gap-2 rounded-xl border border-cyan-500/15 bg-cyan-950/25 p-2">
+        {items.map((item) => (
+          <CockpitChip
+            key={item.label}
+            label={item.label}
+            value={item.value}
+            accent={item.accent}
+            inline
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={`bf-inset-panel grid border-white/[0.06] ${
-        dense
-          ? "grid-cols-3 gap-2 p-2.5 text-xs"
-          : "gap-4 p-4 sm:grid-cols-3"
-      }`}
-    >
-      <SourceItem label="Last update" value={quality.lastReadingLabel} dense={dense} />
-      <SourceItem label="Records" value={String(quality.recordCount)} dense={dense} />
-      <SourceItem label="Source type" value={quality.sourceLabel} dense={dense} />
+    <div className="grid gap-4 sm:grid-cols-3">
+      {items.map((item) => (
+        <CockpitChip key={item.label} label={item.label} value={item.value} accent={item.accent} />
+      ))}
     </div>
   );
 }
 
-function SourceItem({
+function CockpitChip({
   label,
   value,
-  dense,
+  accent,
+  inline,
 }: {
   label: string;
   value: string;
-  dense?: boolean;
+  accent?: boolean;
+  inline?: boolean;
 }) {
   return (
-    <div>
-      <p className={dense ? "text-[9px] uppercase tracking-wider text-zinc-600" : "bf-lab-label"}>
-        {label}
-      </p>
+    <div
+      className={`rounded-lg border border-white/[0.06] bg-black/30 px-3 py-2 ${
+        inline ? "min-w-[7rem] flex-1" : ""
+      }`}
+    >
+      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-600">{label}</p>
       <p
-        className={`font-semibold text-zinc-200 ${dense ? "mt-0.5 text-xs" : "mt-1 text-sm"}`}
+        className={`mt-0.5 text-sm font-semibold tabular-nums ${
+          accent ? "text-cyan-300" : "text-zinc-200"
+        }`}
       >
         {value}
       </p>
