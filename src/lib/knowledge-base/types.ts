@@ -4,8 +4,25 @@ export const KNOWLEDGE_SOURCE_TYPES = [
   "SOP",
   "blog",
   "protocol",
+  "guide",
   "rule",
 ] as const;
+
+/** High-level Botafarm knowledge domains for Brain retrieval */
+export const KNOWLEDGE_TOPIC_VALUES = [
+  "Environment",
+  "Irrigation",
+  "Crop steering",
+  "Nutrition",
+  "Lighting",
+  "Harvest",
+  "Curing",
+  "Breeding",
+  "Tissue culture",
+  "General cultivation",
+] as const;
+
+export type KnowledgeTopic = (typeof KNOWLEDGE_TOPIC_VALUES)[number];
 
 export type KnowledgeSourceType = (typeof KNOWLEDGE_SOURCE_TYPES)[number];
 
@@ -54,6 +71,10 @@ export type KnowledgeEntry = {
   title: string;
   sourceType: KnowledgeSourceType;
   category: string;
+  /** Brain domain — e.g. Environment, Irrigation */
+  topic: KnowledgeTopic | string;
+  /** Specific subject within the topic — e.g. VPD, Dryback */
+  subject: string;
   phaseRelevance: GrowPhase[];
   relatedMetrics: string[];
   shortSummary: string;
@@ -75,17 +96,22 @@ export type KnowledgeEntrySummary = Pick<
   | "id"
   | "title"
   | "category"
+  | "topic"
+  | "subject"
   | "shortSummary"
   | "phaseRelevance"
   | "relatedMetrics"
   | "sourceType"
   | "priority"
+  | "tags"
 >;
 
 export type KnowledgeFilterParams = {
   category?: string;
   phase?: string;
   metric?: string;
+  topic?: string;
+  tag?: string;
   sourceType?: KnowledgeSourceType;
   query?: string;
 };

@@ -5,6 +5,7 @@ export const KNOWLEDGE_CATEGORIES = [
   "EC",
   "pH",
   "VPD",
+  "Environment",
   "Dryback",
   "Runoff",
   "Irrigation strategy",
@@ -12,9 +13,14 @@ export const KNOWLEDGE_CATEGORIES = [
   "Vegetative steering",
   "Generative steering",
   "Crop steering",
+  "Nutrition",
   "Flowering phases",
   "Stretch",
   "Harvest window",
+  "Harvest",
+  "Curing",
+  "Breeding",
+  "Tissue culture",
   "Variety behavior",
 ] as const;
 

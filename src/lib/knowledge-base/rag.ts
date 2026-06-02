@@ -5,6 +5,8 @@ export function buildKnowledgeRagDocument(entry: KnowledgeEntry): KnowledgeRagDo
   const contentSections = [
     `# ${entry.title}`,
     `Category: ${entry.category}`,
+    `Topic: ${entry.topic}`,
+    `Subject: ${entry.subject}`,
     `Source: ${entry.sourceType}`,
     `Phases: ${entry.phaseRelevance.join(", ")}`,
     `Metrics: ${entry.relatedMetrics.join(", ")}`,

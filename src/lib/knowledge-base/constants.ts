@@ -37,5 +37,8 @@ export const KNOWLEDGE_SOURCE_TYPE_LABELS: Record<KnowledgeSourceType, string> =
   SOP: "SOP",
   blog: "Blog",
   protocol: "Protocol",
+  guide: "Guide",
   rule: "Rule",
 };
+
+export { KNOWLEDGE_TOPIC_VALUES as KNOWLEDGE_TOPICS } from "@/lib/knowledge-base/types";

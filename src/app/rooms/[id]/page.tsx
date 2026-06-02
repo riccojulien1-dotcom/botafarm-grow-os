@@ -15,6 +15,7 @@ import { RoomTasksSection } from "@/components/tasks/room-tasks-section";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
 import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
+import { RoomMetricKnowledgePanel } from "@/components/grow-rooms/room-metric-knowledge-panel";
 import {
   getCropCycleEngine,
   getCultivationPhaseLabel,
@@ -27,6 +28,11 @@ import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
 import { ROOM_VARIETY_SELECT, VARIETY_PRESET_SELECT } from "@/lib/varieties/queries";
 import type { RoomVarietyRecord, VarietyPreset } from "@/lib/varieties/types";
 import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
+import {
+  ROOM_CULTIVATION_METRICS,
+  getKnowledgeForRoomMetric,
+  toKnowledgeSummary,
+} from "@/lib/knowledge-base";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -131,6 +137,12 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
     currentDay,
     room.target_cycle_days,
   );
+
+  const metricKnowledgeBundles = ROOM_CULTIVATION_METRICS.map((metric) => ({
+    id: metric.id,
+    label: metric.label,
+    entries: getKnowledgeForRoomMetric(metric.id, room.status).map(toKnowledgeSummary),
+  }));
 
   return (
     <AppShell user={user}>
@@ -240,6 +252,14 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
               : null,
           )}
         />
+
+        <GlassPanel glow="magenta" padding="lg">
+          <RoomMetricKnowledgePanel
+            roomName={room.name}
+            roomPhase={room.status}
+            bundles={metricKnowledgeBundles}
+          />
+        </GlassPanel>
 
         <RoomJournalCharts logs={logsAsc} />
       </section>

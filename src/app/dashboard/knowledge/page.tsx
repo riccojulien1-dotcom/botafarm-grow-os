@@ -1,5 +1,6 @@
 import { KnowledgeEntryCard } from "@/components/knowledge-base/knowledge-entry-card";
 import { KnowledgeLibraryFilters } from "@/components/knowledge-base/knowledge-library-filters";
+import { KnowledgeSearchForm } from "@/components/knowledge-base/knowledge-search-form";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import {
@@ -16,12 +17,22 @@ type KnowledgePageProps = {
     category?: string;
     phase?: string;
     metric?: string;
+    topic?: string;
+    tag?: string;
     sourceType?: string;
+    q?: string;
   }>;
 };
 
 function parseSourceType(value: string | undefined): KnowledgeSourceType | undefined {
-  const allowed: KnowledgeSourceType[] = ["book", "SOP", "blog", "protocol", "rule"];
+  const allowed: KnowledgeSourceType[] = [
+    "book",
+    "SOP",
+    "blog",
+    "protocol",
+    "guide",
+    "rule",
+  ];
   if (!value) {
     return undefined;
   }
@@ -35,6 +46,9 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
   const category = params.category?.trim();
   const phase = params.phase?.trim();
   const metric = params.metric?.trim();
+  const topic = params.topic?.trim();
+  const tag = params.tag?.trim();
+  const query = params.q?.trim();
   const sourceType = parseSourceType(params.sourceType?.trim());
 
   const allEntries = getAllKnowledgeEntries();
@@ -42,7 +56,10 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
     category,
     phase,
     metric,
+    topic,
+    tag,
     sourceType,
+    query,
   });
   const categories = getCategoriesWithEntryCounts();
   const facets = getKnowledgeFilterFacets();
@@ -50,10 +67,20 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
   return (
     <section className="space-y-8">
       <BfPageHeader
-        eyebrow="Mission Control"
+        eyebrow="Botafarm Brain"
         title="Knowledge Library"
-        subtitle="Botafarm books, SOPs, protocols, and cultivation rules — structured for recommendations and retrieval."
+        subtitle="Validated Botafarm books, SOPs, protocols, and guides — every future recommendation must trace to a catalog entry."
       />
+
+      <GlassPanel padding="lg" glow="magenta">
+        <KnowledgeSearchForm
+          defaultQuery={query}
+          hiddenParams={{ category, phase, metric, topic, tag, sourceType }}
+        />
+        <p className="mt-3 text-xs text-zinc-500">
+          Search only returns indexed Botafarm content. Nothing is generated or invented.
+        </p>
+      </GlassPanel>
 
       <GlassPanel padding="lg">
         <KnowledgeLibraryFilters
@@ -61,7 +88,7 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
           filteredCount={entries.length}
           facets={facets}
           categories={categories}
-          active={{ category, phase, metric, sourceType }}
+          active={{ category, phase, metric, topic, tag, sourceType, query }}
         />
       </GlassPanel>
 
@@ -73,7 +100,10 @@ export default async function KnowledgeLibraryPage({ searchParams }: KnowledgePa
         </ul>
       ) : (
         <GlassPanel padding="lg">
-          <p className="text-sm text-zinc-400">No entries match these filters.</p>
+          <p className="text-sm text-zinc-400">
+            No entries match these filters. Import books and SOPs in a future sprint to populate
+            reserved categories.
+          </p>
         </GlassPanel>
       )}
     </section>

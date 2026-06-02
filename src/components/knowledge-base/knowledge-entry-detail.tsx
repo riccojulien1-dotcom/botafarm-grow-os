@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { KnowledgeRelatedEntries } from "@/components/knowledge-base/knowledge-related-entries";
+import { KnowledgeSourceCitation } from "@/components/knowledge-base/knowledge-source-citation";
 import { KNOWLEDGE_SOURCE_TYPE_LABELS } from "@/lib/knowledge-base";
 import type { KnowledgeEntry } from "@/lib/knowledge-base/types";
 
@@ -35,22 +37,33 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         >
           Back to knowledge library
         </Link>
+        <Link
+          href={`/dashboard/knowledge?topic=${encodeURIComponent(entry.topic)}`}
+          className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-fuchsia-500/30 hover:text-fuchsia-200"
+        >
+          More in {entry.topic}
+        </Link>
       </div>
 
       <header className="bf-glass bf-glass-shine rounded-2xl border border-fuchsia-500/25 p-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-md border border-fuchsia-900/50 bg-fuchsia-950/30 px-2 py-0.5 text-xs text-fuchsia-200">
+            {entry.topic}
+          </span>
+          <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
             {entry.category}
           </span>
           <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
             {KNOWLEDGE_SOURCE_TYPE_LABELS[entry.sourceType]}
           </span>
           <span className="text-xs uppercase text-zinc-500">{entry.priority} priority</span>
-          <span className="text-xs text-zinc-500">ID: {entry.id}</span>
         </div>
         <h1 className="mt-3 text-3xl font-bold uppercase tracking-tight text-white">{entry.title}</h1>
+        <p className="mt-1 text-sm text-fuchsia-300/80">Subject: {entry.subject}</p>
         <p className="mt-2 text-sm text-zinc-400">{entry.shortSummary}</p>
       </header>
+
+      <KnowledgeSourceCitation entry={entry} />
 
       <SectionBlock title="Detailed content">
         <p className="leading-relaxed">{entry.detailedContent}</p>
@@ -78,7 +91,14 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         <SectionBlock title="Phase relevance">
           <ul className="list-inside list-disc space-y-1">
             {entry.phaseRelevance.map((phase) => (
-              <li key={phase}>{phase}</li>
+              <li key={phase}>
+                <Link
+                  href={`/dashboard/knowledge?phase=${encodeURIComponent(phase)}`}
+                  className="text-cyan-300/90 hover:text-cyan-200"
+                >
+                  {phase}
+                </Link>
+              </li>
             ))}
           </ul>
         </SectionBlock>
@@ -86,12 +106,13 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         <SectionBlock title="Related metrics">
           <div className="flex flex-wrap gap-2">
             {entry.relatedMetrics.map((metric) => (
-              <span
+              <Link
                 key={metric}
-                className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs text-zinc-200"
+                href={`/dashboard/knowledge?metric=${encodeURIComponent(metric)}`}
+                className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-xs text-zinc-200 transition hover:border-cyan-500/40"
               >
                 {metric}
-              </span>
+              </Link>
             ))}
           </div>
         </SectionBlock>
@@ -125,66 +146,30 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         )}
       </SectionBlock>
 
-      {entry.sourceMetadata ? (
-        <SectionBlock title="Source metadata">
-          <dl className="grid gap-2 sm:grid-cols-2">
-            {entry.sourceMetadata.documentTitle ? (
-              <MetadataItem label="Document" value={entry.sourceMetadata.documentTitle} />
-            ) : null}
-            {entry.sourceMetadata.author ? (
-              <MetadataItem label="Author" value={entry.sourceMetadata.author} />
-            ) : null}
-            {entry.sourceMetadata.chapter ? (
-              <MetadataItem label="Chapter" value={entry.sourceMetadata.chapter} />
-            ) : null}
-            {entry.sourceMetadata.section ? (
-              <MetadataItem label="Section" value={entry.sourceMetadata.section} />
-            ) : null}
-            {entry.sourceMetadata.documentId ? (
-              <MetadataItem label="Document ID" value={entry.sourceMetadata.documentId} />
-            ) : null}
-            {entry.sourceMetadata.url ? (
-              <MetadataItem label="URL" value={entry.sourceMetadata.url} />
-            ) : null}
-          </dl>
-        </SectionBlock>
-      ) : null}
-
-      {entry.botafarmNote ? (
-        <SectionBlock title="Botafarm note">
-          <p className="rounded-lg border border-fuchsia-900/40 bg-fuchsia-950/20 p-3 text-fuchsia-100/90">
-            {entry.botafarmNote}
-          </p>
-        </SectionBlock>
-      ) : null}
-
       {entry.tags.length ? (
         <SectionBlock title="Tags">
           <div className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (
-              <span
+              <Link
                 key={tag}
-                className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-400"
+                href={`/dashboard/knowledge?tag=${encodeURIComponent(tag)}`}
+                className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-400 transition hover:border-fuchsia-500/40"
               >
                 {tag}
-              </span>
+              </Link>
             ))}
           </div>
         </SectionBlock>
       ) : null}
 
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Related knowledge</h2>
+        <KnowledgeRelatedEntries entryId={entry.id} />
+      </section>
+
       <p className="text-xs text-zinc-600">
-        Updated {entry.updatedAt.slice(0, 10)} · Catalog entry for future RAG ingestion
+        Updated {entry.updatedAt.slice(0, 10)} · Botafarm Brain catalog · Sprint 25 RAG-ready
       </p>
     </article>
-  );
-}
-
-function MetadataItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs text-zinc-500">{label}</dt>
-      <dd className="text-sm text-zinc-200">{value}</dd>
-    </div>
   );
 }
