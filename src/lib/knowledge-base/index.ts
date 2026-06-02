@@ -84,6 +84,14 @@ export {
   searchKnowledge,
 } from "@/lib/knowledge-base/brain";
 export { ROOM_CULTIVATION_METRICS } from "@/lib/knowledge-base/metric-aliases";
+export {
+  CULTIVATION_METRIC_CONCEPTS,
+  getAvailableMetricConcepts,
+  getConceptHref,
+  resolveConceptForMetric,
+} from "@/lib/knowledge-base/concept-routes";
+export { POPULAR_KNOWLEDGE_TOPICS, getPopularTopicHref } from "@/lib/knowledge-base/popular-topics";
+export { UPCOMING_BOTAFARM_BOOK_SOURCES } from "@/lib/knowledge-base/upcoming-sources";
 export type { KnowledgeRecommendationLink } from "@/lib/knowledge-base/recommendations-bridge";
 export type { KnowledgeCategory } from "@/lib/knowledge-base/categories";
 export type {

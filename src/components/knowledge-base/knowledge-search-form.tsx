@@ -20,7 +20,7 @@ export function KnowledgeSearchForm({
         name="q"
         type="search"
         defaultValue={defaultQuery}
-        placeholder="Search titles, topics, tags, protocols…"
+        placeholder="Search concepts, metrics, irrigation, environment…"
         className="min-w-[16rem] flex-1 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-fuchsia-500/40 focus:outline-none"
       />
       <button

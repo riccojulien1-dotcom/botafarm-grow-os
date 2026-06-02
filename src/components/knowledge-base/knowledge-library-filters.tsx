@@ -1,10 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import {
-  KNOWLEDGE_SOURCE_TYPE_LABELS,
-  type KnowledgeSourceType,
-} from "@/lib/knowledge-base";
 
 type ActiveFilters = {
   category?: string;
@@ -12,7 +8,6 @@ type ActiveFilters = {
   metric?: string;
   topic?: string;
   tag?: string;
-  sourceType?: string;
   query?: string;
 };
 
@@ -20,7 +15,6 @@ type KnowledgeLibraryFiltersProps = {
   totalCount: number;
   filteredCount: number;
   facets: {
-    sourceTypes: KnowledgeSourceType[];
     phases: string[];
     metrics: string[];
     topics: string[];
@@ -43,7 +37,6 @@ function buildKnowledgeLibraryHref(overrides: ActiveFilters & { clear?: boolean 
     metric: overrides.metric,
     topic: overrides.topic,
     tag: overrides.tag,
-    sourceType: overrides.sourceType,
     query: overrides.query,
   };
 
@@ -65,10 +58,6 @@ function buildKnowledgeLibraryHref(overrides: ActiveFilters & { clear?: boolean 
   if (merged.tag) {
     search.set("tag", merged.tag);
   }
-  if (merged.sourceType) {
-    search.set("sourceType", merged.sourceType);
-  }
-
   const query = search.toString();
   return query ? `/dashboard/knowledge?${query}` : "/dashboard/knowledge";
 }
@@ -83,7 +72,6 @@ function withActive(
     metric: patch.metric !== undefined ? patch.metric : active.metric,
     topic: patch.topic !== undefined ? patch.topic : active.topic,
     tag: patch.tag !== undefined ? patch.tag : active.tag,
-    sourceType: patch.sourceType !== undefined ? patch.sourceType : active.sourceType,
     query: active.query,
   };
 }
@@ -110,13 +98,12 @@ export function KnowledgeLibraryFilters({
     !!active.phase ||
     !!active.metric ||
     !!active.topic ||
-    !!active.tag ||
-    !!active.sourceType;
+    !!active.tag;
 
   return (
     <aside className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium text-zinc-200">Categories &amp; filters</h2>
+        <h2 className="text-sm font-medium text-zinc-200">Explore by topic</h2>
         <p className="text-xs text-zinc-500">
           Showing {filteredCount} of {totalCount}
         </p>
@@ -227,29 +214,8 @@ export function KnowledgeLibraryFilters({
         ))}
       </FilterGroup>
 
-      <FilterGroup label="Source type">
-        <Link
-          href={buildKnowledgeLibraryHref(withActive(active, { sourceType: undefined }))}
-          className={`rounded-md px-2.5 py-1 text-xs ${filterChipClassName(!active.sourceType)}`}
-        >
-          All sources
-        </Link>
-        {facets.sourceTypes.map((sourceType) => (
-          <Link
-            key={sourceType}
-            href={buildKnowledgeLibraryHref(withActive(active, { sourceType }))}
-            className={`rounded-md px-2.5 py-1 text-xs ${filterChipClassName(
-              active.sourceType === sourceType,
-            )}`}
-          >
-            {KNOWLEDGE_SOURCE_TYPE_LABELS[sourceType]}
-          </Link>
-        ))}
-      </FilterGroup>
-
       <p className="text-xs text-zinc-500">
-        Reserved categories await Sprint 24 book &amp; SOP ingestion. Retrieval APIs are ready for
-        RAG in Sprint 25.
+        Filter by cultivation area, growth phase, metric, or tag.
       </p>
     </aside>
   );

@@ -1,14 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { KnowledgeDiscreetReference } from "@/components/knowledge-base/knowledge-discreet-reference";
 import { KnowledgeRelatedEntries } from "@/components/knowledge-base/knowledge-related-entries";
 import { KnowledgeRelationshipsPanel } from "@/components/knowledge-base/knowledge-relationships-panel";
-import { KnowledgeSourceCitation } from "@/components/knowledge-base/knowledge-source-citation";
-import {
-  KNOWLEDGE_CONFIDENCE_LABELS,
-  KNOWLEDGE_CONTENT_STATUS_LABELS,
-  KNOWLEDGE_SOURCE_TYPE_LABELS,
-} from "@/lib/knowledge-base";
+import { KnowledgeRecentlyViewedTracker } from "@/components/knowledge-base/knowledge-recently-viewed-tracker";
 import type { PublicKnowledgeEntry } from "@/lib/knowledge-base/types";
 
 type KnowledgeEntryDetailProps = {
@@ -35,12 +31,14 @@ function SectionBlock({
 export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
   return (
     <article className="space-y-4">
+      <KnowledgeRecentlyViewedTracker entryId={entry.id} title={entry.title} />
+
       <div className="flex flex-wrap gap-2">
         <Link
           href="/dashboard/knowledge"
           className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-cyan-500/30 hover:text-cyan-200"
         >
-          Back to Brain
+          Knowledge Center
         </Link>
         <Link
           href={`/dashboard/knowledge?topic=${encodeURIComponent(entry.topic)}`}
@@ -58,28 +56,14 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
           <span className="rounded-md border border-zinc-800 px-2 py-0.5 text-xs text-zinc-500">
             {entry.subcategory}
           </span>
-          <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
-            {KNOWLEDGE_SOURCE_TYPE_LABELS[entry.sourceType]}
-          </span>
-          <span className="text-xs text-zinc-500">
-            {KNOWLEDGE_CONTENT_STATUS_LABELS[entry.contentStatus]} ·{" "}
-            {KNOWLEDGE_CONFIDENCE_LABELS[entry.confidenceLevel]} confidence
-          </span>
         </div>
-        <h1 className="mt-3 text-3xl font-bold uppercase tracking-tight text-white">{entry.title}</h1>
-        <p className="mt-1 text-sm text-fuchsia-300/80">
-          {entry.topic} · {entry.subject}
-        </p>
+        <p className="mt-3 bf-lab-label text-fuchsia-400/80">Concept</p>
+        <h1 className="text-3xl font-bold uppercase tracking-tight text-white">{entry.title}</h1>
         <p className="mt-2 text-sm text-zinc-400">{entry.shortSummary}</p>
       </header>
 
-      <KnowledgeSourceCitation entry={entry} />
-
-      <SectionBlock title="Extracted knowledge">
+      <SectionBlock title="Description">
         <p className="leading-relaxed">{entry.knowledgeSummary}</p>
-        <p className="text-xs text-zinc-600">
-          This is Botafarm-extracted guidance — not a full book chapter or downloadable document.
-        </p>
       </SectionBlock>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -93,23 +77,27 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
 
         <SectionBlock title="Common mistakes">
           <ul className="list-inside list-disc space-y-1 text-amber-100/90">
-            {entry.commonMistakes.map((mistake) => (
-              <li key={mistake}>{mistake}</li>
-            ))}
+            {entry.commonMistakes.length ? (
+              entry.commonMistakes.map((mistake) => <li key={mistake}>{mistake}</li>)
+            ) : (
+              <li className="text-zinc-500">None listed for this concept.</li>
+            )}
           </ul>
         </SectionBlock>
       </div>
 
-      <SectionBlock title="Warnings">
-        <ul className="list-inside list-disc space-y-1 text-amber-100/90">
-          {entry.warnings.map((warning) => (
-            <li key={warning}>{warning}</li>
-          ))}
-        </ul>
-      </SectionBlock>
+      {entry.warnings.length ? (
+        <SectionBlock title="Warnings">
+          <ul className="list-inside list-disc space-y-1 text-amber-100/90">
+            {entry.warnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </SectionBlock>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionBlock title="Growth phases">
+        <SectionBlock title="Recommended phase">
           <ul className="list-inside list-disc space-y-1">
             {entry.phaseRelevance.map((phase) => (
               <li key={phase}>
@@ -139,8 +127,8 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
         </SectionBlock>
       </div>
 
-      <SectionBlock title="Recommended ranges">
-        {entry.recommendedRanges.length ? (
+      {entry.recommendedRanges.length ? (
+        <SectionBlock title="Recommended ranges">
           <ul className="space-y-3">
             {entry.recommendedRanges.map((range) => (
               <li
@@ -159,10 +147,8 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-zinc-500">No ranges documented yet.</p>
-        )}
-      </SectionBlock>
+        </SectionBlock>
+      ) : null}
 
       {entry.tags.length ? (
         <SectionBlock title="Tags">
@@ -182,21 +168,15 @@ export function KnowledgeEntryDetail({ entry }: KnowledgeEntryDetailProps) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-bold uppercase tracking-tight text-white">
-          Knowledge relationships
+          Related concepts
         </h2>
-        <GlassInset>
+        <div className="bf-inset-panel p-4">
           <KnowledgeRelationshipsPanel entryId={entry.id} />
-        </GlassInset>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Related knowledge</h2>
+        </div>
         <KnowledgeRelatedEntries entryId={entry.id} />
       </section>
+
+      <KnowledgeDiscreetReference entry={entry} />
     </article>
   );
-}
-
-function GlassInset({ children }: { children: ReactNode }) {
-  return <div className="bf-inset-panel p-4">{children}</div>;
 }

@@ -8,10 +8,14 @@ const links = [
   { href: "/dashboard/environment", label: "Environment", short: "Env" },
   { href: "/dashboard/grow-rooms", label: "Grow rooms", short: "Rooms" },
   { href: "/dashboard/journal", label: "Journal", short: "Log" },
-  { href: "/dashboard/knowledge", label: "Brain", short: "KB" },
+  { href: "/dashboard/knowledge", label: "Knowledge", short: "KB" },
 ];
 
-export function DashboardNav() {
+type DashboardNavProps = {
+  showAdminLink?: boolean;
+};
+
+export function DashboardNav({ showAdminLink = false }: DashboardNavProps) {
   const pathname = usePathname();
 
   return (
@@ -36,6 +40,18 @@ export function DashboardNav() {
           </Link>
         );
       })}
+      {showAdminLink ? (
+        <Link
+          href="/admin/brain"
+          className={`rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+            pathname.startsWith("/admin")
+              ? "bg-gradient-to-r from-amber-600/90 to-amber-500/80 text-black"
+              : "text-amber-400/90 hover:bg-amber-950/30 hover:text-amber-200"
+          }`}
+        >
+          Admin
+        </Link>
+      ) : null}
     </nav>
   );
 }

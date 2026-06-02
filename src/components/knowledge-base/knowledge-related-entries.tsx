@@ -10,7 +10,7 @@ export function KnowledgeRelatedEntries({ entryId }: KnowledgeRelatedEntriesProp
 
   if (!related.length) {
     return (
-      <p className="text-sm text-zinc-500">No related Botafarm knowledge entries in the catalog yet.</p>
+      <p className="text-sm text-zinc-500">No related concepts in the Knowledge Center yet.</p>
     );
   }
 
