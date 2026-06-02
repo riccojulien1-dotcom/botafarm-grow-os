@@ -1,3 +1,4 @@
+import { countActiveCultivars } from "@/lib/cultivation/fetch-room-cultivars";
 import { createClient } from "@/lib/supabase/server";
 
 export type DashboardRecentLog = {
@@ -13,6 +14,7 @@ export type DashboardRecentLog = {
 export type DashboardData = {
   totalGrowRooms: number;
   totalPlantCount: number;
+  activeCultivarCount: number;
   totalJournalLogs: number;
   latestLogDate: string | null;
   latestTemperature: number | null;
@@ -31,7 +33,7 @@ function formatLogDate(logDate: string | null, loggedAt: string) {
 export async function getDashboardData(userId: string): Promise<DashboardData> {
   const supabase = await createClient();
 
-  const [roomsResult, logsCountResult, latestLogResult, recentLogsResult] =
+  const [roomsResult, logsCountResult, latestLogResult, recentLogsResult, activeCultivarCount] =
     await Promise.all([
       supabase
         .from("grow_rooms")
@@ -61,6 +63,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
         .order("log_date", { ascending: false })
         .order("logged_at", { ascending: false })
         .limit(5),
+      countActiveCultivars(userId),
     ]);
 
   const rooms = roomsResult.data ?? [];
@@ -89,6 +92,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
   return {
     totalGrowRooms: rooms.length,
     totalPlantCount,
+    activeCultivarCount,
     totalJournalLogs: logsCountResult.count ?? 0,
     latestLogDate: latestLog
       ? formatLogDate(latestLog.log_date, latestLog.logged_at)

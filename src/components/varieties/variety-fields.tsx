@@ -86,6 +86,34 @@ export function VarietyFields({ idPrefix, values }: VarietyFieldsProps) {
       </div>
 
       <div>
+        <label htmlFor={`${idPrefix}-lineage`} className="text-sm text-zinc-200">
+          Lineage
+        </label>
+        <input
+          id={`${idPrefix}-lineage`}
+          name="lineage"
+          defaultValue={values?.lineage ?? ""}
+          key={`${idPrefix}-lineage-${values?.lineage ?? ""}`}
+          className={inputClassName}
+          placeholder="Cereal Milk × Zushi"
+        />
+      </div>
+
+      <div>
+        <label htmlFor={`${idPrefix}-breeder`} className="text-sm text-zinc-200">
+          Breeder
+        </label>
+        <input
+          id={`${idPrefix}-breeder`}
+          name="breeder"
+          defaultValue={values?.breeder ?? ""}
+          key={`${idPrefix}-breeder-${values?.breeder ?? ""}`}
+          className={inputClassName}
+          placeholder="Botafarm"
+        />
+      </div>
+
+      <div>
         <label
           htmlFor={`${idPrefix}-harvest_window_start_days`}
           className="text-sm text-zinc-200"

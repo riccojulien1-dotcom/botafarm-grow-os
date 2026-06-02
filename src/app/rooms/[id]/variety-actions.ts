@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { ensureDefaultBatchForVariety } from "@/app/rooms/[id]/batch-actions";
 import { requireUser } from "@/lib/auth/get-user";
 import { mergePresetWithFormPayload } from "@/lib/varieties/build-variety-payload";
 import { parseVarietyFormData } from "@/lib/varieties/parse-variety-form";
@@ -12,10 +13,13 @@ import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string };
 
-function revalidateVarietyPaths(growRoomId: string) {
+function revalidateVarietyPaths(growRoomId: string, varietyId?: string) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/grow-rooms");
   revalidatePath(`/rooms/${growRoomId}`);
+  if (varietyId) {
+    revalidatePath(`/varieties/${varietyId}`);
+  }
 }
 
 async function verifyOwnedRoom(
@@ -101,19 +105,35 @@ export async function createRoomVarietyAction(
 
   const now = new Date().toISOString();
 
-  const { error } = await supabase.from("room_varieties").insert({
-    user_id: user.id,
-    grow_room_id: growRoomId,
-    ...payload,
-    updated_at: now,
-  });
+  const { data: inserted, error } = await supabase
+    .from("room_varieties")
+    .insert({
+      user_id: user.id,
+      grow_room_id: growRoomId,
+      ...payload,
+      updated_at: now,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  if (inserted?.id) {
+    await ensureDefaultBatchForVariety(
+      supabase,
+      user.id,
+      inserted.id,
+      growRoomId,
+      payload.plant_count,
+      payload.flowering_duration_days,
+      payload.harvest_window_end_days,
+    );
+  }
+
   await syncRoomPlantCountFromVarieties(supabase, user.id, growRoomId);
-  revalidateVarietyPaths(growRoomId);
+  revalidateVarietyPaths(growRoomId, inserted?.id);
   return { success: "Variety added." };
 }
 
@@ -156,7 +176,7 @@ export async function updateRoomVarietyAction(
   }
 
   await syncRoomPlantCountFromVarieties(supabase, user.id, growRoomId);
-  revalidateVarietyPaths(growRoomId);
+  revalidateVarietyPaths(growRoomId, varietyId);
   return { success: "Variety updated." };
 }
 

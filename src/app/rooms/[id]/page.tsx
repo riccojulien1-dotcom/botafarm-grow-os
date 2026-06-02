@@ -12,7 +12,9 @@ import { CropTimelineSection } from "@/components/grow-rooms/crop-timeline-secti
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
 import { RoomTasksSection } from "@/components/tasks/room-tasks-section";
+import { CultivarsInRoomSection } from "@/components/cultivation/cultivars-in-room-section";
 import { RoomVarietiesSection } from "@/components/varieties/room-varieties-section";
+import { fetchRoomCultivars } from "@/lib/cultivation/fetch-room-cultivars";
 import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { KnowledgeMetricConceptLinks } from "@/components/knowledge-base/knowledge-metric-concept-links";
@@ -79,6 +81,7 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   ]);
 
   const roomVarieties = (varieties ?? []) as RoomVarietyRecord[];
+  const roomCultivars = await fetchRoomCultivars(user.id, room.id);
   const harvestVarieties = roomVarieties.map(toVarietyForHarvest);
 
   const totalPlantsFromVarieties = roomVarieties.reduce(
@@ -192,6 +195,8 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         </GlassPanel>
 
         <RoomDetailManagement room={room} />
+
+        <CultivarsInRoomSection roomName={room.name} cultivars={roomCultivars} />
 
         <RoomVarietiesSection
           growRoomId={room.id}

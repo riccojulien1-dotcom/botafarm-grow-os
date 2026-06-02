@@ -10,6 +10,8 @@ export function mergePresetWithFormPayload(
     preset_slug: preset.slug,
     name: form.name.trim() || preset.name,
     genetics: form.genetics ?? preset.genetics,
+    lineage: form.lineage,
+    breeder: form.breeder,
     plant_count: form.plant_count,
     variety_type: form.variety_type,
     flowering_duration_days: form.flowering_duration_days ?? preset.flowering_duration_days,

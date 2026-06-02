@@ -93,9 +93,9 @@ export function CommandCenterOverview({ data, environment }: CommandCenterOvervi
             <BfMissionKpi value={data.base.totalPlantCount} label="Plants" accent="white" />
             <BfMissionKpi value={data.base.totalGrowRooms} label="Rooms" accent="cyan" />
             <BfMissionKpi
-              value={data.taskOpen}
-              label="Tasks"
-              accent={data.taskOverdue > 0 ? "alert" : "white"}
+              value={data.base.activeCultivarCount}
+              label="Active Cultivars"
+              accent="magenta"
             />
             <BfMissionKpi value={heroHarvest} label="Harvest" accent="magenta" multiline />
           </div>

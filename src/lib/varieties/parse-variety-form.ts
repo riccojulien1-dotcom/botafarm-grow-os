@@ -8,6 +8,8 @@ import {
 export type VarietyFormPayload = {
   name: string;
   genetics: string | null;
+  lineage: string | null;
+  breeder: string | null;
   plant_count: number;
   variety_type: VarietyType;
   flowering_duration_days: number | null;
@@ -139,6 +141,8 @@ export function parseVarietyFormData(
     payload: {
       name,
       genetics: String(formData.get("genetics") ?? "").trim() || null,
+      lineage: String(formData.get("lineage") ?? "").trim() || null,
+      breeder: String(formData.get("breeder") ?? "").trim() || null,
       plant_count,
       variety_type,
       flowering_duration_days,

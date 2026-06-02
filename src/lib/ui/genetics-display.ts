@@ -5,10 +5,14 @@ export type GeneticsLine = {
   genetics: string | null;
 };
 
+export function varietyCrossLine(variety: RoomVarietyRecord): string | null {
+  return variety.lineage ?? variety.genetics;
+}
+
 export function toGeneticsLine(variety: RoomVarietyRecord): GeneticsLine {
   return {
     cultivarName: variety.name.toUpperCase(),
-    genetics: variety.genetics,
+    genetics: varietyCrossLine(variety),
   };
 }
 

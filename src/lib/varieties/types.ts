@@ -19,6 +19,8 @@ export type RoomVarietyRecord = {
   id: string;
   name: string;
   genetics: string | null;
+  lineage: string | null;
+  breeder: string | null;
   plant_count: number | null;
   flowering_duration_days: number | null;
   harvest_window_start_days: number | null;

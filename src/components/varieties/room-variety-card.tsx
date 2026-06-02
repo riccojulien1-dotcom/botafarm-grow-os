@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 
@@ -13,11 +14,14 @@ import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-suc
 import { SENSITIVITY_LABELS } from "@/lib/varieties/constants";
 import type { VarietyFieldValues } from "@/lib/varieties/parse-variety-form";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
+import { varietyCrossLine } from "@/lib/ui/genetics-display";
 
 function varietyToFieldValues(variety: RoomVarietyRecord): VarietyFieldValues {
   return {
     name: variety.name,
     genetics: variety.genetics,
+    lineage: variety.lineage,
+    breeder: variety.breeder,
     plant_count: variety.plant_count ?? 0,
     variety_type: variety.variety_type,
     flowering_duration_days: variety.flowering_duration_days,
@@ -137,9 +141,12 @@ export function RoomVarietyCard({ variety, growRoomId }: RoomVarietyCardProps) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-base font-medium text-white">
+            <Link
+              href={`/varieties/${variety.id}`}
+              className="text-base font-medium text-white hover:text-fuchsia-200"
+            >
               {variety.plant_count ?? 0} {variety.name}
-            </p>
+            </Link>
             <span className="rounded-md border border-zinc-700 px-2 py-0.5 text-xs text-zinc-400">
               {variety.variety_type}
             </span>
@@ -148,8 +155,11 @@ export function RoomVarietyCard({ variety, growRoomId }: RoomVarietyCardProps) {
             ) : null}
           </div>
           <p className="text-sm text-zinc-300">
-            {variety.genetics ?? "Cross / genetics not set"}
+            {varietyCrossLine(variety) ?? "Cross / genetics not set"}
           </p>
+          {variety.breeder ? (
+            <p className="text-xs text-zinc-500">Breeder: {variety.breeder}</p>
+          ) : null}
           <p className="text-sm text-fuchsia-300/90">{formatTiming(variety)}</p>
           <p className="text-xs text-zinc-500">
             Stretch {SENSITIVITY_LABELS[variety.stretch]} · EC{" "}
