@@ -201,6 +201,10 @@ export type KnowledgeFilterParams = {
 };
 
 /** Registry row — source exists as citation anchor, not as a readable document */
+export const BOOK_MAP_STATUSES = ["mapped", "pending"] as const;
+
+export type BookMapStatus = (typeof BOOK_MAP_STATUSES)[number];
+
 export type KnowledgeSourceRegistryEntry = {
   id: string;
   sourceTitle: string;
@@ -212,6 +216,9 @@ export type KnowledgeSourceRegistryEntry = {
   targetEntryCount?: number;
   internalReferencePrefix?: string;
   plannedForSprint?: number;
+  bookMapStatus?: BookMapStatus;
+  bookMapNodeCount?: number;
+  bookMapChapterCount?: number;
 };
 
 export type KnowledgeBrainStats = {

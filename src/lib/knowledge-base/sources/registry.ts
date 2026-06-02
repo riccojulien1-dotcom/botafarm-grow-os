@@ -1,4 +1,7 @@
 import {
+  getIrrigationHandbookBookMapStats,
+} from "@/lib/knowledge-base/book-map";
+import {
   IRRIGATION_HANDBOOK_SOURCE_ID,
   HANDBOOK_TARGET_ENTRY_COUNT,
 } from "@/lib/knowledge-base/domains/irrigation-manifest";
@@ -99,11 +102,27 @@ export function getCitedKnowledgeSources(): KnowledgeSourceRegistryEntry[] {
   return [...byTitle.values()].sort((a, b) => a.sourceTitle.localeCompare(b.sourceTitle));
 }
 
+function attachHandbookBookMapFields(
+  source: KnowledgeSourceRegistryEntry,
+): KnowledgeSourceRegistryEntry {
+  if (source.id !== IRRIGATION_HANDBOOK_SOURCE_ID) {
+    return source;
+  }
+
+  const bookMapStats = getIrrigationHandbookBookMapStats();
+  return {
+    ...source,
+    bookMapStatus: "mapped",
+    bookMapNodeCount: bookMapStats.nodeCount,
+    bookMapChapterCount: bookMapStats.chapterCount,
+  };
+}
+
 function attachCoverageFields(
   source: KnowledgeSourceRegistryEntry,
 ): KnowledgeSourceRegistryEntry {
   const report = buildSourceCoverageReport(source);
-  return {
+  const withCoverage = {
     ...source,
     extractedEntryCount: report.entriesCreated,
     categoriesCovered: report.categoriesCovered,
@@ -116,6 +135,8 @@ function attachCoverageFields(
           : "ingesting"
         : source.ingestionStatus,
   };
+
+  return attachHandbookBookMapFields(withCoverage);
 }
 
 export function getKnowledgeSourceRegistry(): KnowledgeSourceRegistryEntry[] {

@@ -12,6 +12,7 @@ import {
   getKnowledgeSourceRegistry,
   getPipelineReadiness,
 } from "@/lib/knowledge-base";
+import { getIrrigationHandbookBookMapStats } from "@/lib/knowledge-base/book-map";
 import { HANDBOOK_TARGET_ENTRY_COUNT } from "@/lib/knowledge-base/domains/irrigation-manifest";
 import { KNOWLEDGE_BASE_ENTRIES } from "@/lib/knowledge-base/seeds";
 
@@ -19,6 +20,7 @@ export const dynamic = "force-dynamic";
 
 export default function AdminBrainPage() {
   const stats = getKnowledgeBrainStats();
+  const bookMapStats = getIrrigationHandbookBookMapStats();
   const registry = getKnowledgeSourceRegistry();
   const indexRecords = buildKnowledgeIndex(KNOWLEDGE_BASE_ENTRIES);
   const pipeline = getPipelineReadiness();
@@ -42,6 +44,12 @@ export default function AdminBrainPage() {
             </p>
           </div>
           <Link
+            href="/admin/brain/book-map"
+            className="rounded-lg border border-cyan-500/30 px-3 py-1.5 text-sm text-cyan-200 transition hover:border-cyan-400/50"
+          >
+            Book map
+          </Link>
+          <Link
             href="/admin/brain/ingestion"
             className="rounded-lg border border-fuchsia-500/30 px-3 py-1.5 text-sm text-fuchsia-200 transition hover:border-fuchsia-400/50"
           >
@@ -54,12 +62,34 @@ export default function AdminBrainPage() {
       </GlassPanel>
 
       <GlassPanel padding="lg" glow="cyan">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold uppercase tracking-tight text-white">
+              Handbook book map
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Real handbook structure mapped — {bookMapStats.nodeCount} nodes (
+              {bookMapStats.irrIdRange.first}–{bookMapStats.irrIdRange.last}),{" "}
+              {bookMapStats.learningPathChapterCount} learning chapters +{" "}
+              {bookMapStats.referenceChapterCount} reference. No document in repo.
+            </p>
+          </div>
+          <Link
+            href="/admin/brain/book-map"
+            className="rounded-lg border border-cyan-500/30 px-3 py-1.5 text-sm text-cyan-200 transition hover:border-cyan-400/50"
+          >
+            View book map
+          </Link>
+        </div>
+      </GlassPanel>
+
+      <GlassPanel padding="lg" glow="cyan">
         <h2 className="text-lg font-bold uppercase tracking-tight text-white">
           Handbook ingestion prep
         </h2>
         <p className="mt-1 text-sm text-zinc-500">
           Multi-domain classification ready — {HANDBOOK_TARGET_ENTRY_COUNT} target concepts across
-          Irrigation, Crop Steering, Environment, and Nutrition. Book not loaded.
+          Irrigation, Crop Steering, Environment, and Nutrition. Not ingested or staged.
         </p>
         <div className="mt-4">
           <KnowledgeIngestionPipelinePanel

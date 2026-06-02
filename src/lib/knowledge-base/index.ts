@@ -25,6 +25,16 @@ export {
   registerKnowledgeSource,
 } from "@/lib/knowledge-base/layers/ingestion";
 export {
+  getIrrigationHandbookBookMap,
+  getIrrigationHandbookBookMapStats,
+  IRRIGATION_HANDBOOK_BOOK_MAP,
+  resolveLearningPath,
+  resolveMetricContext,
+  resolveAllMetricContexts,
+  getBookMapStats,
+  buildBookMapIndex,
+} from "@/lib/knowledge-base/book-map";
+export {
   HANDBOOK_FEED_BRAIN_CATEGORIES,
   HANDBOOK_TARGET_CONCEPTS,
   HANDBOOK_TARGET_ENTRY_COUNT,
@@ -161,6 +171,7 @@ export type {
   KnowledgeConfidenceLevel,
   KnowledgeIngestionPayload,
   KnowledgeSourceRegistryEntry,
+  BookMapStatus,
   KnowledgeDocumentFormat,
   KnowledgeEntryKind,
   GrowPhase,
