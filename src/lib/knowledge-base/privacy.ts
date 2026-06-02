@@ -5,10 +5,16 @@ const FORBIDDEN_PUBLIC_KEYS = [
   "rawContent",
   "rawDocumentText",
   "fullChapter",
+  "chapterText",
+  "fullText",
+  "pageContent",
+  "pages",
   "pdfUrl",
   "documentUrl",
   "downloadUrl",
   "exportUrl",
+  "documentBody",
+  "bookText",
 ] as const;
 
 export function assertNoForbiddenKnowledgeFields(

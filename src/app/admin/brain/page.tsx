@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { KnowledgeBrainLayers } from "@/components/knowledge-base/knowledge-brain-layers";
+import { KnowledgeIngestionPipelinePanel } from "@/components/knowledge-base/knowledge-ingestion-pipeline-panel";
 import { KnowledgeSourcesOverview } from "@/components/knowledge-base/knowledge-sources-overview";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
@@ -7,9 +10,10 @@ import {
   countKnowledgeRelationships,
   getKnowledgeBrainStats,
   getKnowledgeSourceRegistry,
+  getPipelineReadiness,
 } from "@/lib/knowledge-base";
+import { HANDBOOK_TARGET_ENTRY_COUNT } from "@/lib/knowledge-base/domains/irrigation-manifest";
 import { KNOWLEDGE_BASE_ENTRIES } from "@/lib/knowledge-base/seeds";
-import { UPCOMING_BOTAFARM_BOOK_SOURCES } from "@/lib/knowledge-base/upcoming-sources";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +21,7 @@ export default function AdminBrainPage() {
   const stats = getKnowledgeBrainStats();
   const registry = getKnowledgeSourceRegistry();
   const indexRecords = buildKnowledgeIndex(KNOWLEDGE_BASE_ENTRIES);
+  const pipeline = getPipelineReadiness();
 
   return (
     <section className="space-y-8">
@@ -27,10 +32,41 @@ export default function AdminBrainPage() {
       />
 
       <GlassPanel padding="lg" glow="magenta">
-        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Knowledge sources</h2>
-        <p className="mt-1 text-sm text-zinc-500">Internal source registry and document policy</p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold uppercase tracking-tight text-white">
+              Knowledge sources
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Status, entries, categories covered, coverage % — admin only
+            </p>
+          </div>
+          <Link
+            href="/admin/brain/ingestion"
+            className="rounded-lg border border-fuchsia-500/30 px-3 py-1.5 text-sm text-fuchsia-200 transition hover:border-fuchsia-400/50"
+          >
+            Ingestion pipeline
+          </Link>
+        </div>
         <div className="mt-4">
           <KnowledgeSourcesOverview />
+        </div>
+      </GlassPanel>
+
+      <GlassPanel padding="lg" glow="cyan">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">
+          Handbook ingestion prep
+        </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Multi-domain classification ready — {HANDBOOK_TARGET_ENTRY_COUNT} target concepts across
+          Irrigation, Crop Steering, Environment, and Nutrition. Book not loaded.
+        </p>
+        <div className="mt-4">
+          <KnowledgeIngestionPipelinePanel
+            stages={pipeline.stages}
+            stagedEntryCount={pipeline.stagedEntryCount}
+            readyForIrrigationBook={pipeline.readyForIrrigationBook}
+          />
         </div>
       </GlassPanel>
 
@@ -49,12 +85,17 @@ export default function AdminBrainPage() {
           <AdminStat label="Extracted entries" value={String(stats.entryCount)} />
           <AdminStat label="Active categories" value={String(stats.categoryCount)} />
           <AdminStat label="Documents loaded" value={String(stats.documentsLoaded)} />
+          <AdminStat
+            label="Handbook coverage"
+            value={`${stats.handbookCoveragePercent}%`}
+          />
+          <AdminStat label="Staged entries" value={String(stats.stagedEntryCount)} />
           <AdminStat label="Index records" value={String(indexRecords.length)} />
           <AdminStat
             label="Relationships mapped"
             value={String(countKnowledgeRelationships())}
           />
-          <AdminStat label="Ingestion status" value="Foundation ready" />
+          <AdminStat label="Ingestion status" value="Sprint 26 pipeline ready" />
           <AdminStat label="Indexing status" value="In-memory index active" />
           <AdminStat label="Retrieval status" value="Catalog queries active" />
           <AdminStat label="Citation status" value="Reference IDs enforced" />
@@ -83,22 +124,6 @@ export default function AdminBrainPage() {
         </ul>
       </GlassPanel>
 
-      <GlassPanel padding="md">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-white">Sprint 26 book slots</h2>
-        <p className="mt-1 text-xs text-zinc-500">
-          Upcoming injection targets — user Knowledge Center UX stays unchanged
-        </p>
-        <ul className="mt-3 flex flex-wrap gap-2">
-          {UPCOMING_BOTAFARM_BOOK_SOURCES.map((book) => (
-            <li
-              key={book}
-              className="rounded border border-dashed border-zinc-700 px-2.5 py-1 text-xs text-zinc-500"
-            >
-              {book}
-            </li>
-          ))}
-        </ul>
-      </GlassPanel>
     </section>
   );
 }

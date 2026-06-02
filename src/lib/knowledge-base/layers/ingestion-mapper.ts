@@ -5,6 +5,7 @@ export function entryFromIngestionPayload(payload: KnowledgeIngestionPayload): K
   return {
     id: payload.id,
     title: payload.title,
+    entryKind: payload.entryKind,
     sourceType: payload.sourceReference.sourceType,
     category: payload.category,
     subcategory: payload.subcategory,

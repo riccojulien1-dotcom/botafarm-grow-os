@@ -21,9 +21,15 @@ export default async function AdminLayout({
         </Link>
         <Link
           href="/admin/brain"
-          className="rounded-xl bg-gradient-to-r from-amber-600/90 to-amber-500/80 px-4 py-2.5 text-sm font-medium text-black"
+          className="rounded-xl px-4 py-2.5 text-sm text-zinc-400 transition hover:text-amber-200"
         >
           Brain Admin
+        </Link>
+        <Link
+          href="/admin/brain/ingestion"
+          className="rounded-xl bg-gradient-to-r from-amber-600/90 to-amber-500/80 px-4 py-2.5 text-sm font-medium text-black"
+        >
+          Ingestion
         </Link>
       </nav>
       {children}

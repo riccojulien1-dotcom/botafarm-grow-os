@@ -62,6 +62,26 @@ export const KNOWLEDGE_CONTENT_STATUSES = [
 
 export type KnowledgeContentStatus = (typeof KNOWLEDGE_CONTENT_STATUSES)[number];
 
+export const KNOWLEDGE_DOCUMENT_FORMATS = [
+  "pdf",
+  "docx",
+  "markdown",
+  "structured_text",
+] as const;
+
+export type KnowledgeDocumentFormat = (typeof KNOWLEDGE_DOCUMENT_FORMATS)[number];
+
+export const KNOWLEDGE_ENTRY_KINDS = [
+  "concept",
+  "sop",
+  "rule",
+  "diagnostic",
+  "corrective_action",
+  "warning",
+] as const;
+
+export type KnowledgeEntryKind = (typeof KNOWLEDGE_ENTRY_KINDS)[number];
+
 export const KNOWLEDGE_SOURCE_INGESTION_STATUSES = [
   "not_ingested",
   "registered",
@@ -121,6 +141,7 @@ export type KnowledgeSourceMetadata = {
 export type KnowledgeEntry = {
   id: string;
   title: string;
+  entryKind?: KnowledgeEntryKind;
   sourceType: KnowledgeSourceType;
   category: string;
   subcategory: string;
@@ -186,6 +207,9 @@ export type KnowledgeSourceRegistryEntry = {
   sourceType: KnowledgeSourceType;
   ingestionStatus: KnowledgeSourceIngestionStatus;
   extractedEntryCount: number;
+  categoriesCovered?: string[];
+  coveragePercent?: number;
+  targetEntryCount?: number;
   internalReferencePrefix?: string;
   plannedForSprint?: number;
 };
@@ -196,12 +220,16 @@ export type KnowledgeBrainStats = {
   categoryCount: number;
   documentsLoaded: number;
   relationshipsMapped: number;
+  stagedEntryCount: number;
+  irrigationCoveragePercent: number;
+  handbookCoveragePercent: number;
 };
 
 /** Future ingestion payload — extracted fields only */
 export type KnowledgeIngestionPayload = {
   id: string;
   title: string;
+  entryKind?: KnowledgeEntryKind;
   sourceReference: KnowledgeSourceReference;
   category: string;
   subcategory: string;

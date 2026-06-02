@@ -1,3 +1,13 @@
+import {
+  IRRIGATION_HANDBOOK_SOURCE_ID,
+  HANDBOOK_TARGET_ENTRY_COUNT,
+} from "@/lib/knowledge-base/domains/irrigation-manifest";
+import { getStagedEntryCount } from "@/lib/knowledge-base/pipeline/staging-store";
+import {
+  buildSourceCoverageReport,
+  getAllSourceCoverageReports,
+  getHandbookCoveragePercent,
+} from "@/lib/knowledge-base/sources/coverage";
 import { KNOWLEDGE_BASE_ENTRIES } from "@/lib/knowledge-base/seeds";
 import { countKnowledgeRelationships } from "@/lib/knowledge-base/layers/relationships";
 import { KNOWLEDGE_BRAIN_CATEGORIES } from "@/lib/knowledge-base/types";
@@ -5,6 +15,8 @@ import type {
   KnowledgeBrainStats,
   KnowledgeSourceRegistryEntry,
 } from "@/lib/knowledge-base/types";
+
+export { getAllSourceCoverageReports, buildSourceCoverageReport };
 
 /** Reserved Botafarm sources — registered for Sprint 25, no documents loaded in Sprint 24 */
 export const RESERVED_BOTAFARM_SOURCES: KnowledgeSourceRegistryEntry[] = [
@@ -15,7 +27,8 @@ export const RESERVED_BOTAFARM_SOURCES: KnowledgeSourceRegistryEntry[] = [
     ingestionStatus: "not_ingested",
     extractedEntryCount: 0,
     internalReferencePrefix: "IRR",
-    plannedForSprint: 25,
+    targetEntryCount: HANDBOOK_TARGET_ENTRY_COUNT,
+    plannedForSprint: 26,
   },
   {
     id: "crop-steering-protocol",
@@ -86,6 +99,25 @@ export function getCitedKnowledgeSources(): KnowledgeSourceRegistryEntry[] {
   return [...byTitle.values()].sort((a, b) => a.sourceTitle.localeCompare(b.sourceTitle));
 }
 
+function attachCoverageFields(
+  source: KnowledgeSourceRegistryEntry,
+): KnowledgeSourceRegistryEntry {
+  const report = buildSourceCoverageReport(source);
+  return {
+    ...source,
+    extractedEntryCount: report.entriesCreated,
+    categoriesCovered: report.categoriesCovered,
+    coveragePercent: report.coveragePercent,
+    targetEntryCount: report.targetConceptCount,
+    ingestionStatus:
+      source.id === IRRIGATION_HANDBOOK_SOURCE_ID && report.entriesCreated > 0
+        ? report.coveragePercent >= 100
+          ? "indexed"
+          : "ingesting"
+        : source.ingestionStatus,
+  };
+}
+
 export function getKnowledgeSourceRegistry(): KnowledgeSourceRegistryEntry[] {
   const cited = getCitedKnowledgeSources();
   const citedTitles = new Set(cited.map((source) => source.sourceTitle));
@@ -94,7 +126,7 @@ export function getKnowledgeSourceRegistry(): KnowledgeSourceRegistryEntry[] {
     (source) => !citedTitles.has(source.sourceTitle),
   );
 
-  return [...cited, ...reserved];
+  return [...cited, ...reserved].map(attachCoverageFields);
 }
 
 export function getKnowledgeBrainStats(): KnowledgeBrainStats {
@@ -106,5 +138,8 @@ export function getKnowledgeBrainStats(): KnowledgeBrainStats {
     categoryCount: countActiveCategories(),
     documentsLoaded: 0,
     relationshipsMapped: countKnowledgeRelationships(),
+    stagedEntryCount: getStagedEntryCount(),
+    irrigationCoveragePercent: getHandbookCoveragePercent(),
+    handbookCoveragePercent: getHandbookCoveragePercent(),
   };
 }

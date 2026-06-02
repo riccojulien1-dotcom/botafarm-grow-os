@@ -51,7 +51,7 @@ export function validateIngestionPayload(
   return { valid: errors.length === 0, errors };
 }
 
-/** Future Sprint 25 — merge validated extracted entry into catalog */
+/** Merge validated extracted entry into catalog (admin pipeline / seeds) */
 export function ingestExtractedEntry(
   payload: KnowledgeIngestionPayload,
   catalog: KnowledgeEntry[] = KNOWLEDGE_BASE_ENTRIES,

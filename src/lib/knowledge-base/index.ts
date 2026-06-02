@@ -25,6 +25,50 @@ export {
   registerKnowledgeSource,
 } from "@/lib/knowledge-base/layers/ingestion";
 export {
+  HANDBOOK_FEED_BRAIN_CATEGORIES,
+  HANDBOOK_TARGET_CONCEPTS,
+  HANDBOOK_TARGET_ENTRY_COUNT,
+  IRRIGATION_HANDBOOK_SOURCE_ID,
+  IRRIGATION_HANDBOOK_TITLE,
+  IRRIGATION_TARGET_CONCEPTS,
+  IRRIGATION_TARGET_ENTRY_COUNT,
+} from "@/lib/knowledge-base/domains/irrigation-manifest";
+export {
+  summarizeBatchClassification,
+  validateIndependentEntryClassification,
+  isValidBrainCategory,
+} from "@/lib/knowledge-base/pipeline/classification";
+export {
+  KNOWLEDGE_DOCUMENT_ADAPTERS,
+  getDocumentAdapter,
+} from "@/lib/knowledge-base/pipeline/document-adapters";
+export { extractKnowledgeFromDocument } from "@/lib/knowledge-base/pipeline/extract";
+export {
+  runKnowledgeIngestionPipeline,
+  getPipelineReadiness,
+  clearPipelineStaging,
+} from "@/lib/knowledge-base/pipeline/run-pipeline";
+export {
+  validateSingleIngestionPayload,
+  validateIngestionBatch,
+  parseStructuredIngestionBatch,
+} from "@/lib/knowledge-base/pipeline/validate";
+export {
+  getStagedEntryCount,
+  listStagedBatches,
+  listIngestionJobs,
+} from "@/lib/knowledge-base/pipeline/staging-store";
+export {
+  formatHandbookBatchTemplateJson,
+  formatIrrigationBatchTemplateJson,
+} from "@/lib/knowledge-base/pipeline/sample-batch-template";
+export {
+  getAllSourceCoverageReports,
+  buildSourceCoverageReport,
+  getHandbookCoveragePercent,
+  getIrrigationCoveragePercent,
+} from "@/lib/knowledge-base/sources/coverage";
+export {
   buildKnowledgeIndex,
   buildKnowledgeIndexRecord,
   buildEmbeddingCandidates,
@@ -117,7 +161,16 @@ export type {
   KnowledgeConfidenceLevel,
   KnowledgeIngestionPayload,
   KnowledgeSourceRegistryEntry,
+  KnowledgeDocumentFormat,
+  KnowledgeEntryKind,
   GrowPhase,
 } from "@/lib/knowledge-base/types";
+export type {
+  KnowledgeDocumentInput,
+  KnowledgeBatchValidationReport,
+  KnowledgeSourceCoverageReport,
+  KnowledgeIngestionJob,
+  KnowledgePipelineStage,
+} from "@/lib/knowledge-base/pipeline/types";
 export type { KnowledgeCitation } from "@/lib/knowledge-base/layers/citation";
 export type { KnowledgeRelationship } from "@/lib/knowledge-base/layers/relationships";
