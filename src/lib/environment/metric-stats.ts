@@ -36,18 +36,18 @@ export function evaluateTargetStatus(
   range: { min: number; max: number } | null,
 ): { status: TargetStatus; label: string } {
   if (value == null) {
-    return { status: "no_data", label: "NO DATA" };
+    return { status: "no_data", label: "No data" };
   }
   if (!range) {
-    return { status: "no_target", label: "TRACKING" };
+    return { status: "no_target", label: "Tracking" };
   }
   if (value < range.min) {
-    return { status: "below_target", label: "BELOW TARGET" };
+    return { status: "below_target", label: "Below target" };
   }
   if (value > range.max) {
-    return { status: "above_target", label: "ABOVE TARGET" };
+    return { status: "above_target", label: "Above target" };
   }
-  return { status: "on_target", label: "ON TARGET" };
+  return { status: "on_target", label: "On target" };
 }
 
 export function formatMetricValue(value: number | null, decimals = 2): string {

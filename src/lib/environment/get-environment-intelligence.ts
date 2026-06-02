@@ -280,7 +280,7 @@ export async function getEnvironmentIntelligence(
         ? formatRelativeTime(latest.logged_at)
         : "No readings yet",
       recordCount: countResult.count ?? 0,
-      sourceLabel: "Manual logs",
+      sourceLabel: "Manual Logs",
     },
     roomContext: latest
       ? {

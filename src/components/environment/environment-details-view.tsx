@@ -3,9 +3,10 @@ import Link from "next/link";
 import { BfButton } from "@/components/botafarm/bf-button";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
-import { EnvironmentDataQuality } from "@/components/environment/environment-data-quality";
+import { EnvironmentAiComingSoon } from "@/components/environment/environment-ai-coming-soon";
+import { EnvironmentDataSourceStrip } from "@/components/environment/environment-data-source-strip";
 import { EnvironmentImportPlaceholder } from "@/components/environment/environment-import-placeholder";
-import { EnvironmentMetricTile } from "@/components/environment/environment-metric-tile";
+import { EnvironmentMetricsGrid } from "@/components/environment/environment-metrics-grid";
 import type { EnvironmentIntelligence } from "@/lib/environment/get-environment-intelligence";
 
 type EnvironmentDetailsViewProps = {
@@ -26,22 +27,13 @@ export function EnvironmentDetailsView({ data }: EnvironmentDetailsViewProps) {
 
       <BfPageHeader
         eyebrow="Environment intelligence"
-        title="Environment details"
-        subtitle="Current readings, targets, trends, and log history — built from your manual journal entries."
+        title="Climate & irrigation"
+        subtitle="Decision center for room climate, feed, and runoff — built from your manual journal entries."
       />
 
       <GlassPanel glow="cyan" padding="md">
-        <EnvironmentDataQuality quality={data.quality} roomContext={data.roomContext} />
+        <EnvironmentMetricsGrid metrics={data.metrics} showChart />
       </GlassPanel>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Live metrics</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {data.metrics.map((metric) => (
-            <EnvironmentMetricTile key={metric.key} metric={metric} />
-          ))}
-        </div>
-      </section>
 
       <section className="space-y-3">
         <h2 className="text-lg font-bold uppercase tracking-tight text-white">
@@ -52,8 +44,10 @@ export function EnvironmentDetailsView({ data }: EnvironmentDetailsViewProps) {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
                 <tr className="border-b border-white/[0.08] text-xs uppercase tracking-wider text-zinc-500">
+                  <th className="pb-3 pr-4 font-medium">Group</th>
                   <th className="pb-3 pr-4 font-medium">Metric</th>
                   <th className="pb-3 pr-4 font-medium">Current</th>
+                  <th className="pb-3 pr-4 font-medium">Target</th>
                   <th className="pb-3 pr-4 font-medium">Min</th>
                   <th className="pb-3 pr-4 font-medium">Max</th>
                   <th className="pb-3 pr-4 font-medium">Average</th>
@@ -67,12 +61,16 @@ export function EnvironmentDetailsView({ data }: EnvironmentDetailsViewProps) {
                     key={metric.key}
                     className="border-b border-white/[0.04] text-zinc-200 last:border-0"
                   >
+                    <td className="py-3 pr-4 text-xs uppercase tracking-wider text-zinc-500">
+                      {metricGroup(metric.key)}
+                    </td>
                     <td className="py-3 pr-4 font-medium text-white">{metric.label}</td>
                     <td className="py-3 pr-4 tabular-nums">
                       {metric.currentLabel === "—"
                         ? "—"
-                        : `${metric.currentLabel}${metric.unit ? ` ${metric.unit}` : ""}`}
+                        : `${metric.currentLabel}${metric.unit ? metric.unit : ""}`}
                     </td>
+                    <td className="py-3 pr-4 text-zinc-400">{metric.targetLabel}</td>
                     <td className="py-3 pr-4 tabular-nums text-zinc-400">{metric.minLabel}</td>
                     <td className="py-3 pr-4 tabular-nums text-zinc-400">{metric.maxLabel}</td>
                     <td className="py-3 pr-4 tabular-nums text-zinc-400">{metric.avgLabel}</td>
@@ -140,9 +138,30 @@ export function EnvironmentDetailsView({ data }: EnvironmentDetailsViewProps) {
         </GlassPanel>
       </section>
 
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold uppercase tracking-tight text-white">Data source</h2>
+        <GlassPanel padding="md">
+          <EnvironmentDataSourceStrip quality={data.quality} />
+          {data.roomContext ? (
+            <p className="mt-3 border-t border-white/[0.06] pt-3 text-xs text-zinc-500">
+              Latest reading context: {data.roomContext.name} · {data.roomContext.status}
+            </p>
+          ) : null}
+        </GlassPanel>
+      </section>
+
+      <EnvironmentAiComingSoon />
+
       <EnvironmentImportPlaceholder />
     </div>
   );
+}
+
+function metricGroup(key: string) {
+  if (key === "temperature" || key === "humidity" || key === "vpd") {
+    return "Climate";
+  }
+  return "Irrigation";
 }
 
 function fmt(value: number | null) {
