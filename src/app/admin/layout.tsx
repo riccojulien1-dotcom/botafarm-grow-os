@@ -26,6 +26,12 @@ export default async function AdminLayout({
           Brain Admin
         </Link>
         <Link
+          href="/admin/brain/book-map"
+          className="rounded-xl px-4 py-2.5 text-sm text-zinc-400 transition hover:text-cyan-200"
+        >
+          Book map
+        </Link>
+        <Link
           href="/admin/brain/ingestion"
           className="rounded-xl bg-gradient-to-r from-amber-600/90 to-amber-500/80 px-4 py-2.5 text-sm font-medium text-black"
         >
