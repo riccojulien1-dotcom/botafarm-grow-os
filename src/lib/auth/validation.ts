@@ -13,5 +13,21 @@ export const signUpSchema = signInSchema.extend({
   language: z.enum(["fr", "en", "de", "es"]).default("fr"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.email("Please enter a valid email address."),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, "Password must contain at least 6 characters."),
+    confirmPassword: z.string().min(6, "Please confirm your password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

@@ -5,7 +5,10 @@ import { createServerClient } from "@supabase/ssr";
 import { assertSupabaseEnv, env } from "@/lib/env";
 
 const protectedPaths = ["/dashboard", "/rooms"];
-const authPaths = ["/login", "/signup"];
+/** Guest-only auth pages — signed-in users are sent to the dashboard */
+const guestAuthPaths = ["/login", "/signup", "/forgot-password"];
+/** Recovery flow — must stay reachable during password reset (session may exist) */
+const recoveryAuthPaths = ["/auth/callback", "/reset-password"];
 
 export async function proxy(request: NextRequest) {
   assertSupabaseEnv();
@@ -34,14 +37,19 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isProtected = protectedPaths.some((prefix) => path.startsWith(prefix));
-  const isAuthPath = authPaths.some((prefix) => path.startsWith(prefix));
+  const isGuestAuthPath = guestAuthPaths.some((prefix) => path.startsWith(prefix));
+  const isRecoveryAuthPath = recoveryAuthPaths.some((prefix) => path.startsWith(prefix));
 
   if (isProtected && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isAuthPath && user) {
+  if (isGuestAuthPath && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (isRecoveryAuthPath) {
+    return response;
   }
 
   return response;
