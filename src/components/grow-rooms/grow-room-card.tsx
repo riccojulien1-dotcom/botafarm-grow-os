@@ -29,7 +29,11 @@ import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-room
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
-import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
+import {
+  formatGeneticsCross,
+  pickPrimaryVariety,
+  toGeneticsLine,
+} from "@/lib/ui/genetics-display";
 
 export type GrowRoomListItem = GrowRoomFieldValues & {
   id: string;
@@ -91,7 +95,12 @@ export function GrowRoomCard({
     taskSummary?.overdueCount ?? 0,
   );
   const primaryVariety = pickPrimaryVariety(roomVarieties, nextHarvest?.varietyName ?? null);
-  const geneticsLine = primaryVariety ? toGeneticsLine(primaryVariety) : null;
+  const roomGenetics = formatGeneticsCross(room.genetics);
+  const geneticsLine = primaryVariety
+    ? toGeneticsLine(primaryVariety)
+    : roomGenetics
+      ? { cultivarName: roomGenetics, genetics: null }
+      : null;
   const phaseLabel = getCultivationPhaseLabel(
     room.status,
     currentDay,
