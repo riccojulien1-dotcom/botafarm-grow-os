@@ -100,13 +100,23 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
       </section>
 
       <section className="space-y-3">
-        <SectionHeader
-          title="Environment"
-          subtitle={`${data.roomEnvironments.length} room${data.roomEnvironments.length === 1 ? "" : "s"}`}
-          compact
-        />
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <SectionHeader
+            title="Environment"
+            subtitle={`${data.roomEnvironments.length} room${data.roomEnvironments.length === 1 ? "" : "s"}`}
+            compact
+          />
+          {data.roomEnvironments.length ? (
+            <Link
+              href="/dashboard/environment"
+              className="text-xs font-medium text-cyan-400/90 transition hover:text-cyan-300"
+            >
+              Full climate analysis →
+            </Link>
+          ) : null}
+        </div>
         {data.roomEnvironments.length ? (
-          <ul className="flex flex-col gap-4">
+          <ul className="grid gap-3 lg:grid-cols-2">
             {data.roomEnvironments.map((environment) => (
               <OverviewRoomEnvironmentCard key={environment.roomId} environment={environment} />
             ))}

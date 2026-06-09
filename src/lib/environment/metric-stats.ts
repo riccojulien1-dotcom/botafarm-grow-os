@@ -14,7 +14,7 @@ export function computeSeriesStats(values: number[]) {
 
 export function computeTrend(values: number[]): { trend: MetricTrend; label: string } {
   if (values.length < 2) {
-    return { trend: "unknown", label: "Insufficient data" };
+    return { trend: "unknown", label: "Not enough readings" };
   }
 
   const last = values[values.length - 1];
@@ -26,9 +26,9 @@ export function computeTrend(values: number[]): { trend: MetricTrend; label: str
     return { trend: "stable", label: "Stable" };
   }
   if (delta > 0) {
-    return { trend: "rising", label: "Rising" };
+    return { trend: "rising", label: "Increasing" };
   }
-  return { trend: "falling", label: "Falling" };
+  return { trend: "falling", label: "Decreasing" };
 }
 
 export function evaluateTargetStatus(

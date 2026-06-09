@@ -2,6 +2,10 @@ import {
   buildEnvironmentMetrics,
   type EnvironmentMetricSnapshot,
 } from "@/lib/environment/build-environment-metrics";
+import {
+  describeSnapshotMetricIssue,
+  pickPrimarySnapshotMetric,
+} from "@/lib/environment/environment-room-attention";
 import { formatRelativeTime } from "@/lib/environment/format-relative-time";
 import {
   formatLogDateLabel,
@@ -28,6 +32,9 @@ export type DashboardRoomEnvironment = {
   metrics: EnvironmentMetricSnapshot[];
   status: DashboardRoomEnvironmentStatus;
   statusLabel: string;
+  attentionReason: string | null;
+  temperatureReading: string | null;
+  humidityReading: string | null;
 };
 
 const TREND_LOGS_PER_ROOM = 14;
@@ -74,7 +81,7 @@ function resolveEnvironmentStatus(
   severity: RecommendationSeverity,
 ): { status: DashboardRoomEnvironmentStatus; statusLabel: string } {
   if (!hasJournalEntries) {
-    return { status: "insufficient_data", statusLabel: "Insufficient data" };
+    return { status: "insufficient_data", statusLabel: "Not enough readings" };
   }
 
   if (severity === "action") {
@@ -107,14 +114,28 @@ export function buildRoomEnvironmentSummaries(
       room.severity,
     );
 
+    const metrics = buildEnvironmentMetrics(trendLogs, room.status);
+    const temperature = metrics.find((metric) => metric.key === "temperature");
+    const humidity = metrics.find((metric) => metric.key === "humidity");
+    const primaryMetric = pickPrimarySnapshotMetric(metrics);
+
     return {
       roomId: room.id,
       roomName: room.name,
       hasJournalEntries,
       lastLogFreshness: latestLog ? formatDashboardLogFreshness(latestLog) : null,
-      metrics: buildEnvironmentMetrics(trendLogs, room.status),
+      metrics,
       status,
       statusLabel,
+      attentionReason: !hasJournalEntries
+        ? "Not enough readings — add a journal log"
+        : status === "good"
+          ? "All metrics within target"
+          : primaryMetric
+            ? describeSnapshotMetricIssue(primaryMetric)
+            : "Review climate and irrigation",
+      temperatureReading: temperature?.currentLabel ?? null,
+      humidityReading: humidity?.currentLabel ?? null,
     };
   });
 }

@@ -3,17 +3,25 @@ import type { EnvironmentIntelligence } from "@/lib/environment/get-environment-
 type EnvironmentDataSourceStripProps = {
   quality: EnvironmentIntelligence["quality"];
   dense?: boolean;
+  growerFriendly?: boolean;
 };
 
 export function EnvironmentDataSourceStrip({
   quality,
   dense = false,
+  growerFriendly = false,
 }: EnvironmentDataSourceStripProps) {
-  const items = [
-    { label: "Last update", value: quality.lastReadingLabel },
-    { label: "Records", value: String(quality.recordCount), accent: true },
-    { label: "Source", value: quality.sourceLabel },
-  ];
+  const items = growerFriendly
+    ? [
+        { label: "Last reading", value: quality.lastReadingLabel },
+        { label: "Total readings", value: String(quality.recordCount), accent: true },
+        { label: "Logged from", value: "Room journals" },
+      ]
+    : [
+        { label: "Last update", value: quality.lastReadingLabel },
+        { label: "Records", value: String(quality.recordCount), accent: true },
+        { label: "Source", value: quality.sourceLabel },
+      ];
 
   if (dense) {
     return (

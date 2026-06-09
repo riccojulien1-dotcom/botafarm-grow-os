@@ -317,7 +317,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     taskOpen,
     taskOverdue,
     rooms: commandRooms,
-    priorities: buildCommandCenterPriorities(roomsById, tasks, recommendationsByRoom),
+    priorities: buildCommandCenterPriorities(roomsById, tasks),
     primaryHarvest,
     envTrend,
     harvestPreviews,

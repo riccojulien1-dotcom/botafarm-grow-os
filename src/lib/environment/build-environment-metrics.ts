@@ -1,3 +1,4 @@
+import { formatMetricReading } from "@/lib/environment/format-metric-display";
 import {
   computeSeriesStats,
   computeTrend,
@@ -90,7 +91,7 @@ function buildMetric(
     unit: config.unit,
     accent: config.accent,
     current,
-    currentLabel: formatMetricValue(current, config.decimals ?? 2),
+    currentLabel: formatMetricReading(current, config.key, config.decimals ?? 2),
     targetLabel: range?.label ?? "—",
     status: status.status,
     statusLabel: current == null ? "No data" : status.label,

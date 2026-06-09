@@ -1,12 +1,12 @@
-import { EnvironmentDetailsView } from "@/components/environment/environment-details-view";
+import { EnvironmentSupervisionView } from "@/components/environment/environment-supervision-view";
 import { requireUser } from "@/lib/auth/get-user";
-import { getEnvironmentIntelligence } from "@/lib/environment/get-environment-intelligence";
+import { getEnvironmentSupervisionData } from "@/lib/environment/get-environment-supervision-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function EnvironmentDetailsPage() {
   const user = await requireUser();
-  const data = await getEnvironmentIntelligence(user.id);
+  const data = await getEnvironmentSupervisionData(user.id);
 
-  return <EnvironmentDetailsView data={data} />;
+  return <EnvironmentSupervisionView data={data} />;
 }
