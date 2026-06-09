@@ -6,6 +6,7 @@ import {
 } from "@/lib/grow-rooms/crop-cycle";
 import {
   buildRoomEnvironmentSummaries,
+  indexTrendLogsByRoom,
   type DashboardRoomEnvironment,
   type DashboardRoomEnvironmentLog,
 } from "@/lib/dashboard/build-room-environment-summaries";
@@ -299,7 +300,14 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
   const primaryHarvest = harvestPreviews[0] ?? null;
 
   const healthScore = computeHealthScore(alertCounts);
-  const roomEnvironments = buildRoomEnvironmentSummaries(commandRooms, latestLogByRoom);
+  const trendLogsByRoom = indexTrendLogsByRoom(
+    (logsResult.data ?? []) as DashboardRoomEnvironmentLog[],
+  );
+  const roomEnvironments = buildRoomEnvironmentSummaries(
+    commandRooms,
+    latestLogByRoom,
+    trendLogsByRoom,
+  );
 
   return {
     base,

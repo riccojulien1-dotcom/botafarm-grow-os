@@ -1,53 +1,15 @@
+import { buildEnvironmentMetrics } from "@/lib/environment/build-environment-metrics";
+import type {
+  EnvironmentMetricKey,
+  EnvironmentMetricSnapshot,
+} from "@/lib/environment/build-environment-metrics";
 import { formatRelativeTime } from "@/lib/environment/format-relative-time";
-import {
-  computeSeriesStats,
-  computeTrend,
-  evaluateTargetStatus,
-  formatMetricValue,
-  type MetricTrend,
-  type TargetStatus,
-} from "@/lib/environment/metric-stats";
-import {
-  getEcInReference,
-  getEcRunoffReference,
-  getHumidityReference,
-  getPhRange,
-  getTemperatureReference,
-  getVpdRange,
-  type MetricRange,
-} from "@/lib/environment/target-ranges";
 import { createClient } from "@/lib/supabase/server";
 
-export type EnvironmentMetricKey =
-  | "temperature"
-  | "humidity"
-  | "vpd"
-  | "ec_in"
-  | "ec_runoff"
-  | "ph_in"
-  | "ph_runoff";
-
-export type EnvironmentMetricSnapshot = {
-  key: EnvironmentMetricKey;
-  label: string;
-  unit: string;
-  accent: "cyan" | "magenta";
-  current: number | null;
-  currentLabel: string;
-  targetLabel: string;
-  status: TargetStatus;
-  statusLabel: string;
-  trend: MetricTrend;
-  trendLabel: string;
-  series: number[];
-  chartLabels: string[];
-  min: number | null;
-  max: number | null;
-  avg: number | null;
-  minLabel: string;
-  maxLabel: string;
-  avgLabel: string;
-};
+export type {
+  EnvironmentMetricKey,
+  EnvironmentMetricSnapshot,
+} from "@/lib/environment/build-environment-metrics";
 
 export type EnvironmentLogRow = {
   id: string;
@@ -98,122 +60,6 @@ function resolveRoom(
   return relation;
 }
 
-function buildMetric(
-  config: {
-    key: EnvironmentMetricKey;
-    label: string;
-    unit: string;
-    accent: "cyan" | "magenta";
-    decimals?: number;
-    getRange: (status: string) => MetricRange | null;
-    pick: (row: EnvLogRow) => number | null;
-  },
-  trendRows: EnvLogRow[],
-  roomStatus: string,
-): EnvironmentMetricSnapshot {
-  const series = trendRows
-    .map((row) => config.pick(row))
-    .filter((value): value is number => value != null);
-  const current = series.length ? series[series.length - 1] : null;
-  const range = config.getRange(roomStatus);
-  const stats = computeSeriesStats(series);
-  const trend = computeTrend(series);
-  const status = evaluateTargetStatus(
-    current,
-    range ? { min: range.min, max: range.max } : null,
-  );
-
-  return {
-    key: config.key,
-    label: config.label,
-    unit: config.unit,
-    accent: config.accent,
-    current,
-    currentLabel: formatMetricValue(current, config.decimals ?? 2),
-    targetLabel: range?.label ?? "—",
-    status: status.status,
-    statusLabel: status.label,
-    trend: trend.trend,
-    trendLabel: trend.label,
-    series,
-    chartLabels: trendRows.map((row) =>
-      (row.log_date ?? row.logged_at.slice(0, 10)).slice(5),
-    ),
-    min: stats.min,
-    max: stats.max,
-    avg: stats.avg,
-    minLabel: formatMetricValue(stats.min, config.decimals ?? 2),
-    maxLabel: formatMetricValue(stats.max, config.decimals ?? 2),
-    avgLabel: formatMetricValue(stats.avg, config.decimals ?? 2),
-  };
-}
-
-const METRIC_BUILDERS = [
-  {
-    key: "temperature" as const,
-    label: "Temperature",
-    unit: "°C",
-    accent: "cyan" as const,
-    decimals: 1,
-    getRange: getTemperatureReference,
-    pick: (row: EnvLogRow) => row.temperature,
-  },
-  {
-    key: "humidity" as const,
-    label: "Humidity",
-    unit: "%",
-    accent: "magenta" as const,
-    decimals: 1,
-    getRange: getHumidityReference,
-    pick: (row: EnvLogRow) => row.humidity,
-  },
-  {
-    key: "vpd" as const,
-    label: "VPD",
-    unit: "kPa",
-    accent: "cyan" as const,
-    decimals: 2,
-    getRange: getVpdRange,
-    pick: (row: EnvLogRow) => row.vpd,
-  },
-  {
-    key: "ec_in" as const,
-    label: "EC In",
-    unit: "",
-    accent: "cyan" as const,
-    decimals: 2,
-    getRange: getEcInReference,
-    pick: (row: EnvLogRow) => row.ec_in,
-  },
-  {
-    key: "ec_runoff" as const,
-    label: "EC Out",
-    unit: "",
-    accent: "magenta" as const,
-    decimals: 2,
-    getRange: getEcRunoffReference,
-    pick: (row: EnvLogRow) => row.ec_runoff,
-  },
-  {
-    key: "ph_in" as const,
-    label: "pH In",
-    unit: "",
-    accent: "cyan" as const,
-    decimals: 2,
-    getRange: getPhRange,
-    pick: (row: EnvLogRow) => row.ph_in,
-  },
-  {
-    key: "ph_runoff" as const,
-    label: "pH Out",
-    unit: "",
-    accent: "magenta" as const,
-    decimals: 2,
-    getRange: getPhRange,
-    pick: (row: EnvLogRow) => row.ph_runoff,
-  },
-];
-
 export async function getEnvironmentIntelligence(
   userId: string,
 ): Promise<EnvironmentIntelligence> {
@@ -250,9 +96,7 @@ export async function getEnvironmentIntelligence(
   const latestRoom = latest ? resolveRoom(latest.grow_rooms) : null;
   const roomStatus = latestRoom?.status ?? "Flower";
 
-  const metrics = METRIC_BUILDERS.map((config) =>
-    buildMetric(config, trendRows, roomStatus),
-  );
+  const metrics = buildEnvironmentMetrics(trendRows, roomStatus);
 
   const history: EnvironmentLogRow[] = (historyResult.data ?? []).map((row) => {
     const entry = row as EnvLogRow;

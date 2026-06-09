@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
+import { EnvironmentMetricsGrid } from "@/components/environment/environment-metrics-grid";
 import type {
   DashboardRoomEnvironment,
   DashboardRoomEnvironmentStatus,
@@ -22,19 +23,32 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
   return (
     <li>
       <GlassPanel
-        glow={environment.status === "action" ? "red" : environment.status === "watch" ? "magenta" : "cyan"}
-        padding="md"
-        className="h-full"
+        glow={
+          environment.status === "action"
+            ? "red"
+            : environment.status === "watch"
+              ? "magenta"
+              : "cyan"
+        }
+        padding="lg"
+        className="w-full"
       >
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
             <div className="min-w-0">
-              <h3 className="text-lg font-bold uppercase tracking-tight text-white">
+              <h3 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
                 {toTitleCase(environment.roomName)}
+                <span className="mx-2 font-normal text-zinc-600">—</span>
+                <span className="text-base font-semibold normal-case tracking-normal text-cyan-400/90 sm:text-lg">
+                  Climate &amp; irrigation
+                </span>
               </h3>
-              <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-500/80">
-                Climate &amp; irrigation
-              </p>
+              {environment.hasJournalEntries && environment.lastLogFreshness ? (
+                <p className="mt-1 text-xs text-zinc-500">
+                  Last log:{" "}
+                  <span className="text-zinc-400">{environment.lastLogFreshness}</span>
+                </p>
+              ) : null}
             </div>
             <EnvironmentStatusBadge
               status={environment.status}
@@ -42,36 +56,29 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
             />
           </div>
 
-          {environment.hasLog ? (
-            <div className="space-y-2 text-sm text-zinc-300">
-              {environment.climateLine ? <p>{environment.climateLine}</p> : null}
-              {environment.ecLine ? <p>{environment.ecLine}</p> : null}
-              {environment.phLine ? <p>{environment.phLine}</p> : null}
-              {environment.lastLogFreshness ? (
-                <p className="text-xs text-zinc-500">
-                  Last log: <span className="text-zinc-400">{environment.lastLogFreshness}</span>
-                </p>
-              ) : null}
-            </div>
+          {environment.hasJournalEntries ? (
+            <EnvironmentMetricsGrid metrics={environment.metrics} variant="cockpit" />
           ) : (
-            <div className="space-y-3 rounded-xl border border-white/[0.06] bg-black/20 px-4 py-4">
+            <div className="rounded-xl border border-white/[0.06] bg-black/20 px-5 py-8 text-center">
               <p className="text-sm text-zinc-500">No journal data yet</p>
               <Link
                 href={`/rooms/${environment.roomId}`}
-                className="inline-flex text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
+                className="mt-3 inline-flex text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
               >
                 Add journal log
               </Link>
             </div>
           )}
 
-          {environment.hasLog ? (
-            <Link
-              href={`/rooms/${environment.roomId}`}
-              className="inline-flex text-xs font-medium text-cyan-400/90 transition hover:text-cyan-300"
-            >
-              View room journal →
-            </Link>
+          {environment.hasJournalEntries ? (
+            <div className="flex justify-end border-t border-white/[0.06] pt-3">
+              <Link
+                href={`/rooms/${environment.roomId}`}
+                className="text-xs font-medium text-cyan-400/90 transition hover:text-cyan-300"
+              >
+                View room journal →
+              </Link>
+            </div>
           ) : null}
         </div>
       </GlassPanel>

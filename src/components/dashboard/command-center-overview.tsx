@@ -106,7 +106,7 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
           compact
         />
         {data.roomEnvironments.length ? (
-          <ul className="grid gap-3 lg:grid-cols-2">
+          <ul className="flex flex-col gap-4">
             {data.roomEnvironments.map((environment) => (
               <OverviewRoomEnvironmentCard key={environment.roomId} environment={environment} />
             ))}
