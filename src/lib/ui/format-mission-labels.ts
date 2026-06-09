@@ -41,3 +41,37 @@ export function formatRoomStatusTitle(status: string): string {
 export function formatHarvestCountdownLine(days: number): string {
   return `NEXT HARVEST IN ${days} DAYS`;
 }
+
+/** Preserve cultivar casing when the name already looks user-entered. */
+export function formatCultivarDisplayName(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+  if (trimmed.includes("#") || /[a-z]/.test(trimmed)) {
+    return trimmed;
+  }
+  return toTitleCase(trimmed);
+}
+
+export function formatNextHarvestOverviewLine(
+  roomName: string,
+  cultivarName: string,
+  daysRemaining: number,
+): string {
+  return `${toTitleCase(roomName)} — ${formatCultivarDisplayName(cultivarName)} — Harvest in ${daysRemaining} days`;
+}
+
+export function formatOverviewCycleDayLine(
+  currentDay: number | null,
+  status: string,
+): string | null {
+  if (currentDay == null) {
+    return null;
+  }
+  return `Day ${currentDay} ${toTitleCase(status.replace("-", " "))}`;
+}
+
+export function formatHarvestInDaysLine(daysRemaining: number): string {
+  return `Harvest in ${Math.max(daysRemaining, 0)} days`;
+}

@@ -18,7 +18,11 @@ import type { GrowRoomTask } from "@/lib/tasks/types";
 import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
 import { ROOM_VARIETY_SELECT } from "@/lib/varieties/queries";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
-import { pickPrimaryVariety, toGeneticsLine } from "@/lib/ui/genetics-display";
+import {
+  formatGeneticsCross,
+  pickPrimaryVariety,
+  toGeneticsLine,
+} from "@/lib/ui/genetics-display";
 import { createClient } from "@/lib/supabase/server";
 
 export type CommandCenterHarvest = {
@@ -53,6 +57,7 @@ export type CommandCenterRoom = {
   harvestDateLabel: string | null;
   nextVarietyName: string | null;
   cultivarName: string | null;
+  cultivarDisplayName: string | null;
   genetics: string | null;
   varietyCount: number;
   actionRequired: string | null;
@@ -114,7 +119,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     await Promise.all([
       supabase
         .from("grow_rooms")
-        .select("id,name,status,plant_count,cycle_start_date,target_cycle_days")
+        .select("id,name,status,plant_count,cycle_start_date,target_cycle_days,genetics")
         .eq("user_id", userId)
         .order("created_at", { ascending: false }),
       supabase
@@ -215,7 +220,13 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     );
 
     const primaryVariety = pickPrimaryVariety(roomVarieties, harvest?.varietyName ?? null);
-    const geneticsLine = primaryVariety ? toGeneticsLine(primaryVariety) : null;
+    const roomGenetics = formatGeneticsCross(room.genetics);
+    const geneticsLine = primaryVariety
+      ? toGeneticsLine(primaryVariety)
+      : roomGenetics
+        ? { cultivarName: roomGenetics, genetics: null }
+        : null;
+    const cultivarDisplayName = primaryVariety?.name ?? roomGenetics ?? null;
 
     return {
       id: room.id,
@@ -239,6 +250,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
       harvestDateLabel,
       nextVarietyName: harvest?.varietyName ?? null,
       cultivarName: geneticsLine?.cultivarName ?? null,
+      cultivarDisplayName,
       genetics: geneticsLine?.genetics ?? null,
       varietyCount: roomVarieties.length,
       actionRequired: resolveActionRequired(
@@ -265,7 +277,8 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     .map((room) => ({
       roomId: room.id,
       roomName: room.name,
-      varietyName: room.cultivarName ?? room.nextVarietyName ?? "Room cycle",
+      varietyName:
+        room.cultivarDisplayName ?? room.nextVarietyName ?? room.cultivarName ?? "Room cycle",
       genetics: room.genetics,
       daysRemaining: Math.max(room.daysRemaining ?? 0, 0),
       dateLabel: room.harvestDateLabel ?? "—",
