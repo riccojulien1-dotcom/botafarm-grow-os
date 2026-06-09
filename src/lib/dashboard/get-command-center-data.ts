@@ -4,6 +4,11 @@ import {
   getCurrentCycleDay,
   getNextHarvestPreview,
 } from "@/lib/grow-rooms/crop-cycle";
+import {
+  buildRoomEnvironmentSummaries,
+  type DashboardRoomEnvironment,
+  type DashboardRoomEnvironmentLog,
+} from "@/lib/dashboard/build-room-environment-summaries";
 import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
 import { buildCommandCenterPriorities } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
@@ -81,6 +86,7 @@ export type CommandCenterData = {
     labels: string[];
   };
   harvestPreviews: CommandCenterHarvest[];
+  roomEnvironments: DashboardRoomEnvironment[];
 };
 
 function computeHealthScore(alertCounts: CommandCenterData["alertCounts"]) {
@@ -129,7 +135,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
       supabase
         .from("daily_logs")
         .select(
-          "grow_room_id,log_date,logged_at,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
+          "grow_room_id,log_date,logged_at,temperature,humidity,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
         )
         .eq("user_id", userId)
         .order("log_date", { ascending: false })
@@ -168,8 +174,8 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
   }
 
   const latestLogByRoom = indexLatestLogsByRoom(
-    (logsResult.data ?? []) as DailyLogForRecommendations[],
-  );
+    (logsResult.data ?? []) as DashboardRoomEnvironmentLog[],
+  ) as Map<string, DashboardRoomEnvironmentLog>;
   const taskSummaryByRoom = indexTaskSummariesByRoom(tasks);
   const roomsById = new Map(rooms.map((room) => [room.id, { name: room.name }]));
   const recommendationsByRoom = new Map<string, ReturnType<typeof getRecommendationSummary>["items"]>();
@@ -293,6 +299,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
   const primaryHarvest = harvestPreviews[0] ?? null;
 
   const healthScore = computeHealthScore(alertCounts);
+  const roomEnvironments = buildRoomEnvironmentSummaries(commandRooms, latestLogByRoom);
 
   return {
     base,
@@ -306,5 +313,6 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     primaryHarvest,
     envTrend,
     harvestPreviews,
+    roomEnvironments,
   };
 }

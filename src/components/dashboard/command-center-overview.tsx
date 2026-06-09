@@ -1,18 +1,16 @@
 import Link from "next/link";
 
 import { BfButton } from "@/components/botafarm/bf-button";
-import { EnvironmentIntelligenceCard } from "@/components/environment/environment-intelligence-card";
 import { BfMissionKpi } from "@/components/botafarm/bf-mission-kpi";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { OverviewRoomCard } from "@/components/dashboard/overview-room-card";
+import { OverviewRoomEnvironmentCard } from "@/components/dashboard/overview-room-environment-card";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterData } from "@/lib/dashboard/get-command-center-data";
-import type { EnvironmentIntelligence } from "@/lib/environment/get-environment-intelligence";
 import { formatNextHarvestOverviewLine } from "@/lib/ui/format-mission-labels";
 
 type CommandCenterOverviewProps = {
   data: CommandCenterData;
-  environment: EnvironmentIntelligence;
 };
 
 function priorityTone(item: CommandCenterPriority) {
@@ -30,7 +28,7 @@ function priorityTone(item: CommandCenterPriority) {
   };
 }
 
-export function CommandCenterOverview({ data, environment }: CommandCenterOverviewProps) {
+export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
   const heroHarvest = data.primaryHarvest
     ? formatNextHarvestOverviewLine(
         data.primaryHarvest.roomName,
@@ -102,8 +100,24 @@ export function CommandCenterOverview({ data, environment }: CommandCenterOvervi
       </section>
 
       <section className="space-y-3">
-        <SectionHeader title="Environment" subtitle="Irrigation & climate" compact />
-        <EnvironmentIntelligenceCard data={environment} />
+        <SectionHeader
+          title="Environment"
+          subtitle={`${data.roomEnvironments.length} room${data.roomEnvironments.length === 1 ? "" : "s"}`}
+          compact
+        />
+        {data.roomEnvironments.length ? (
+          <ul className="grid gap-3 lg:grid-cols-2">
+            {data.roomEnvironments.map((environment) => (
+              <OverviewRoomEnvironmentCard key={environment.roomId} environment={environment} />
+            ))}
+          </ul>
+        ) : (
+          <GlassPanel padding="md">
+            <p className="text-sm text-zinc-500">
+              Add grow rooms to track climate and irrigation per room.
+            </p>
+          </GlassPanel>
+        )}
       </section>
 
       <section className="space-y-3">
