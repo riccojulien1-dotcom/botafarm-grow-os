@@ -1,10 +1,4 @@
 import Link from "next/link";
-import {
-  AlertTriangle,
-  CalendarClock,
-  CheckCircle2,
-  CircleAlert,
-} from "lucide-react";
 
 import { BfButton } from "@/components/botafarm/bf-button";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
@@ -12,7 +6,6 @@ import { OverviewRoomCard } from "@/components/dashboard/overview-room-card";
 import { OverviewRoomEnvironmentCard } from "@/components/dashboard/overview-room-environment-card";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterData } from "@/lib/dashboard/get-command-center-data";
-import type { CopilotSignal } from "@/lib/copilot/types";
 
 type CommandCenterOverviewProps = {
   data: CommandCenterData;
@@ -33,48 +26,7 @@ function priorityTone(item: CommandCenterPriority) {
   };
 }
 
-function SignalRow({ signal }: { signal: CopilotSignal }) {
-  const Icon =
-    signal.tone === "good"
-      ? CheckCircle2
-      : signal.tone === "action"
-        ? CircleAlert
-        : AlertTriangle;
-  const color =
-    signal.tone === "good"
-      ? "text-emerald-400"
-      : signal.tone === "action"
-        ? "text-red-400"
-        : "text-amber-400";
-
-  const content = (
-    <>
-      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${color}`} aria-hidden />
-      <span className="text-sm leading-snug text-zinc-200">{signal.text}</span>
-    </>
-  );
-
-  if (signal.href) {
-    return (
-      <Link
-        href={signal.href}
-        className="bf-interactive flex items-start gap-2.5 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2.5 transition hover:border-cyan-500/25"
-      >
-        {content}
-      </Link>
-    );
-  }
-
-  return (
-    <div className="flex items-start gap-2.5 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-2.5">
-      {content}
-    </div>
-  );
-}
-
 export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
-  const briefing = data.operationBriefing;
-
   return (
     <div className="space-y-6 pb-4">
       <section className="bf-mission-hero bf-atmosphere-deep px-5 py-7 sm:px-8 sm:py-9">
@@ -87,7 +39,7 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
                 GROW OS
               </h1>
               <p className="font-mono text-sm uppercase tracking-[0.38em] text-zinc-400">
-                Cultivation copilot
+                Command center
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -99,22 +51,6 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
               </BfButton>
             </div>
           </div>
-
-          <GlassPanel padding="md" glow={briefing.signals.some((s) => s.tone === "action") ? "red" : "cyan"}>
-            <div className="flex items-center gap-2 border-b border-white/[0.06] pb-3">
-              <CalendarClock className="h-4 w-4 text-cyan-400" aria-hidden />
-              <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">
-                Today&apos;s operation briefing
-              </h2>
-            </div>
-            <ul className="mt-3 space-y-2">
-              {briefing.signals.length ? (
-                briefing.signals.map((signal) => <SignalRow key={signal.id} signal={signal} />)
-              ) : (
-                <SignalRow signal={{ id: "ok", tone: "good", text: "All rooms healthy" }} />
-              )}
-            </ul>
-          </GlassPanel>
         </div>
       </section>
 

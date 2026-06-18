@@ -1,128 +1,63 @@
-import type { DashboardRoomEnvironment } from "@/lib/dashboard/build-room-environment-summaries";
-import type { CommandCenterRoom } from "@/lib/dashboard/get-command-center-data";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
-import { translateRecommendationForGrower } from "@/lib/copilot/translate-recommendation";
+import type { OverviewEnvironmentSummary } from "@/lib/environment/build-supervision-rooms";
 import type { CopilotBriefing, CopilotSignal } from "@/lib/copilot/types";
-import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
-import type { RecommendationLogInput } from "@/lib/recommendations/types";
-import type { RoomVarietyRecord } from "@/lib/varieties/types";
-import { toTitleCase } from "@/lib/ui/format-mission-labels";
 
 type BuildOperationBriefingInput = {
-  rooms: CommandCenterRoom[];
-  roomEnvironments: DashboardRoomEnvironment[];
+  roomEnvironments: OverviewEnvironmentSummary[];
   priorities: CommandCenterPriority[];
-  primaryHarvestDays: number | null;
-  primaryHarvestRoom: string | null;
-  latestLogByRoom: Map<string, RecommendationLogInput>;
-  varietiesByRoom: Map<string, RoomVarietyRecord[]>;
 };
 
-function toneFromSeverity(severity: "good" | "watch" | "action"): CopilotSignal["tone"] {
-  if (severity === "action") return "action";
-  if (severity === "watch") return "watch";
-  return "good";
-}
-
 export function buildOperationBriefing(input: BuildOperationBriefingInput): CopilotBriefing {
-  const signals: CopilotSignal[] = [];
-  const attentionRooms = input.rooms.filter(
-    (room) => room.severity !== "good" || room.overdueTasks > 0,
+  const overdueTasks = input.priorities.filter((priority) => priority.severity === "action");
+  const dueTodayTasks = input.priorities.filter((priority) => priority.severity === "watch");
+  const climateAction = input.roomEnvironments.filter(
+    (environment) => environment.status === "action",
+  );
+  const climateWatch = input.roomEnvironments.filter(
+    (environment) => environment.status === "watch" || environment.status === "drift",
   );
 
-  if (attentionRooms.length === 0 && input.roomEnvironments.every((env) => env.status === "good")) {
-    signals.push({
-      id: "all-healthy",
-      tone: "good",
-      text: "All rooms healthy",
-    });
-  }
-
-  for (const environment of input.roomEnvironments) {
-    if (environment.status === "good" || !environment.hasJournalEntries) {
-      continue;
-    }
-    signals.push({
-      id: `env-${environment.roomId}`,
-      tone: toneFromSeverity(environment.status === "insufficient_data" ? "watch" : environment.status),
-      text: environment.attentionReason ?? `${environment.roomName} needs a climate check`,
-      href: `/dashboard/environment#room-env-${environment.roomId}`,
-    });
-  }
-
-  for (const room of input.rooms) {
-    const varieties = input.varietiesByRoom.get(room.id) ?? [];
-    const latestLog = input.latestLogByRoom.get(room.id) ?? null;
-    const summary = getRecommendationSummary(latestLog, room.status, varieties);
-
-    for (const item of summary.activeItems) {
-      if (item.severity === "good") continue;
-      const text = translateRecommendationForGrower(toTitleCase(room.name), item);
-      if (signals.some((signal) => signal.text === text)) continue;
-      signals.push({
-        id: `rec-${room.id}-${item.metric}`,
-        tone: toneFromSeverity(item.severity),
-        text,
-        href: `/rooms/${room.id}`,
-      });
-    }
-  }
-
-  for (const priority of input.priorities) {
-    if (priority.severity === "action") {
-      signals.push({
-        id: priority.id,
-        tone: "action",
-        text: `${priority.roomName} — ${priority.title.toLowerCase()}`,
-        href: `/rooms/${priority.roomId}`,
-      });
-    }
-  }
-
-  if (input.primaryHarvestDays != null && input.primaryHarvestRoom) {
-    signals.push({
-      id: "next-harvest",
-      tone: "watch",
-      text: `Upcoming harvest in ${input.primaryHarvestDays} days — ${toTitleCase(input.primaryHarvestRoom)}`,
-      href: "/dashboard/grow-rooms",
-    });
-  }
-
-  const actionCount = signals.filter((signal) => signal.tone === "action").length;
-  const watchCount = signals.filter((signal) => signal.tone === "watch").length;
-
   let happening: string;
-  if (actionCount > 0) {
-    happening = `${actionCount} room${actionCount === 1 ? "" : "s"} need immediate attention right now.`;
-  } else if (watchCount > 0) {
-    happening = `Operation is stable, but ${watchCount} signal${watchCount === 1 ? "" : "s"} deserve a walk-through today.`;
+  if (overdueTasks.length > 0) {
+    happening = `${overdueTasks.length} overdue task${overdueTasks.length === 1 ? "" : "s"} need attention today.`;
+  } else if (climateAction.length > 0) {
+    happening = `${climateAction.length} room${climateAction.length === 1 ? "" : "s"} have climate or irrigation outside target.`;
+  } else if (dueTodayTasks.length > 0 || climateWatch.length > 0) {
+    happening = `Today's queue: ${input.priorities.length} task${input.priorities.length === 1 ? "" : "s"} and ${climateWatch.length} room${climateWatch.length === 1 ? "" : "s"} to review.`;
   } else {
-    happening = "All tracked rooms are within target. No urgent climate or irrigation issues.";
+    happening = "All tracked rooms are on schedule. No urgent items in the command center.";
   }
 
-  const topSignal = signals.find((signal) => signal.tone === "action") ?? signals.find((s) => s.tone === "watch");
-  const why = topSignal
-    ? topSignal.text
-    : input.primaryHarvestDays != null
-      ? `Your next harvest window is approaching in ${input.primaryHarvestDays} days.`
-      : "Journal logs show stable climate and irrigation across active rooms.";
+  let why: string;
+  if (overdueTasks.length > 0) {
+    why = `${overdueTasks[0].roomName} — ${overdueTasks[0].title.toLowerCase()}.`;
+  } else if (climateAction.length > 0) {
+    const first = climateAction[0];
+    why = first.attentionReason ?? `${first.roomName} needs a climate check.`;
+  } else if (dueTodayTasks.length > 0) {
+    why = `${dueTodayTasks[0].roomName} — ${dueTodayTasks[0].title.toLowerCase()} due today.`;
+  } else if (climateWatch.length > 0) {
+    why = `${climateWatch.length} room${climateWatch.length === 1 ? "" : "s"} showing early drift — open Environment for detail.`;
+  } else {
+    why = "Journal logs and task schedules show a stable operation.";
+  }
 
   let next: string;
-  if (actionCount > 0) {
-    next = "Open the flagged room, log a fresh reading, and adjust irrigation or environment before the next feed.";
-  } else if (watchCount > 0) {
-    next = "Review Environment for trend detail, then confirm each watch item on your next room round.";
+  if (overdueTasks.length > 0) {
+    next = "Work through Tasks today, then open Grow Rooms for room management.";
+  } else if (climateAction.length > 0 || climateWatch.length > 0) {
+    next = "Open Environment for full climate analysis, or complete tasks listed on Overview.";
   } else if (input.priorities.length > 0) {
     next = `Complete today's task: ${input.priorities[0].title.toLowerCase()}.`;
   } else {
-    next = "Keep logging daily. Consistent journal entries make early drift visible before plants show stress.";
+    next = "Keep logging daily. Use Grow Rooms to manage cycles and Environment for trend detail.";
   }
 
   return {
     happening,
     why,
     next,
-    signals: signals.slice(0, 8),
+    signals: [] satisfies CopilotSignal[],
   };
 }
 
@@ -135,21 +70,7 @@ export function buildEnvironmentFarmBriefing(
     metrics: Array<{ recommendation: string; status: string }>;
   }>,
 ): CopilotBriefing {
-  const signals: CopilotSignal[] = [];
   const attention = rooms.filter((room) => room.roomStatus !== "good" && room.roomStatus !== "no_data");
-
-  if (attention.length === 0) {
-    signals.push({ id: "env-good", tone: "good", text: "All rooms within climate and irrigation targets" });
-  }
-
-  for (const room of attention) {
-    signals.push({
-      id: `room-${room.id}`,
-      tone: room.roomStatus === "action" ? "action" : "watch",
-      text: room.attentionReason ?? `${room.name} needs review`,
-      href: `#room-env-${room.id}`,
-    });
-  }
 
   const actionCount = attention.filter((room) => room.roomStatus === "action").length;
 
@@ -165,6 +86,6 @@ export function buildEnvironmentFarmBriefing(
       attention[0]?.metrics.find((metric) => metric.status !== "optimal" && metric.status !== "no_data")
         ?.recommendation ??
       "Log each room on schedule so trends stay visible before the next irrigation cycle.",
-    signals,
+    signals: [],
   };
 }

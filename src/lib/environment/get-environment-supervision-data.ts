@@ -1,64 +1,21 @@
-import { indexTrendLogsByRoom } from "@/lib/dashboard/build-room-environment-summaries";
 import {
   buildEnvironmentAlerts,
   type EnvironmentAlert,
 } from "@/lib/environment/build-environment-alerts";
-import { getSupervisionRoomAttentionReason } from "@/lib/environment/environment-room-attention";
 import {
-  buildSupervisionMetrics,
-  type SupervisionMetric,
-} from "@/lib/environment/build-supervision-metrics";
-import { resolveRoomSupervisionStatus } from "@/lib/environment/metric-insights";
-import { formatRelativeTime } from "@/lib/environment/format-relative-time";
-import { formatLogDateLabel } from "@/lib/recommendations/latest-log-by-room";
-import { indexLatestLogsByRoom } from "@/lib/recommendations/latest-log-by-room";
+  buildSupervisionRooms,
+  type SupervisionLogRow,
+  type SupervisionRoom,
+} from "@/lib/environment/build-supervision-rooms";
 import { createClient } from "@/lib/supabase/server";
 
-const SUPERVISION_LOGS_PER_ROOM = 30;
-
-export type SupervisionRoom = {
-  id: string;
-  name: string;
-  status: string;
-  roomStatus: ReturnType<typeof resolveRoomSupervisionStatus>["status"];
-  roomStatusLabel: string;
-  roomHealthEmoji: string;
-  attentionReason: string | null;
-  lastLogDate: string | null;
-  lastLogFreshness: string | null;
-  hasJournalEntries: boolean;
-  metrics: SupervisionMetric[];
-};
+export type { SupervisionRoom } from "@/lib/environment/build-supervision-rooms";
 
 export type EnvironmentSupervisionData = {
   rooms: SupervisionRoom[];
   alerts: EnvironmentAlert[];
   totalLogs: number;
 };
-
-type SupervisionLogRow = {
-  grow_room_id: string;
-  log_date: string | null;
-  logged_at: string;
-  temperature: number | null;
-  humidity: number | null;
-  vpd: number | null;
-  ec_in: number | null;
-  ph_in: number | null;
-  ec_runoff: number | null;
-  ph_runoff: number | null;
-  dryback_percent: number | null;
-  ppfd: number | null;
-};
-
-function formatLastLogFreshness(log: { log_date: string | null; logged_at: string }): string {
-  const today = new Date().toISOString().slice(0, 10);
-  const logDate = log.log_date ?? log.logged_at.slice(0, 10);
-  if (logDate === today) {
-    return "today";
-  }
-  return formatRelativeTime(log.logged_at);
-}
 
 export async function getEnvironmentSupervisionData(
   userId: string,
@@ -87,40 +44,7 @@ export async function getEnvironmentSupervisionData(
 
   const rooms = roomsResult.data ?? [];
   const logs = (logsResult.data ?? []) as SupervisionLogRow[];
-  const latestLogByRoom = indexLatestLogsByRoom(logs) as Map<string, SupervisionLogRow>;
-  const trendLogsByRoom = indexTrendLogsByRoom(logs, SUPERVISION_LOGS_PER_ROOM) as Map<
-    string,
-    SupervisionLogRow[]
-  >;
-
-  const supervisionRooms: SupervisionRoom[] = rooms.map((room) => {
-    const trendLogs = trendLogsByRoom.get(room.id) ?? [];
-    const latestLog = latestLogByRoom.get(room.id) ?? trendLogs.at(-1) ?? null;
-    const hasJournalEntries = trendLogs.length > 0;
-    const metrics = buildSupervisionMetrics(trendLogs, room.status);
-    const roomStatus = resolveRoomSupervisionStatus(
-      hasJournalEntries,
-      metrics.map((metric) => metric.status),
-    );
-
-    return {
-      id: room.id,
-      name: room.name,
-      status: room.status,
-      roomStatus: roomStatus.status,
-      roomStatusLabel: roomStatus.label,
-      roomHealthEmoji: roomStatus.healthEmoji,
-      attentionReason: getSupervisionRoomAttentionReason(
-        hasJournalEntries,
-        roomStatus.status,
-        metrics,
-      ),
-      lastLogDate: latestLog ? formatLogDateLabel(latestLog) : null,
-      lastLogFreshness: latestLog ? formatLastLogFreshness(latestLog) : null,
-      hasJournalEntries,
-      metrics,
-    };
-  });
+  const supervisionRooms = buildSupervisionRooms(rooms, logs);
 
   return {
     rooms: supervisionRooms,

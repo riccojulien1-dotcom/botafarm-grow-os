@@ -1,32 +1,30 @@
-import type { DashboardRoomEnvironmentStatus } from "@/lib/dashboard/build-room-environment-summaries";
 import type {
   SupervisionMetricStatus,
   SupervisionRoomStatus,
 } from "@/lib/environment/metric-insights";
 import type { EnvironmentAlertSeverity } from "@/lib/environment/build-environment-alerts";
 
-/** Shared with Overview environment cards for OS consistency */
-export const roomEnvironmentStatusStyles: Record<DashboardRoomEnvironmentStatus, string> = {
+const baseRoomStatusStyles = {
   good: "border-emerald-500/35 bg-emerald-950/35 text-emerald-300",
   watch: "border-amber-500/30 bg-amber-950/35 text-amber-100",
   action: "border-red-500/40 bg-red-950/40 text-red-300",
-  insufficient_data: "border-zinc-600/80 bg-zinc-900/70 text-zinc-400",
-};
+  noData: "border-zinc-600/80 bg-zinc-900/70 text-zinc-400",
+} as const;
 
 export const supervisionRoomStatusStyles: Record<SupervisionRoomStatus, string> = {
-  good: roomEnvironmentStatusStyles.good,
-  watch: roomEnvironmentStatusStyles.watch,
-  drift: roomEnvironmentStatusStyles.watch,
-  action: roomEnvironmentStatusStyles.action,
-  no_data: roomEnvironmentStatusStyles.insufficient_data,
+  good: baseRoomStatusStyles.good,
+  watch: baseRoomStatusStyles.watch,
+  drift: baseRoomStatusStyles.watch,
+  action: baseRoomStatusStyles.action,
+  no_data: baseRoomStatusStyles.noData,
 };
 
 export const supervisionMetricStatusStyles: Record<SupervisionMetricStatus, string> = {
-  optimal: "border-emerald-500/35 bg-emerald-950/35 text-emerald-300",
-  watch: "border-amber-500/30 bg-amber-950/35 text-amber-100",
-  drift: "border-amber-500/30 bg-amber-950/35 text-amber-100",
-  action: "border-red-500/40 bg-red-950/40 text-red-300",
-  no_data: "border-zinc-600/80 bg-zinc-900/70 text-zinc-400",
+  optimal: baseRoomStatusStyles.good,
+  watch: baseRoomStatusStyles.watch,
+  drift: baseRoomStatusStyles.watch,
+  action: baseRoomStatusStyles.action,
+  no_data: baseRoomStatusStyles.noData,
 };
 
 export const alertSeverityStyles: Record<EnvironmentAlertSeverity, string> = {

@@ -5,22 +5,21 @@ import {
   getNextHarvestPreview,
 } from "@/lib/grow-rooms/crop-cycle";
 import {
-  buildRoomEnvironmentSummaries,
   indexTrendLogsByRoom,
-  type DashboardRoomEnvironment,
   type DashboardRoomEnvironmentLog,
 } from "@/lib/dashboard/build-room-environment-summaries";
 import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
 import { buildCommandCenterPriorities } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
-import { buildOperationBriefing } from "@/lib/copilot/build-operation-briefing";
-import type { CopilotBriefing } from "@/lib/copilot/types";
+import {
+  buildSupervisionRooms,
+  toOverviewEnvironmentSummaries,
+  type OverviewEnvironmentSummary,
+} from "@/lib/environment/build-supervision-rooms";
 import {
   indexLatestLogsByRoom,
-  type DailyLogForRecommendations,
 } from "@/lib/recommendations/latest-log-by-room";
 import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
-import type { RecommendationSeverity } from "@/lib/recommendations/types";
 import { indexTaskSummariesByRoom, summarizeRoomTasks } from "@/lib/tasks/task-stats";
 import type { GrowRoomTask } from "@/lib/tasks/types";
 import { toVarietyForHarvest } from "@/lib/varieties/intelligence";
@@ -51,24 +50,8 @@ export type CommandCenterRoom = {
   id: string;
   name: string;
   status: string;
-  plantCount: number;
-  severity: RecommendationSeverity;
-  activeRecommendations: number;
   openTasks: number;
   overdueTasks: number;
-  harvestLabel: string | null;
-  currentDay: number | null;
-  targetCycleDays: number | null;
-  daysRemaining: number | null;
-  progressPercent: number | null;
-  phaseLabel: string;
-  harvestDateLabel: string | null;
-  nextVarietyName: string | null;
-  cultivarName: string | null;
-  cultivarDisplayName: string | null;
-  genetics: string | null;
-  varietyCount: number;
-  actionRequired: string | null;
 };
 
 export type CommandCenterData = {
@@ -89,8 +72,7 @@ export type CommandCenterData = {
     labels: string[];
   };
   harvestPreviews: CommandCenterHarvest[];
-  roomEnvironments: DashboardRoomEnvironment[];
-  operationBriefing: CopilotBriefing;
+  roomEnvironments: OverviewEnvironmentSummary[];
 };
 
 function computeHealthScore(alertCounts: CommandCenterData["alertCounts"]) {
@@ -102,23 +84,6 @@ function healthStatusFromScore(score: number): CommandCenterData["healthStatus"]
   if (score >= 80) return "stable";
   if (score >= 50) return "watch";
   return "attention";
-}
-
-function resolveActionRequired(
-  severity: RecommendationSeverity,
-  activeItems: { severity: RecommendationSeverity; metric: string; issue: string }[],
-  overdueTasks: GrowRoomTask[],
-): string | null {
-  if (overdueTasks.length > 0) {
-    return overdueTasks[0].title.toUpperCase();
-  }
-  if (severity === "action" && activeItems.length > 0) {
-    return "ACTION REQUIRED";
-  }
-  if (severity === "watch" && activeItems.length > 0) {
-    return activeItems[0].issue.toUpperCase();
-  }
-  return null;
 }
 
 export async function getCommandCenterData(userId: string): Promise<CommandCenterData> {
@@ -162,6 +127,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     RoomVarietyRecord & { grow_room_id: string }
   >;
   const tasks = (tasksResult.data ?? []) as GrowRoomTask[];
+  const logs = (logsResult.data ?? []) as DashboardRoomEnvironmentLog[];
 
   const varietiesByRoom = new Map<string, RoomVarietyRecord[]>();
   const harvestVarietiesByRoom = new Map<string, ReturnType<typeof toVarietyForHarvest>[]>();
@@ -177,12 +143,9 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     harvestVarietiesByRoom.set(roomId, harvestList);
   }
 
-  const latestLogByRoom = indexLatestLogsByRoom(
-    (logsResult.data ?? []) as DashboardRoomEnvironmentLog[],
-  ) as Map<string, DashboardRoomEnvironmentLog>;
+  const latestLogByRoom = indexLatestLogsByRoom(logs);
   const taskSummaryByRoom = indexTaskSummariesByRoom(tasks);
   const roomsById = new Map(rooms.map((room) => [room.id, { name: room.name }]));
-  const recommendationsByRoom = new Map<string, ReturnType<typeof getRecommendationSummary>["items"]>();
 
   const alertCounts = { action: 0, watch: 0, good: 0 };
   let taskOpen = 0;
@@ -193,83 +156,82 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     const latestLog = latestLogByRoom.get(room.id) ?? null;
     const summary = getRecommendationSummary(latestLog, room.status, roomVarieties);
     const taskSummary = taskSummaryByRoom.get(room.id) ?? summarizeRoomTasks([]);
-    const harvestVarieties = harvestVarietiesByRoom.get(room.id) ?? [];
-
-    recommendationsByRoom.set(room.id, summary.items);
 
     alertCounts[summary.severity] += 1;
     taskOpen += taskSummary.openCount;
     taskOverdue += taskSummary.overdueCount;
 
-    const harvest = getNextHarvestPreview(
-      room.status,
-      room.cycle_start_date,
-      room.target_cycle_days,
-      harvestVarieties,
-    );
-
-    const currentDay = getCurrentCycleDay(room.cycle_start_date);
-    const cycle = getCropCycleEngine(
-      room.status,
-      room.cycle_start_date,
-      room.target_cycle_days,
-      { varieties: harvestVarieties },
-    );
-
-    let daysRemaining = cycle.daysRemaining;
-    let harvestDateLabel = cycle.showHarvestMetrics ? cycle.estimatedHarvestDateLabel : null;
-
-    if (harvest) {
-      daysRemaining = harvest.daysRemaining;
-      harvestDateLabel = harvest.estimatedHarvestDateLabel;
-    }
-
-    const roomTasks = tasks.filter((task) => task.grow_room_id === room.id && !task.completed);
-    const overdueTasks = roomTasks.filter(
-      (task) => task.due_date < new Date().toISOString().slice(0, 10),
-    );
-
-    const primaryVariety = pickPrimaryVariety(roomVarieties, harvest?.varietyName ?? null);
-    const roomGenetics = formatGeneticsCross(room.genetics);
-    const geneticsLine = primaryVariety
-      ? toGeneticsLine(primaryVariety)
-      : roomGenetics
-        ? { cultivarName: roomGenetics, genetics: null }
-        : null;
-    const cultivarDisplayName = primaryVariety?.name ?? roomGenetics ?? null;
-
     return {
       id: room.id,
       name: room.name,
       status: room.status,
-      plantCount: room.plant_count ?? 0,
-      severity: summary.severity,
-      activeRecommendations: summary.activeItems.length,
       openTasks: taskSummary.openCount,
       overdueTasks: taskSummary.overdueCount,
-      harvestLabel: harvest?.label ?? null,
-      currentDay,
-      targetCycleDays: room.target_cycle_days,
-      daysRemaining,
-      progressPercent: cycle.progressPercent,
-      phaseLabel: getCultivationPhaseLabel(
-        room.status,
-        currentDay,
-        room.target_cycle_days,
-      ),
-      harvestDateLabel,
-      nextVarietyName: harvest?.varietyName ?? null,
-      cultivarName: geneticsLine?.cultivarName ?? null,
-      cultivarDisplayName,
-      genetics: geneticsLine?.genetics ?? null,
-      varietyCount: roomVarieties.length,
-      actionRequired: resolveActionRequired(
-        summary.severity,
-        summary.activeItems,
-        overdueTasks,
-      ),
     };
   });
+
+  const harvestPreviews: CommandCenterHarvest[] = rooms
+    .map((room) => {
+      const harvestVarieties = harvestVarietiesByRoom.get(room.id) ?? [];
+      const harvest = getNextHarvestPreview(
+        room.status,
+        room.cycle_start_date,
+        room.target_cycle_days,
+        harvestVarieties,
+      );
+      const currentDay = getCurrentCycleDay(room.cycle_start_date);
+      const cycle = getCropCycleEngine(
+        room.status,
+        room.cycle_start_date,
+        room.target_cycle_days,
+        { varieties: harvestVarieties },
+      );
+
+      let daysRemaining = cycle.daysRemaining;
+      let harvestDateLabel = cycle.showHarvestMetrics ? cycle.estimatedHarvestDateLabel : null;
+
+      if (harvest) {
+        daysRemaining = harvest.daysRemaining;
+        harvestDateLabel = harvest.estimatedHarvestDateLabel;
+      }
+
+      const roomVarieties = varietiesByRoom.get(room.id) ?? [];
+      const primaryVariety = pickPrimaryVariety(roomVarieties, harvest?.varietyName ?? null);
+      const roomGenetics = formatGeneticsCross(room.genetics);
+      const geneticsLine = primaryVariety
+        ? toGeneticsLine(primaryVariety)
+        : roomGenetics
+          ? { cultivarName: roomGenetics, genetics: null }
+          : null;
+      const cultivarDisplayName = primaryVariety?.name ?? roomGenetics ?? null;
+
+      if (!harvest?.label || daysRemaining == null) {
+        return null;
+      }
+
+      return {
+        roomId: room.id,
+        roomName: room.name,
+        varietyName:
+          cultivarDisplayName ?? harvest.varietyName ?? geneticsLine?.cultivarName ?? "Room cycle",
+        genetics: geneticsLine?.genetics ?? null,
+        daysRemaining: Math.max(daysRemaining, 0),
+        dateLabel: harvestDateLabel ?? "—",
+        phaseLabel: getCultivationPhaseLabel(
+          room.status,
+          currentDay,
+          room.target_cycle_days,
+        ),
+        progressPercent: cycle.progressPercent,
+        status: room.status,
+        currentDay,
+        targetCycleDays: room.target_cycle_days,
+      };
+    })
+    .filter((preview): preview is CommandCenterHarvest => preview != null)
+    .sort((left, right) => left.daysRemaining - right.daysRemaining);
+
+  const primaryHarvest = harvestPreviews[0] ?? null;
 
   const trendRows = [...(trendLogsResult.data ?? [])].reverse();
   const envTrend = {
@@ -282,45 +244,9 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     ),
   };
 
-  const harvestPreviews: CommandCenterHarvest[] = commandRooms
-    .filter((room) => room.harvestLabel && room.daysRemaining != null)
-    .map((room) => ({
-      roomId: room.id,
-      roomName: room.name,
-      varietyName:
-        room.cultivarDisplayName ?? room.nextVarietyName ?? room.cultivarName ?? "Room cycle",
-      genetics: room.genetics,
-      daysRemaining: Math.max(room.daysRemaining ?? 0, 0),
-      dateLabel: room.harvestDateLabel ?? "—",
-      phaseLabel: room.phaseLabel,
-      progressPercent: room.progressPercent,
-      status: room.status,
-      currentDay: room.currentDay,
-      targetCycleDays: room.targetCycleDays,
-    }))
-    .sort((left, right) => left.daysRemaining - right.daysRemaining);
-
-  const primaryHarvest = harvestPreviews[0] ?? null;
-
   const healthScore = computeHealthScore(alertCounts);
-  const trendLogsByRoom = indexTrendLogsByRoom(
-    (logsResult.data ?? []) as DashboardRoomEnvironmentLog[],
-  );
-  const roomEnvironments = buildRoomEnvironmentSummaries(
-    commandRooms,
-    latestLogByRoom,
-    trendLogsByRoom,
-  );
-
-  const operationBriefing = buildOperationBriefing({
-    rooms: commandRooms,
-    roomEnvironments,
-    priorities: buildCommandCenterPriorities(roomsById, tasks),
-    primaryHarvestDays: primaryHarvest?.daysRemaining ?? null,
-    primaryHarvestRoom: primaryHarvest?.roomName ?? null,
-    latestLogByRoom,
-    varietiesByRoom,
-  });
+  const supervisionRooms = buildSupervisionRooms(rooms, logs);
+  const roomEnvironments = toOverviewEnvironmentSummaries(supervisionRooms);
 
   return {
     base,
@@ -335,6 +261,5 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     envTrend,
     harvestPreviews,
     roomEnvironments,
-    operationBriefing,
   };
 }

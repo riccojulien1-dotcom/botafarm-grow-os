@@ -6,9 +6,7 @@ import { useState } from "react";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { EnvironmentMetricDetailPanel } from "@/components/environment/environment-metric-detail-panel";
 import { EnvironmentMetricSupervisionCard } from "@/components/environment/environment-metric-supervision-card";
-import { EnvironmentRoomCopilot } from "@/components/environment/environment-room-copilot";
 import { supervisionRoomStatusStyles } from "@/components/environment/environment-status-styles";
-import { pickPrimarySupervisionMetric } from "@/lib/environment/environment-room-attention";
 import type { SupervisionRoom } from "@/lib/environment/get-environment-supervision-data";
 import { toTitleCase } from "@/lib/ui/format-mission-labels";
 
@@ -23,7 +21,6 @@ export function EnvironmentRoomSupervisionPanel({
 }: EnvironmentRoomSupervisionPanelProps) {
   const [expandedMetricKey, setExpandedMetricKey] = useState<string | null>(null);
   const expandedMetric = room.metrics.find((metric) => metric.key === expandedMetricKey) ?? null;
-  const primaryMetric = pickPrimarySupervisionMetric(room.metrics);
 
   return (
     <li id={`room-env-${room.id}`} className="scroll-mt-24">
@@ -71,18 +68,6 @@ export function EnvironmentRoomSupervisionPanel({
 
           {room.hasJournalEntries ? (
             <>
-              <EnvironmentRoomCopilot
-                roomName={toTitleCase(room.name)}
-                happening={
-                  room.attentionReason ??
-                  (room.roomStatus === "good"
-                    ? "All metrics within target"
-                    : "One or more metrics need review")
-                }
-                why={primaryMetric?.interpretation ?? room.attentionReason ?? "Not enough trend data yet."}
-                next={primaryMetric?.recommendation ?? "Log this room on your next journal entry."}
-              />
-
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7">
                 {room.metrics.map((metric) => (
                   <EnvironmentMetricSupervisionCard

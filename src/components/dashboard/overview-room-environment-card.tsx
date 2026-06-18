@@ -1,21 +1,13 @@
 import Link from "next/link";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
-import type {
-  DashboardRoomEnvironment,
-  DashboardRoomEnvironmentStatus,
-} from "@/lib/dashboard/build-room-environment-summaries";
+import { supervisionRoomStatusStyles } from "@/components/environment/environment-status-styles";
+import type { OverviewEnvironmentSummary } from "@/lib/environment/build-supervision-rooms";
+import type { SupervisionRoomStatus } from "@/lib/environment/metric-insights";
 import { toTitleCase } from "@/lib/ui/format-mission-labels";
 
 type OverviewRoomEnvironmentCardProps = {
-  environment: DashboardRoomEnvironment;
-};
-
-const statusStyles: Record<DashboardRoomEnvironmentStatus, string> = {
-  good: "border-emerald-500/35 bg-emerald-950/35 text-emerald-300",
-  watch: "border-amber-500/30 bg-amber-950/35 text-amber-100",
-  action: "border-red-500/40 bg-red-950/40 text-red-300",
-  insufficient_data: "border-zinc-600/80 bg-zinc-900/70 text-zinc-400",
+  environment: OverviewEnvironmentSummary;
 };
 
 export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnvironmentCardProps) {
@@ -25,7 +17,7 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
         glow={
           environment.status === "action"
             ? "red"
-            : environment.status === "watch"
+            : environment.status === "watch" || environment.status === "drift"
               ? "magenta"
               : "cyan"
         }
@@ -40,27 +32,14 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
             {environment.attentionReason ? (
               <p className="text-sm leading-snug text-zinc-300">{environment.attentionReason}</p>
             ) : null}
-            {environment.hasJournalEntries ? (
-              <div className="flex flex-wrap gap-3 text-sm tabular-nums text-zinc-400">
-                {environment.temperatureReading ? (
-                  <span>
-                    Temp <span className="font-semibold text-white">{environment.temperatureReading}</span>
-                  </span>
-                ) : null}
-                {environment.humidityReading ? (
-                  <span>
-                    RH <span className="font-semibold text-white">{environment.humidityReading}</span>
-                  </span>
-                ) : null}
-              </div>
-            ) : (
+            {!environment.hasJournalEntries ? (
               <Link
                 href={`/rooms/${environment.roomId}`}
                 className="inline-flex text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
               >
                 Add journal log
               </Link>
-            )}
+            ) : null}
           </div>
 
           <EnvironmentStatusBadge status={environment.status} label={environment.statusLabel} />
@@ -85,12 +64,12 @@ function EnvironmentStatusBadge({
   status,
   label,
 }: {
-  status: DashboardRoomEnvironmentStatus;
+  status: SupervisionRoomStatus;
   label: string;
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${statusStyles[status]}`}
+      className={`inline-flex shrink-0 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${supervisionRoomStatusStyles[status]}`}
     >
       {label}
     </span>
