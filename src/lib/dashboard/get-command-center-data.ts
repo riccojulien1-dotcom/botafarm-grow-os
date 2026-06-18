@@ -13,6 +13,8 @@ import {
 import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
 import { buildCommandCenterPriorities } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
+import { buildOperationBriefing } from "@/lib/copilot/build-operation-briefing";
+import type { CopilotBriefing } from "@/lib/copilot/types";
 import {
   indexLatestLogsByRoom,
   type DailyLogForRecommendations,
@@ -88,6 +90,7 @@ export type CommandCenterData = {
   };
   harvestPreviews: CommandCenterHarvest[];
   roomEnvironments: DashboardRoomEnvironment[];
+  operationBriefing: CopilotBriefing;
 };
 
 function computeHealthScore(alertCounts: CommandCenterData["alertCounts"]) {
@@ -309,6 +312,16 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     trendLogsByRoom,
   );
 
+  const operationBriefing = buildOperationBriefing({
+    rooms: commandRooms,
+    roomEnvironments,
+    priorities: buildCommandCenterPriorities(roomsById, tasks),
+    primaryHarvestDays: primaryHarvest?.daysRemaining ?? null,
+    primaryHarvestRoom: primaryHarvest?.roomName ?? null,
+    latestLogByRoom,
+    varietiesByRoom,
+  });
+
   return {
     base,
     healthScore,
@@ -322,5 +335,6 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     envTrend,
     harvestPreviews,
     roomEnvironments,
+    operationBriefing,
   };
 }

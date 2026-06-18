@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  CalendarClock,
+  DoorOpen,
+  Leaf,
+  Users,
+} from "lucide-react";
 
 import { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
@@ -6,7 +12,6 @@ import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-ba
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import type { CommandCenterRoom } from "@/lib/dashboard/get-command-center-data";
 import {
-  formatCultivarDisplayName,
   formatHarvestInDaysLine,
   formatHarvestSpotlightDate,
   formatOverviewCycleDayLine,
@@ -18,9 +23,6 @@ type OverviewRoomCardProps = {
 };
 
 export function OverviewRoomCard({ room }: OverviewRoomCardProps) {
-  const cultivarName = room.cultivarDisplayName
-    ? formatCultivarDisplayName(room.cultivarDisplayName)
-    : null;
   const cycleDayLine = formatOverviewCycleDayLine(room.currentDay, room.status);
   const daysLeft =
     room.daysRemaining != null ? Math.max(room.daysRemaining, 0) : null;
@@ -42,40 +44,41 @@ export function OverviewRoomCard({ room }: OverviewRoomCardProps) {
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 space-y-2">
-              <h3 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-                {toTitleCase(room.name)}
-              </h3>
+              <div className="flex items-center gap-2">
+                <DoorOpen className="h-5 w-5 text-cyan-400" aria-hidden />
+                <h3 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
+                  {toTitleCase(room.name)}
+                </h3>
+              </div>
               <GrowRoomStatusBadge status={room.status} />
             </div>
             <RecommendationStatusBadge severity={room.severity} compact />
           </div>
 
-          <div className="space-y-1">
-            {cultivarName ? (
-              <p className="text-lg font-semibold text-zinc-100">{cultivarName}</p>
-            ) : (
-              <p className="text-sm text-zinc-500">No cultivar assigned</p>
-            )}
-            {room.genetics ? (
-              <p className="text-sm font-medium text-fuchsia-300/90">{room.genetics}</p>
-            ) : null}
-          </div>
-
-          <p className="text-sm text-zinc-400">
-            {room.plantCount} plant{room.plantCount === 1 ? "" : "s"}
-            {room.varietyCount > 1
-              ? ` · +${room.varietyCount - 1} more cultivar${room.varietyCount > 2 ? "s" : ""}`
-              : ""}
-          </p>
-
-          <div className="space-y-1 text-sm">
+          <div className="grid gap-2 text-sm">
             {cycleDayLine ? (
-              <p className="font-semibold text-fuchsia-300/90">{cycleDayLine}</p>
+              <p className="flex items-center gap-2 font-semibold text-fuchsia-300/90">
+                <CalendarClock className="h-4 w-4 shrink-0" aria-hidden />
+                {cycleDayLine}
+              </p>
             ) : null}
             {daysLeft != null ? (
               <p className="font-medium text-zinc-200">{formatHarvestInDaysLine(daysLeft)}</p>
             ) : null}
             {harvestDate ? <p className="text-zinc-500">{harvestDate}</p> : null}
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-sm text-zinc-400">
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="h-4 w-4 text-zinc-500" aria-hidden />
+              {room.plantCount} plant{room.plantCount === 1 ? "" : "s"}
+            </span>
+            {room.varietyCount > 0 ? (
+              <span className="inline-flex items-center gap-1.5 text-zinc-500">
+                <Leaf className="h-4 w-4" aria-hidden />
+                {room.varietyCount} cultivar{room.varietyCount === 1 ? "" : "s"} inside
+              </span>
+            ) : null}
           </div>
 
           {room.progressPercent != null ? (

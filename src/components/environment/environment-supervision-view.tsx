@@ -2,10 +2,11 @@ import Link from "next/link";
 
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
-import { EnvironmentAiComingSoon } from "@/components/environment/environment-ai-coming-soon";
 import { EnvironmentDataSourceStrip } from "@/components/environment/environment-data-source-strip";
 import { EnvironmentImportPlaceholder } from "@/components/environment/environment-import-placeholder";
+import { EnvironmentFarmCopilot } from "@/components/environment/environment-room-copilot";
 import { EnvironmentSupervisionShell } from "@/components/environment/environment-supervision-shell";
+import { buildEnvironmentFarmBriefing } from "@/lib/copilot/build-operation-briefing";
 import type { EnvironmentSupervisionData } from "@/lib/environment/get-environment-supervision-data";
 
 type EnvironmentSupervisionViewProps = {
@@ -16,6 +17,8 @@ export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewP
   const roomsNeedingAttention = data.rooms.filter(
     (room) => room.roomStatus === "action" || room.roomStatus === "watch",
   ).length;
+
+  const farmBriefing = buildEnvironmentFarmBriefing(data.rooms);
 
   return (
     <div className="space-y-6 pb-8">
@@ -35,7 +38,10 @@ export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewP
       />
 
       {data.rooms.length ? (
-        <EnvironmentSupervisionShell data={data} />
+        <>
+          <EnvironmentFarmCopilot briefing={farmBriefing} />
+          <EnvironmentSupervisionShell data={data} />
+        </>
       ) : (
         <GlassPanel padding="md">
           <p className="text-sm text-zinc-500">
@@ -71,7 +77,6 @@ export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewP
             }}
           />
         </GlassPanel>
-        <EnvironmentAiComingSoon compact />
         <EnvironmentImportPlaceholder />
       </section>
     </div>

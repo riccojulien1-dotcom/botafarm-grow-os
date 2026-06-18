@@ -1,6 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import {
+  CalendarClock,
+  DoorOpen,
+  Leaf,
+  Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 
@@ -8,7 +14,7 @@ import {
   deleteGrowRoomAction,
   updateGrowRoomAction,
 } from "@/app/dashboard/grow-rooms/actions";
-import { BfRoomStarMetrics } from "@/components/botafarm/bf-room-star-metrics";
+import { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
 import { RoomRecommendationSummaryLine } from "@/components/recommendations/room-recommendation-summary-line";
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import {
@@ -18,22 +24,21 @@ import {
   getNextHarvestPreview,
   type VarietyForHarvest,
 } from "@/lib/grow-rooms/crop-cycle";
-import { RoomVarietyIntelligenceLine } from "@/components/grow-rooms/room-variety-intelligence-line";
 import { RoomTaskStatusLine } from "@/components/tasks/room-task-status-line";
 import { getRecommendationSummary } from "@/lib/recommendations/evaluate-recommendations";
+import { translateRecommendationForGrower } from "@/lib/copilot/translate-recommendation";
 import type { RecommendationLogInput } from "@/lib/recommendations/types";
 import type { RoomTaskSummary } from "@/lib/tasks/task-stats";
-import { getRoomVarietyIntelligence } from "@/lib/varieties/intelligence";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
 import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-rooms/grow-room-fields";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 import {
-  formatGeneticsCross,
-  pickPrimaryVariety,
-  toGeneticsLine,
-} from "@/lib/ui/genetics-display";
+  formatHarvestSpotlightDate,
+  formatPhaseLabel,
+  toTitleCase,
+} from "@/lib/ui/format-mission-labels";
 
 export type GrowRoomListItem = GrowRoomFieldValues & {
   id: string;
@@ -49,16 +54,6 @@ type GrowRoomCardProps = {
 
 const initialState: { error?: string; success?: string } = {};
 
-function resolveActionLabel(
-  severity: ReturnType<typeof getRecommendationSummary>["severity"],
-  overdueCount: number,
-): string | null {
-  if (overdueCount > 0) return "ACTION REQUIRED";
-  if (severity === "action") return "ACTION REQUIRED";
-  if (severity === "watch") return "MONITOR";
-  return null;
-}
-
 export function GrowRoomCard({
   room,
   varieties = [],
@@ -71,11 +66,6 @@ export function GrowRoomCard({
     room.status,
     roomVarieties,
   );
-  const varietyIntelligence = getRoomVarietyIntelligence(
-    roomVarieties,
-    room.cycle_start_date,
-    room.status,
-  );
   const nextHarvest = getNextHarvestPreview(
     room.status,
     room.cycle_start_date,
@@ -86,26 +76,20 @@ export function GrowRoomCard({
   const cycle = getCropCycleEngine(room.status, room.cycle_start_date, room.target_cycle_days, {
     varieties,
   });
-  const daysLeft =
-    nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
+  const daysLeft = nextHarvest?.daysRemaining ?? cycle.daysRemaining ?? null;
   const harvestDate =
     nextHarvest?.estimatedHarvestDateLabel ?? cycle.estimatedHarvestDateLabel;
-  const actionLabel = resolveActionLabel(
-    recommendationSummary.severity,
-    taskSummary?.overdueCount ?? 0,
-  );
-  const primaryVariety = pickPrimaryVariety(roomVarieties, nextHarvest?.varietyName ?? null);
-  const roomGenetics = formatGeneticsCross(room.genetics);
-  const geneticsLine = primaryVariety
-    ? toGeneticsLine(primaryVariety)
-    : roomGenetics
-      ? { cultivarName: roomGenetics, genetics: null }
-      : null;
   const phaseLabel = getCultivationPhaseLabel(
     room.status,
     currentDay,
     room.target_cycle_days,
   );
+  const primaryAlert = recommendationSummary.activeItems.find((item) => item.severity !== "good");
+  const growerAlert = primaryAlert
+    ? translateRecommendationForGrower(toTitleCase(room.name), primaryAlert)
+    : taskSummary?.overdueCount
+      ? `${toTitleCase(room.name)} — overdue task needs attention`
+      : null;
 
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
@@ -186,34 +170,81 @@ export function GrowRoomCard({
   return (
     <li className="bf-glass bf-glass-shine bf-interactive overflow-hidden rounded-2xl border border-white/[0.07]">
       <Link href={`/rooms/${room.id}`} className="block p-5 sm:p-6">
-        <div className="mb-4 flex justify-end">
-          <RecommendationStatusBadge
-            severity={recommendationSummary.severity}
-            compact
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <DoorOpen className="h-6 w-6 text-cyan-400" aria-hidden />
+            <h3 className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
+              {toTitleCase(room.name)}
+            </h3>
+          </div>
+          <RecommendationStatusBadge severity={recommendationSummary.severity} compact />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <GrowRoomStatusBadge status={room.status} />
+          {phaseLabel ? (
+            <span className="rounded-lg border border-fuchsia-500/25 bg-fuchsia-950/25 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-fuchsia-200">
+              {formatPhaseLabel(phaseLabel)}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          <MetaChip
+            icon={CalendarClock}
+            label="Cycle"
+            value={
+              currentDay != null && room.target_cycle_days
+                ? `Day ${currentDay} of ${room.target_cycle_days}`
+                : currentDay != null
+                  ? `Day ${currentDay}`
+                  : "Not set"
+            }
+          />
+          <MetaChip
+            icon={CalendarClock}
+            label="Harvest"
+            value={
+              daysLeft != null
+                ? `${Math.max(daysLeft, 0)} days`
+                : harvestDate && harvestDate !== "Not set"
+                  ? formatHarvestSpotlightDate(harvestDate)
+                  : "—"
+            }
+            accent="magenta"
+          />
+          <MetaChip
+            icon={Users}
+            label="Plants"
+            value={String(room.plant_count ?? 0)}
           />
         </div>
 
-        <BfRoomStarMetrics
-          status={room.status}
-          roomName={room.name}
-          cultivarName={geneticsLine?.cultivarName ?? null}
-          genetics={geneticsLine?.genetics ?? null}
-          varietyCount={roomVarieties.length}
-          currentDay={currentDay}
-          targetCycleDays={room.target_cycle_days}
-          daysLeft={daysLeft}
-          plantCount={room.plant_count ?? 0}
-          harvestDate={harvestDate}
-          phaseLabel={phaseLabel}
-          progressPercent={cycle.progressPercent}
-          actionLabel={actionLabel}
-          compact
-        />
+        {growerAlert ? (
+          <p className="mt-4 rounded-lg border border-amber-500/25 bg-amber-950/20 px-3 py-2 text-sm text-amber-100">
+            {growerAlert}
+          </p>
+        ) : (
+          <p className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-3 py-2 text-sm text-emerald-200">
+            Room stable — no urgent alerts
+          </p>
+        )}
 
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/[0.05] pt-4">
-          <GrowRoomStatusBadge status={room.status} />
-          <span className="text-xs text-zinc-500">{room.room_type ?? "No type"}</span>
-        </div>
+        {roomVarieties.length > 0 ? (
+          <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-zinc-500">
+            <Leaf className="h-3.5 w-3.5" aria-hidden />
+            {roomVarieties.length} cultivar{roomVarieties.length === 1 ? "" : "s"} inside — open room to manage
+          </p>
+        ) : null}
+
+        {cycle.progressPercent != null ? (
+          <div className="mt-4 space-y-2 border-t border-white/[0.05] pt-4">
+            <BfProgressBar value={cycle.progressPercent} accent="magenta" showValue={false} size="large" />
+            <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-600">
+              {Math.round(cycle.progressPercent)}% cycle complete
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-4 space-y-2">
           <RoomRecommendationSummaryLine
@@ -221,7 +252,6 @@ export function GrowRoomCard({
             roomId={room.id}
             hasLog={latestLog != null}
           />
-          <RoomVarietyIntelligenceLine summary={varietyIntelligence} />
           <RoomTaskStatusLine summary={taskSummary} />
         </div>
       </Link>
@@ -270,5 +300,33 @@ export function GrowRoomCard({
         </p>
       ) : null}
     </li>
+  );
+}
+
+function MetaChip({
+  icon: Icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: typeof CalendarClock;
+  label: string;
+  value: string;
+  accent?: "magenta";
+}) {
+  return (
+    <div className="rounded-lg border border-white/[0.06] bg-black/25 px-3 py-2">
+      <p className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-zinc-500">
+        <Icon className="h-3 w-3" aria-hidden />
+        {label}
+      </p>
+      <p
+        className={`mt-1 text-sm font-semibold ${
+          accent === "magenta" ? "text-fuchsia-300" : "text-zinc-200"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
   );
 }

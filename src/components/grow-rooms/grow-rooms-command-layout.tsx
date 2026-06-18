@@ -1,6 +1,5 @@
 import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-form";
 import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
-import { BfMissionKpi } from "@/components/botafarm/bf-mission-kpi";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { GrowRoomListItem } from "@/components/grow-rooms/grow-room-card";
@@ -8,6 +7,7 @@ import type { VarietyForHarvest } from "@/lib/grow-rooms/crop-cycle";
 import type { RecommendationLogInput } from "@/lib/recommendations/types";
 import type { RoomTaskSummary } from "@/lib/tasks/task-stats";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
+import { AlertTriangle, DoorOpen, Flower2, Users } from "lucide-react";
 
 type GrowRoomsCommandLayoutProps = {
   rooms: GrowRoomListItem[];
@@ -32,34 +32,31 @@ export function GrowRoomsCommandLayout({
   stats,
 }: GrowRoomsCommandLayoutProps) {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <BfPageHeader
-        eyebrow="Mission Control"
-        title="Grow Rooms"
-        subtitle="Active cultivation zones — cycle position, harvest timing, and alerts first."
+        eyebrow="Grow rooms"
+        title="Your cultivation zones"
+        subtitle="Rooms first — open any room to manage cultivars, tasks, and journal logs inside."
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <BfMissionKpi value={rooms.length} label="Rooms" accent="cyan" />
-        <BfMissionKpi value={stats.totalPlants} label="Plants" accent="white" />
-        <BfMissionKpi value={stats.totalVarieties} label="Varieties" accent="magenta" />
-        <BfMissionKpi
-          value={stats.alertRooms}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatChip icon={DoorOpen} label="Active rooms" value={String(rooms.length)} tone="cyan" />
+        <StatChip icon={Users} label="Total plants" value={String(stats.totalPlants)} tone="white" />
+        <StatChip
+          icon={AlertTriangle}
           label="Needs attention"
-          accent={stats.alertRooms > 0 ? "alert" : "cyan"}
+          value={String(stats.alertRooms)}
+          tone={stats.alertRooms > 0 ? "red" : "emerald"}
         />
+        <StatChip icon={Flower2} label="In flower" value={String(stats.flowerRooms)} tone="magenta" />
       </section>
 
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-bold uppercase tracking-tight text-white">
-            Active zones
-          </h2>
-          {stats.flowerRooms > 0 ? (
-            <span className="bf-section-eyebrow text-fuchsia-400/90">
-              {stats.flowerRooms} in flower
-            </span>
-          ) : null}
+          <h2 className="text-2xl font-bold uppercase tracking-tight text-white">All rooms</h2>
+          <span className="bf-section-eyebrow">
+            {rooms.length} zone{rooms.length === 1 ? "" : "s"}
+          </span>
         </div>
 
         {rooms.length ? (
@@ -86,13 +83,43 @@ export function GrowRoomsCommandLayout({
 
       <GlassPanel glow="cyan" padding="lg" className="scroll-mt-24 opacity-95" id="create-room">
         <h2 className="font-mono text-xs uppercase tracking-[0.22em] text-zinc-500">
-          Create new room
+          Add a new room
         </h2>
         <p className="mt-1 mb-5 text-sm text-zinc-500">
-          Secondary — expand your operation when ready.
+          Create Flower Room, Veg Room, Mother Room, or Clone Room — assign cultivars after.
         </p>
         <CreateGrowRoomForm />
       </GlassPanel>
+    </div>
+  );
+}
+
+function StatChip({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof DoorOpen;
+  label: string;
+  value: string;
+  tone: "cyan" | "white" | "red" | "emerald" | "magenta";
+}) {
+  const styles = {
+    cyan: "border-cyan-500/25 bg-cyan-950/20 text-cyan-300",
+    white: "border-white/10 bg-black/25 text-white",
+    red: "border-red-500/30 bg-red-950/25 text-red-300",
+    emerald: "border-emerald-500/25 bg-emerald-950/20 text-emerald-300",
+    magenta: "border-fuchsia-500/25 bg-fuchsia-950/20 text-fuchsia-300",
+  };
+
+  return (
+    <div className={`rounded-xl border px-4 py-3 ${styles[tone]}`}>
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 opacity-80" aria-hidden />
+        <p className="text-[10px] uppercase tracking-wider opacity-70">{label}</p>
+      </div>
+      <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { Sparkles } from "lucide-react";
+
 import { EnvironmentMetricChart } from "@/components/environment/environment-metric-chart";
 import { EnvironmentMetricIcon } from "@/components/environment/environment-metric-icon";
 import { supervisionMetricStatusStyles } from "@/components/environment/environment-status-styles";
@@ -13,7 +15,7 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
   const education = METRIC_EDUCATION[metric.key];
 
   return (
-    <div className="rounded-xl border border-cyan-500/25 bg-cyan-950/10 p-5">
+    <div className="rounded-xl border border-fuchsia-500/25 bg-fuchsia-950/10 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-4">
           <EnvironmentMetricIcon metricKey={metric.key} size="detail" />
@@ -33,14 +35,30 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border border-white/[0.06] bg-black/25 px-4 py-3">
-        <p className="text-[10px] uppercase tracking-wider text-zinc-500">What is {metric.label}?</p>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-300">{education.detail}</p>
+      <div className="mt-5 rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/25 p-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-fuchsia-300" aria-hidden />
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-200">
+            Botafarm AI interpretation
+          </p>
+        </div>
+        <p className="mt-3 text-base font-medium leading-relaxed text-white">
+          {metric.interpretation}
+        </p>
+        <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
+            What to do next
+          </p>
+          <p className="mt-2 text-sm font-medium leading-relaxed text-emerald-100">
+            {metric.recommendation}
+          </p>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-zinc-400">{education.summary}</p>
       </div>
 
       <div className="mt-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          Room history
+          Trend chart — supports your decision
         </p>
         <EnvironmentMetricChart
           points={metric.points}
@@ -88,16 +106,6 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
           </table>
         </div>
       ) : null}
-
-      <div className="mt-4 rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-4 py-3">
-        <p className="text-[10px] uppercase tracking-wider text-cyan-400/80">What to do next</p>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-200">{metric.recommendation}</p>
-      </div>
-
-      <div className="mt-3 rounded-lg border border-white/[0.06] bg-black/25 px-4 py-3">
-        <p className="text-[10px] uppercase tracking-wider text-zinc-500">What this means right now</p>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-400">{metric.interpretation}</p>
-      </div>
     </div>
   );
 }
