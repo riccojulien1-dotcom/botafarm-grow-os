@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { createDailyLogAction } from "@/app/dashboard/journal/actions";
 import { DailyLogFields } from "@/components/journal/daily-log-fields";
+import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
@@ -26,6 +27,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
   return (
     <form
       action={formAction}
+      encType="multipart/form-data"
       onKeyDown={preventImplicitFormSubmitOnEnter}
       className="grid gap-4 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
     >
@@ -52,6 +54,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
         idPrefix="dashboard-create-log"
         defaultLogDate={todayDateInputValue()}
       />
+      <DailyLogPhotoField idPrefix="dashboard-create-log" />
 
       {state?.error ? (
         <p className="md:col-span-2 text-sm text-red-400" role="alert">
@@ -68,7 +71,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
           disabled={pending}
           className="rounded-md bg-fuchsia-600 px-4 py-2 text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
         >
-          {pending ? "Saving..." : "Save daily log"}
+          {pending ? "Saving..." : "Save journal entry"}
         </button>
       </div>
     </form>

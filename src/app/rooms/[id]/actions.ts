@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/get-user";
 import { parseDailyLogFormData } from "@/lib/journal/parse-daily-log-form";
+import { extractPhotoFiles, uploadDailyLogPhotos } from "@/lib/journal/log-photos";
 import { createClient } from "@/lib/supabase/server";
 
 type ActionState = { error?: string; success?: string };
@@ -44,6 +45,12 @@ async function verifyOwnedRoom(
   return !error && !!room;
 }
 
+function revalidateJournalPaths(growRoomId: string) {
+  revalidatePath(`/rooms/${growRoomId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/journal");
+}
+
 export async function createRoomDailyLogAction(
   _: ActionState,
   formData: FormData,
@@ -66,19 +73,31 @@ export async function createRoomDailyLogAction(
     return { error: fields.error };
   }
 
-  const { error } = await supabase.from("daily_logs").insert({
-    user_id: user.id,
-    grow_room_id: growRoomId,
-    ...fields.payload,
-  });
+  const { data: inserted, error } = await supabase
+    .from("daily_logs")
+    .insert({
+      user_id: user.id,
+      grow_room_id: growRoomId,
+      ...fields.payload,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    return { error: error.message };
+  if (error || !inserted) {
+    return { error: error?.message ?? "Could not save log." };
   }
 
-  revalidatePath(`/rooms/${growRoomId}`);
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/journal");
+  const photoError = await uploadDailyLogPhotos(
+    supabase,
+    user.id,
+    inserted.id,
+    extractPhotoFiles(formData),
+  );
+  if (photoError) {
+    return { error: photoError };
+  }
+
+  revalidateJournalPaths(growRoomId);
   return { success: "Daily journal log saved." };
 }
 
@@ -116,9 +135,17 @@ export async function updateRoomDailyLogAction(
     return { error: error.message };
   }
 
-  revalidatePath(`/rooms/${growRoomId}`);
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/journal");
+  const photoError = await uploadDailyLogPhotos(
+    supabase,
+    user.id,
+    logId,
+    extractPhotoFiles(formData),
+  );
+  if (photoError) {
+    return { error: photoError };
+  }
+
+  revalidateJournalPaths(growRoomId);
   return { success: "Journal log updated." };
 }
 
@@ -140,6 +167,11 @@ export async function deleteRoomDailyLogAction(
     return { error: "You cannot delete this log." };
   }
 
+  const { data: photos } = await supabase
+    .from("log_photos")
+    .select("storage_path")
+    .eq("daily_log_id", logId);
+
   const { error } = await supabase
     .from("daily_logs")
     .delete()
@@ -151,8 +183,11 @@ export async function deleteRoomDailyLogAction(
     return { error: error.message };
   }
 
-  revalidatePath(`/rooms/${growRoomId}`);
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/journal");
+  const paths = (photos ?? []).map((photo) => photo.storage_path);
+  if (paths.length > 0) {
+    await supabase.storage.from("log-photos").remove(paths);
+  }
+
+  revalidateJournalPaths(growRoomId);
   return { success: "Journal log deleted." };
 }

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { createRoomDailyLogAction } from "@/app/rooms/[id]/actions";
 import { DailyLogFields } from "@/components/journal/daily-log-fields";
+import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 
@@ -25,6 +26,7 @@ export function CreateRoomDailyLogForm({ growRoomId }: CreateRoomDailyLogFormPro
   return (
     <form
       action={formAction}
+      encType="multipart/form-data"
       onKeyDown={preventImplicitFormSubmitOnEnter}
       className="grid gap-4 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
     >
@@ -33,6 +35,7 @@ export function CreateRoomDailyLogForm({ growRoomId }: CreateRoomDailyLogFormPro
         idPrefix={`create-log-${growRoomId}`}
         defaultLogDate={todayDateInputValue()}
       />
+      <DailyLogPhotoField idPrefix={`create-log-${growRoomId}`} />
 
       {state?.error ? (
         <p className="md:col-span-2 text-sm text-red-400" role="alert">

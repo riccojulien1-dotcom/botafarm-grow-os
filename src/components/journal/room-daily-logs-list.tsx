@@ -1,11 +1,17 @@
 import { RoomDailyLogCard, type RoomDailyLog } from "@/components/journal/room-daily-log-card";
+import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
 type RoomDailyLogsListProps = {
   logs: RoomDailyLog[];
   growRoomId: string;
+  photosByLogId?: Map<string, JournalLogPhoto[]>;
 };
 
-export function RoomDailyLogsList({ logs, growRoomId }: RoomDailyLogsListProps) {
+export function RoomDailyLogsList({
+  logs,
+  growRoomId,
+  photosByLogId,
+}: RoomDailyLogsListProps) {
   if (!logs.length) {
     return (
       <p className="rounded-xl bf-inset-panel px-4 py-5 text-sm text-zinc-400">
@@ -17,7 +23,12 @@ export function RoomDailyLogsList({ logs, growRoomId }: RoomDailyLogsListProps) 
   return (
     <ul className="space-y-3">
       {logs.map((log) => (
-        <RoomDailyLogCard key={log.id} log={log} growRoomId={growRoomId} />
+        <RoomDailyLogCard
+          key={log.id}
+          log={log}
+          growRoomId={growRoomId}
+          photos={photosByLogId?.get(log.id) ?? []}
+        />
       ))}
     </ul>
   );

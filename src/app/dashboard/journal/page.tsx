@@ -1,38 +1,35 @@
-import { CreateDailyLogForm } from "@/components/journal/create-daily-log-form";
-import { BfPageHeader } from "@/components/botafarm/bf-page-header";
-import { GlassPanel } from "@/components/botafarm/glass-panel";
+import { JournalDashboardView } from "@/components/journal/journal-dashboard-view";
 import { requireUser } from "@/lib/auth/get-user";
-import { createClient } from "@/lib/supabase/server";
+import { getJournalPageData } from "@/lib/journal/get-journal-page-data";
 
-export default async function JournalPage() {
+export const dynamic = "force-dynamic";
+
+type JournalPageProps = {
+  searchParams: Promise<{
+    room?: string;
+    from?: string;
+    to?: string;
+  }>;
+};
+
+export default async function JournalPage({ searchParams }: JournalPageProps) {
   const user = await requireUser();
-  const supabase = await createClient();
+  const params = await searchParams;
 
-  const { data: rooms } = await supabase
-    .from("grow_rooms")
-    .select("id,name")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const data = await getJournalPageData(user.id, {
+    roomId: params.room,
+    from: params.from,
+    to: params.to,
+  });
 
   return (
-    <section className="space-y-8">
-      <BfPageHeader
-        eyebrow="Mission Control"
-        title="Daily Journal"
-        subtitle="Log climate and irrigation values for each room."
-      />
-
-      {rooms?.length ? (
-        <GlassPanel glow="cyan" padding="lg" interactive>
-          <CreateDailyLogForm growRooms={rooms} />
-        </GlassPanel>
-      ) : (
-        <GlassPanel padding="lg">
-          <p className="text-sm text-zinc-400">
-            You need at least one grow room before creating a journal log.
-          </p>
-        </GlassPanel>
-      )}
-    </section>
+    <JournalDashboardView
+      data={data}
+      filters={{
+        roomId: params.room,
+        from: params.from,
+        to: params.to,
+      }}
+    />
   );
 }

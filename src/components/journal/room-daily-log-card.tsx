@@ -8,16 +8,20 @@ import {
   updateRoomDailyLogAction,
 } from "@/app/rooms/[id]/actions";
 import { DailyLogFields } from "@/components/journal/daily-log-fields";
+import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
+import { DailyLogPhotoGallery } from "@/components/journal/daily-log-photo-gallery";
 import { DailyLogMetrics } from "@/components/journal/daily-log-metrics";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
 import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
+import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
 export type RoomDailyLog = DailyLogRecord;
 
 type RoomDailyLogCardProps = {
   log: RoomDailyLog;
   growRoomId: string;
+  photos?: JournalLogPhoto[];
 };
 
 const initialState: { error?: string; success?: string } = {};
@@ -29,7 +33,7 @@ function formatDate(log: RoomDailyLog) {
   return new Date(log.logged_at).toISOString().slice(0, 10);
 }
 
-export function RoomDailyLogCard({ log, growRoomId }: RoomDailyLogCardProps) {
+export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogCardProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
@@ -70,6 +74,7 @@ export function RoomDailyLogCard({ log, growRoomId }: RoomDailyLogCardProps) {
         <form
           key={`edit-log-${log.id}-${editSession}`}
           action={updateAction}
+          encType="multipart/form-data"
           onKeyDown={preventImplicitFormSubmitOnEnter}
           className="grid gap-3 md:grid-cols-2"
         >
@@ -79,6 +84,7 @@ export function RoomDailyLogCard({ log, growRoomId }: RoomDailyLogCardProps) {
             idPrefix={`edit-log-${log.id}`}
             values={{ ...log, log_date: logDate }}
           />
+          <DailyLogPhotoField idPrefix={`edit-log-${log.id}`} />
 
           {updateState?.error ? (
             <p className="md:col-span-2 text-sm text-red-400" role="alert">
@@ -145,6 +151,13 @@ export function RoomDailyLogCard({ log, growRoomId }: RoomDailyLogCardProps) {
       </div>
 
       <DailyLogMetrics log={log} />
+
+      {photos.length ? (
+        <div className="mt-4 space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Photos</p>
+          <DailyLogPhotoGallery photos={photos} compact />
+        </div>
+      ) : null}
 
       {updateState?.success ? (
         <p className="mt-3 text-sm text-green-400">{updateState.success}</p>

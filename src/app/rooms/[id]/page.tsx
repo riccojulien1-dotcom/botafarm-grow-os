@@ -8,6 +8,7 @@ import { formatLogDateLabel } from "@/lib/recommendations/latest-log-by-room";
 import { CreateRoomDailyLogForm } from "@/components/journal/create-room-daily-log-form";
 import { RoomDailyLogsList } from "@/components/journal/room-daily-logs-list";
 import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
+import { fetchPhotosByLogIds } from "@/lib/journal/log-photos";
 import { CropTimelineSection } from "@/components/grow-rooms/crop-timeline-section";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { RoomDetailManagement } from "@/components/grow-rooms/room-detail-management";
@@ -111,6 +112,10 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
   const logsAsc = (logsRaw ?? []) as DailyLogRecord[];
   const logsForList = [...logsAsc].reverse();
   const latestLog = logsForList[0] ?? null;
+  const photosByLogId = await fetchPhotosByLogIds(
+    supabase,
+    logsForList.map((log) => log.id),
+  );
 
   const currentDay = getCurrentCycleDay(room.cycle_start_date);
   const cycle = getCropCycleEngine(
@@ -233,7 +238,11 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
           </div>
 
           <CreateRoomDailyLogForm growRoomId={room.id} />
-          <RoomDailyLogsList logs={logsForList} growRoomId={room.id} />
+          <RoomDailyLogsList
+            logs={logsForList}
+            growRoomId={room.id}
+            photosByLogId={photosByLogId}
+          />
         </GlassPanel>
 
         <RoomRecommendationsPanel

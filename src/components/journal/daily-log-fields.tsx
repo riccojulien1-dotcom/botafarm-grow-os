@@ -144,7 +144,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ec_runoff`} className="text-sm text-zinc-200">
-          EC runoff
+          EC out
         </label>
         <input
           id={`${idPrefix}-ec_runoff`}
@@ -157,7 +157,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ph_runoff`} className="text-sm text-zinc-200">
-          pH runoff
+          pH out
         </label>
         <input
           id={`${idPrefix}-ph_runoff`}
@@ -189,7 +189,7 @@ export function DailyLogFields({
           htmlFor={`${idPrefix}-irrigation_volume_per_event`}
           className="text-sm text-zinc-200"
         >
-          Volume per event (L)
+          Irrigation volume (L)
         </label>
         <input
           id={`${idPrefix}-irrigation_volume_per_event`}
