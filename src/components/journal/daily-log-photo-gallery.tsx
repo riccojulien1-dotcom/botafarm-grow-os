@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
 type DailyLogPhotoGalleryProps = {
@@ -25,13 +23,14 @@ export function DailyLogPhotoGallery({ photos, compact = false }: DailyLogPhotoG
             rel="noopener noreferrer"
             className="group relative overflow-hidden rounded-lg border border-white/[0.08] bg-black/30"
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={photo.url}
               alt={photo.caption ?? "Journal photo"}
               width={compact ? 120 : 200}
               height={compact ? 120 : 200}
               className="aspect-square h-full w-full object-cover transition group-hover:scale-[1.02]"
-              unoptimized
+              loading="lazy"
             />
           </a>
         ) : null,

@@ -13,10 +13,35 @@ const ALLOWED_PHOTO_TYPES = new Set([
   "image/heif",
 ]);
 
+const ALLOWED_PHOTO_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic", "heif"]);
+
 export function extractPhotoFiles(formData: FormData): File[] {
-  return formData
-    .getAll("photos")
-    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+  const files: File[] = [];
+
+  for (const entry of formData.getAll("photos")) {
+    if (entry instanceof File && entry.size > 0) {
+      files.push(entry);
+      continue;
+    }
+
+    if (
+      typeof entry === "object" &&
+      entry !== null &&
+      "arrayBuffer" in entry &&
+      typeof entry.arrayBuffer === "function" &&
+      "size" in entry &&
+      typeof entry.size === "number" &&
+      entry.size > 0
+    ) {
+      files.push(entry as File);
+    }
+  }
+
+  return files;
+}
+
+function fileExtension(file: File): string {
+  return file.name?.split(".").pop()?.toLowerCase() ?? "";
 }
 
 export function validatePhotoFiles(files: File[]): string | null {
@@ -28,7 +53,12 @@ export function validatePhotoFiles(files: File[]): string | null {
     if (file.size > MAX_LOG_PHOTO_BYTES) {
       return "Each photo must be 5 MB or smaller.";
     }
-    if (file.type && !ALLOWED_PHOTO_TYPES.has(file.type)) {
+
+    const extension = fileExtension(file);
+    const typeAllowed = file.type ? ALLOWED_PHOTO_TYPES.has(file.type) : false;
+    const extensionAllowed = extension ? ALLOWED_PHOTO_EXTENSIONS.has(extension) : false;
+
+    if (!typeAllowed && !extensionAllowed) {
       return "Photos must be JPEG, PNG, or WebP.";
     }
   }
@@ -42,37 +72,52 @@ export async function uploadDailyLogPhotos(
   logId: string,
   files: File[],
 ): Promise<string | null> {
+  if (files.length === 0) {
+    return null;
+  }
+
   const validationError = validatePhotoFiles(files);
   if (validationError) {
     return validationError;
   }
 
-  for (const file of files) {
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const storagePath = `${userId}/${logId}/${crypto.randomUUID()}.${extension}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
+  try {
+    for (const file of files) {
+      const extension = fileExtension(file) || "jpg";
+      const storagePath = `${userId}/${logId}/${crypto.randomUUID()}.${extension}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
 
-    const { error: uploadError } = await supabase.storage
-      .from("log-photos")
-      .upload(storagePath, buffer, {
-        contentType: file.type || "image/jpeg",
-        upsert: false,
+      const { error: uploadError } = await supabase.storage
+        .from("log-photos")
+        .upload(storagePath, buffer, {
+          contentType: file.type || "image/jpeg",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        if (uploadError.message.toLowerCase().includes("bucket")) {
+          return "Photo storage is not configured. Run the log-photos Supabase migration.";
+        }
+        return uploadError.message;
+      }
+
+      const { error: insertError } = await supabase.from("log_photos").insert({
+        daily_log_id: logId,
+        storage_path: storagePath,
+        caption: null,
       });
 
-    if (uploadError) {
-      return uploadError.message;
+      if (insertError) {
+        await supabase.storage.from("log-photos").remove([storagePath]);
+        if (insertError.message.toLowerCase().includes("log_photos")) {
+          return "Journal photo table is not configured. Run the log_photos Supabase migration.";
+        }
+        return insertError.message;
+      }
     }
-
-    const { error: insertError } = await supabase.from("log_photos").insert({
-      daily_log_id: logId,
-      storage_path: storagePath,
-      caption: null,
-    });
-
-    if (insertError) {
-      await supabase.storage.from("log-photos").remove([storagePath]);
-      return insertError.message;
-    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Photo upload failed.";
+    return message;
   }
 
   return null;
@@ -89,9 +134,16 @@ export async function attachSignedPhotoUrls(
 ): Promise<JournalLogPhoto[]> {
   return Promise.all(
     photos.map(async (photo) => {
-      const { data } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from("log-photos")
         .createSignedUrl(photo.storage_path, 60 * 60);
+
+      if (error) {
+        return {
+          ...photo,
+          url: null,
+        };
+      }
 
       return {
         ...photo,
@@ -110,11 +162,15 @@ export async function fetchPhotosByLogIds(
     return map;
   }
 
-  const { data: photos } = await supabase
+  const { data: photos, error } = await supabase
     .from("log_photos")
     .select("id,daily_log_id,storage_path,caption")
     .in("daily_log_id", logIds)
     .order("created_at", { ascending: true });
+
+  if (error) {
+    return map;
+  }
 
   const withUrls = await attachSignedPhotoUrls(supabase, photos ?? []);
 
