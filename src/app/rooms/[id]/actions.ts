@@ -3,11 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth/get-user";
+import type { DailyLogActionState } from "@/lib/journal/daily-log-action-state";
 import { parseDailyLogFormData } from "@/lib/journal/parse-daily-log-form";
-import { extractPhotoFiles, uploadDailyLogPhotos } from "@/lib/journal/log-photos";
 import { createClient } from "@/lib/supabase/server";
-
-type ActionState = { error?: string; success?: string };
 
 async function verifyOwnedLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -52,9 +50,9 @@ function revalidateJournalPaths(growRoomId: string) {
 }
 
 export async function createRoomDailyLogAction(
-  _: ActionState,
+  _: DailyLogActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<DailyLogActionState> {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -87,24 +85,14 @@ export async function createRoomDailyLogAction(
     return { error: error?.message ?? "Could not save log." };
   }
 
-  const photoError = await uploadDailyLogPhotos(
-    supabase,
-    user.id,
-    inserted.id,
-    extractPhotoFiles(formData),
-  );
-  if (photoError) {
-    return { error: photoError };
-  }
-
   revalidateJournalPaths(growRoomId);
-  return { success: "Daily journal log saved." };
+  return { success: "Daily journal log saved.", logId: inserted.id };
 }
 
 export async function updateRoomDailyLogAction(
-  _: ActionState,
+  _: DailyLogActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<DailyLogActionState> {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -135,24 +123,14 @@ export async function updateRoomDailyLogAction(
     return { error: error.message };
   }
 
-  const photoError = await uploadDailyLogPhotos(
-    supabase,
-    user.id,
-    logId,
-    extractPhotoFiles(formData),
-  );
-  if (photoError) {
-    return { error: photoError };
-  }
-
   revalidateJournalPaths(growRoomId);
-  return { success: "Journal log updated." };
+  return { success: "Journal log updated.", logId };
 }
 
 export async function deleteRoomDailyLogAction(
-  _: ActionState,
+  _: DailyLogActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<DailyLogActionState> {
   const user = await requireUser();
   const supabase = await createClient();
 

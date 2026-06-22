@@ -12,7 +12,8 @@ import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { DailyLogPhotoGallery } from "@/components/journal/daily-log-photo-gallery";
 import { DailyLogMetrics } from "@/components/journal/daily-log-metrics";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
-import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
+import { useDailyLogFormWithPhotos } from "@/lib/hooks/use-daily-log-form-with-photos";
+import { dailyLogActionInitialState } from "@/lib/journal/daily-log-action-state";
 import type { DailyLogRecord } from "@/lib/journal/daily-log-fields";
 import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
@@ -24,7 +25,7 @@ type RoomDailyLogCardProps = {
   photos?: JournalLogPhoto[];
 };
 
-const initialState: { error?: string; success?: string } = {};
+const initialState = dailyLogActionInitialState;
 
 function formatDate(log: RoomDailyLog) {
   if (log.log_date) {
@@ -37,20 +38,15 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
-  const [updateState, updateAction, updatePending] = useActionState(
-    updateRoomDailyLogAction,
-    initialState,
-  );
+  const { state: updateState, photoError, pending: updatePending, handleSubmit } =
+    useDailyLogFormWithPhotos(updateRoomDailyLogAction, initialState, {
+      onSuccess: () => setIsEditing(false),
+    });
   const [deleteState, deleteAction, deletePending] = useActionState(
     deleteRoomDailyLogAction,
     initialState,
   );
   const lastDeleteHandledRef = useRef(initialState);
-
-  useRefreshOnActionSuccess(updateState, {
-    enabled: isEditing,
-    onSuccess: () => setIsEditing(false),
-  });
 
   useEffect(() => {
     if (!deleteState?.success || deleteState === lastDeleteHandledRef.current) {
@@ -73,7 +69,7 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
       <li className="rounded-xl border border-fuchsia-900/50 bg-zinc-900 p-4">
         <form
           key={`edit-log-${log.id}-${editSession}`}
-          action={updateAction}
+          onSubmit={handleSubmit}
           encType="multipart/form-data"
           onKeyDown={preventImplicitFormSubmitOnEnter}
           className="grid gap-3 md:grid-cols-2"
@@ -86,9 +82,9 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
           />
           <DailyLogPhotoField idPrefix={`edit-log-${log.id}`} />
 
-          {updateState?.error ? (
+          {updateState?.error || photoError ? (
             <p className="md:col-span-2 text-sm text-red-400" role="alert">
-              {updateState.error}
+              {updateState?.error ?? photoError}
             </p>
           ) : null}
 

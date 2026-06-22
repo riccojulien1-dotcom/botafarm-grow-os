@@ -1,32 +1,30 @@
 "use client";
 
-import { useActionState } from "react";
-
 import { createDailyLogAction } from "@/app/dashboard/journal/actions";
 import { DailyLogFields } from "@/components/journal/daily-log-fields";
 import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
-import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
+import { useDailyLogFormWithPhotos } from "@/lib/hooks/use-daily-log-form-with-photos";
+import { dailyLogActionInitialState } from "@/lib/journal/daily-log-action-state";
 
 type GrowRoomOption = {
   id: string;
   name: string;
 };
 
-const initialState: { error?: string; success?: string } = {};
-
 function todayDateInputValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
 export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] }) {
-  const [state, formAction, pending] = useActionState(createDailyLogAction, initialState);
-
-  useRefreshOnActionSuccess(state);
+  const { state, photoError, pending, handleSubmit } = useDailyLogFormWithPhotos(
+    createDailyLogAction,
+    dailyLogActionInitialState,
+  );
 
   return (
     <form
-      action={formAction}
+      onSubmit={handleSubmit}
       encType="multipart/form-data"
       onKeyDown={preventImplicitFormSubmitOnEnter}
       className="grid gap-4 rounded-xl bf-inset-panel p-4 md:grid-cols-2"
@@ -56,9 +54,9 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
       />
       <DailyLogPhotoField idPrefix="dashboard-create-log" />
 
-      {state?.error ? (
+      {state?.error || photoError ? (
         <p className="md:col-span-2 text-sm text-red-400" role="alert">
-          {state.error}
+          {state?.error ?? photoError}
         </p>
       ) : null}
       {state?.success ? (

@@ -14,7 +14,8 @@ import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { DailyLogPhotoGallery } from "@/components/journal/daily-log-photo-gallery";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
-import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
+import { useDailyLogFormWithPhotos } from "@/lib/hooks/use-daily-log-form-with-photos";
+import { dailyLogActionInitialState } from "@/lib/journal/daily-log-action-state";
 import { formatMetricValue } from "@/lib/journal/journal-metric-deltas";
 import type { JournalTimelineEntry } from "@/lib/journal/journal-types";
 import { toTitleCase } from "@/lib/ui/format-mission-labels";
@@ -23,7 +24,7 @@ type JournalTimelineEntryCardProps = {
   entry: JournalTimelineEntry;
 };
 
-const initialState: { error?: string; success?: string } = {};
+const initialState = dailyLogActionInitialState;
 
 function resolveDisplayDate(entry: JournalTimelineEntry) {
   return entry.log.log_date ?? new Date(entry.log.logged_at).toISOString().slice(0, 10);
@@ -33,21 +34,16 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
-  const [updateState, updateAction, updatePending] = useActionState(
-    updateDailyLogAction,
-    initialState,
-  );
+  const { state: updateState, photoError, pending: updatePending, handleSubmit } =
+    useDailyLogFormWithPhotos(updateDailyLogAction, initialState, {
+      onSuccess: () => setIsEditing(false),
+    });
   const [deleteState, deleteAction, deletePending] = useActionState(
     deleteDailyLogAction,
     initialState,
   );
   const lastDeleteHandledRef = useRef(initialState);
   const logDate = resolveDisplayDate(entry);
-
-  useRefreshOnActionSuccess(updateState, {
-    enabled: isEditing,
-    onSuccess: () => setIsEditing(false),
-  });
 
   useEffect(() => {
     if (!deleteState?.success || deleteState === lastDeleteHandledRef.current) {
@@ -63,7 +59,7 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
         <GlassPanel padding="md" glow="magenta">
           <form
             key={`edit-journal-${entry.log.id}-${editSession}`}
-            action={updateAction}
+            onSubmit={handleSubmit}
             encType="multipart/form-data"
             onKeyDown={preventImplicitFormSubmitOnEnter}
             className="grid gap-3 md:grid-cols-2"
@@ -76,9 +72,9 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
             />
             <DailyLogPhotoField idPrefix={`edit-journal-${entry.log.id}`} />
 
-            {updateState?.error ? (
+            {updateState?.error || photoError ? (
               <p className="md:col-span-2 text-sm text-red-400" role="alert">
-                {updateState.error}
+                {updateState?.error ?? photoError}
               </p>
             ) : null}
 
