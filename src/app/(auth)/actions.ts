@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { mapAuthError } from "@/lib/auth/map-auth-error";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getPasswordRecoveryRedirectTo } from "@/lib/auth/site-url";
@@ -31,7 +32,7 @@ export async function signInAction(_: AuthState, formData: FormData): Promise<Au
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   redirect("/dashboard");
@@ -55,11 +56,21 @@ export async function signUpAction(_: AuthState, formData: FormData): Promise<Au
     password: parsed.data.password,
   });
 
-  if (error || !data.user) {
-    return { error: error?.message ?? "Unable to create account." };
+  if (error) {
+    return { error: mapAuthError(error.message) };
   }
 
-  // Keep profile creation deterministic even before DB trigger setup.
+  if (!data.user) {
+    return { error: "Unable to create account." };
+  }
+
+  if (!data.session) {
+    return {
+      success:
+        "Account created. Check your email for a confirmation link, then log in.",
+    };
+  }
+
   const admin = createAdminClient();
   const { error: profileError } = await admin.from("profiles").upsert({
     id: data.user.id,
@@ -68,7 +79,7 @@ export async function signUpAction(_: AuthState, formData: FormData): Promise<Au
   });
 
   if (profileError) {
-    return { error: profileError.message };
+    return { error: mapAuthError(profileError.message) };
   }
 
   redirect("/dashboard");
@@ -92,7 +103,7 @@ export async function forgotPasswordAction(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   return {
@@ -130,7 +141,7 @@ export async function resetPasswordAction(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthError(error.message) };
   }
 
   await supabase.auth.signOut();

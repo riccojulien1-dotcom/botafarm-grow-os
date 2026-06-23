@@ -7,10 +7,13 @@ type AuthFormProps = {
   title: string;
   subtitle: string;
   submitLabel: string;
-  action: (state: { error?: string }, formData: FormData) => Promise<{ error?: string }>;
+  action: (
+    state: { error?: string; success?: string },
+    formData: FormData,
+  ) => Promise<{ error?: string; success?: string }>;
 };
 
-const initialState: { error?: string } = {};
+const initialState: { error?: string; success?: string } = {};
 
 export function AuthForm({ mode, title, subtitle, submitLabel, action }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -84,6 +87,7 @@ export function AuthForm({ mode, title, subtitle, submitLabel, action }: AuthFor
         ) : null}
 
         {state?.error ? <p className="text-sm text-red-400">{state.error}</p> : null}
+        {state?.success ? <p className="text-sm text-emerald-400">{state.success}</p> : null}
 
         <button
           type="submit"

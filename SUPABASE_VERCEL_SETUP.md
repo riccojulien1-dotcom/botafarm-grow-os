@@ -9,12 +9,21 @@ Run in Supabase SQL Editor, in this order:
 ## 2) Supabase Authentication settings
 In Supabase Dashboard -> Authentication -> URL Configuration:
 
+- Site URL (production): `https://botafarm-grow-os.vercel.app`
 - Site URL (local): `http://127.0.0.1:3001`
 - Redirect URLs:
   - `http://127.0.0.1:3001/**`
-  - `https://<your-vercel-domain>/**`
+  - `https://botafarm-grow-os.vercel.app/**`
 
 Enable Email provider in Authentication -> Providers.
+
+### Beta (required for open tester signup)
+In Supabase Dashboard -> Authentication -> Providers -> Email:
+
+- **Disable "Confirm email"** so new users get an immediate session (no confirmation email sent on signup).
+- Supabase default email delivery is limited to a small hourly/daily quota. With confirmation enabled, every signup sends mail and quickly hits `email rate limit exceeded`, blocking 100% of new registrations.
+
+Re-enable email confirmation before public launch, ideally with custom SMTP (Resend, SendGrid, etc.).
 
 ## 3) Environment variables
 Set these in local `.env.local` and in Vercel Project -> Settings -> Environment Variables:
