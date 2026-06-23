@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, DoorOpen } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   deleteDailyLogAction,
@@ -32,6 +33,8 @@ function resolveDisplayDate(entry: JournalTimelineEntry) {
 
 export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProps) {
   const router = useRouter();
+  const tTimeline = useTranslations("journal.timeline");
+  const tForm = useTranslations("journal.form");
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
   const { state: updateState, photoError, pending: updatePending, handleSubmit } =
@@ -84,7 +87,7 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
                 disabled={updatePending}
                 className="rounded-md bg-fuchsia-600 px-3 py-1.5 text-sm text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
               >
-                {updatePending ? "Saving..." : "Save changes"}
+                {updatePending ? tForm("saving") : tForm("saveChanges")}
               </button>
               <button
                 type="button"
@@ -92,7 +95,7 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
                 disabled={updatePending}
                 className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500 disabled:opacity-60"
               >
-                Cancel
+                {tForm("cancel")}
               </button>
             </div>
           </form>
@@ -119,7 +122,7 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
                   {toTitleCase(entry.log.roomName)}
                 </span>
               </div>
-              <p className="text-sm text-zinc-500">Grow diary entry</p>
+              <p className="text-sm text-zinc-500">{tTimeline("diaryEntry")}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -130,12 +133,12 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
                 }}
                 className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
               >
-                Edit
+                {tTimeline("edit")}
               </button>
               <form
                 action={deleteAction}
                 onSubmit={(event) => {
-                  if (!window.confirm("Delete this journal entry? This cannot be undone.")) {
+                  if (!window.confirm(tTimeline("deleteConfirm"))) {
                     event.preventDefault();
                   }
                 }}
@@ -147,14 +150,14 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
                   disabled={deletePending}
                   className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 hover:border-red-500 disabled:opacity-60"
                 >
-                  {deletePending ? "Deleting..." : "Delete"}
+                  {deletePending ? tTimeline("deleting") : tTimeline("delete")}
                 </button>
               </form>
               <Link
                 href={`/rooms/${entry.log.grow_room_id}`}
                 className="inline-flex items-center gap-1 rounded-md border border-white/10 px-3 py-1.5 text-sm text-cyan-300 hover:border-cyan-500/35"
               >
-                Room
+                {tTimeline("room")}
                 <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
@@ -188,13 +191,13 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
               ))}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-zinc-500">No metrics recorded for this entry.</p>
+            <p className="mt-4 text-sm text-zinc-500">{tTimeline("noMetrics")}</p>
           )}
 
           {entry.log.notes ? (
             <div className="mt-4 rounded-lg border border-white/[0.06] bg-black/20 px-3 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                Notes
+                {tTimeline("notes")}
               </p>
               <p className="mt-1 text-sm leading-relaxed text-zinc-300">{entry.log.notes}</p>
             </div>
@@ -203,7 +206,7 @@ export function JournalTimelineEntryCard({ entry }: JournalTimelineEntryCardProp
           {entry.photos.length ? (
             <div className="mt-4 space-y-2">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                Photos
+                {tTimeline("photos")}
               </p>
               <DailyLogPhotoGallery photos={entry.photos} />
             </div>

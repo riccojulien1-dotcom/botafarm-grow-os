@@ -1,5 +1,7 @@
 import type { DailyLogFormPayload } from "@/lib/journal/daily-log-fields";
 
+export type ParseDailyLogErrorKey = "invalidLogDate" | "invalidIrrigationCount";
+
 function numericValue(value: FormDataEntryValue | null) {
   if (typeof value !== "string" || value.length === 0) {
     return null;
@@ -35,12 +37,12 @@ export function parseDailyLogFormData(
   options?: { requireLogDate?: boolean },
 ):
   | { ok: true; payload: DailyLogFormPayload }
-  | { ok: false; error: string } {
+  | { ok: false; errorKey: ParseDailyLogErrorKey } {
   const requireLogDate = options?.requireLogDate ?? true;
   const logDateValue = parseLogDate(formData.get("log_date"));
 
   if (requireLogDate && !logDateValue) {
-    return { ok: false, error: "Please provide a valid log date." };
+    return { ok: false, errorKey: "invalidLogDate" };
   }
 
   const irrigationCount = integerValue(formData.get("irrigation_count"));
@@ -49,7 +51,7 @@ export function parseDailyLogFormData(
     formData.get("irrigation_count") !== "" &&
     irrigationCount == null
   ) {
-    return { ok: false, error: "Irrigation count must be a whole number." };
+    return { ok: false, errorKey: "invalidIrrigationCount" };
   }
 
   return {

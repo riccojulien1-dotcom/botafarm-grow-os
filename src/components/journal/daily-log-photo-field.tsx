@@ -1,12 +1,18 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 type DailyLogPhotoFieldProps = {
   idPrefix: string;
 };
 
 export function DailyLogPhotoField({ idPrefix }: DailyLogPhotoFieldProps) {
+  const t = useTranslations("journal.form.photos");
+
   return (
     <div className="md:col-span-2">
       <label htmlFor={`${idPrefix}-photos`} className="text-sm text-zinc-200">
-        Photos
+        {t("label")}
       </label>
       <input
         id={`${idPrefix}-photos`}
@@ -16,9 +22,7 @@ export function DailyLogPhotoField({ idPrefix }: DailyLogPhotoFieldProps) {
         multiple
         className="mt-1 block w-full text-sm text-zinc-400 file:mr-3 file:rounded-md file:border-0 file:bg-fuchsia-950/60 file:px-3 file:py-2 file:text-sm file:font-medium file:text-fuchsia-200 hover:file:bg-fuchsia-900/60"
       />
-      <p className="mt-1 text-xs text-zinc-500">
-        Up to 5 photos per entry · JPEG, PNG, or WebP · 5 MB max each
-      </p>
+      <p className="mt-1 text-xs text-zinc-500">{t("hint")}</p>
     </div>
   );
 }

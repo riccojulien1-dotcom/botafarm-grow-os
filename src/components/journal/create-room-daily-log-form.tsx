@@ -6,6 +6,7 @@ import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useDailyLogFormWithPhotos } from "@/lib/hooks/use-daily-log-form-with-photos";
 import { dailyLogActionInitialState } from "@/lib/journal/daily-log-action-state";
+import { useTranslations } from "next-intl";
 
 type CreateRoomDailyLogFormProps = {
   growRoomId: string;
@@ -16,6 +17,7 @@ function todayDateInputValue() {
 }
 
 export function CreateRoomDailyLogForm({ growRoomId }: CreateRoomDailyLogFormProps) {
+  const t = useTranslations("journal.form");
   const { state, photoError, pending, handleSubmit } = useDailyLogFormWithPhotos(
     createRoomDailyLogAction,
     dailyLogActionInitialState,
@@ -50,7 +52,7 @@ export function CreateRoomDailyLogForm({ growRoomId }: CreateRoomDailyLogFormPro
           disabled={pending}
           className="rounded-md bg-fuchsia-600 px-4 py-2 text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
         >
-          {pending ? "Saving..." : "Save journal log"}
+          {pending ? t("saving") : t("saveLog")}
         </button>
       </div>
     </form>

@@ -5,6 +5,7 @@ import {
   buildLogPhotoStoragePath,
   validatePhotoFiles,
 } from "@/lib/journal/log-photos-shared";
+import type { PhotoUploadErrorKey } from "@/lib/journal/photo-upload-errors";
 
 export function extractPhotoFilesFromForm(form: HTMLFormElement): File[] {
   const input = form.querySelector<HTMLInputElement>('input[type="file"][name="photos"]');
@@ -25,14 +26,14 @@ export async function uploadDailyLogPhotosFromBrowser(
   userId: string,
   logId: string,
   files: File[],
-): Promise<string | null> {
+): Promise<PhotoUploadErrorKey | null> {
   if (files.length === 0) {
     return null;
   }
 
-  const validationError = validatePhotoFiles(files);
-  if (validationError) {
-    return validationError;
+  const validation = validatePhotoFiles(files);
+  if (!validation.ok) {
+    return validation.errorKey;
   }
 
   const supabase = createClient();
@@ -50,9 +51,9 @@ export async function uploadDailyLogPhotosFromBrowser(
 
       if (uploadError) {
         if (uploadError.message.toLowerCase().includes("bucket")) {
-          return "Photo storage is not configured. Run the log-photos Supabase migration.";
+          return "storageNotConfigured";
         }
-        return uploadError.message;
+        return "uploadFailed";
       }
 
       const { error: insertError } = await supabase.from("log_photos").insert({
@@ -64,14 +65,13 @@ export async function uploadDailyLogPhotosFromBrowser(
       if (insertError) {
         await supabase.storage.from("log-photos").remove([storagePath]);
         if (insertError.message.toLowerCase().includes("log_photos")) {
-          return "Journal photo table is not configured. Run the log_photos Supabase migration.";
+          return "tableNotConfigured";
         }
-        return insertError.message;
+        return "uploadFailed";
       }
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Photo upload failed.";
-    return message;
+  } catch {
+    return "uploadFailed";
   }
 
   return null;

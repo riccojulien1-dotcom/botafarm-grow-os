@@ -1,4 +1,8 @@
+"use client";
+
+import { cultivationTerm } from "@/i18n/glossary";
 import type { DailyLogFieldValues } from "@/lib/journal/daily-log-fields";
+import { useTranslations } from "next-intl";
 
 type DailyLogMetricsProps = {
   log: DailyLogFieldValues;
@@ -34,47 +38,54 @@ function MetricGroup({
 }
 
 export function DailyLogMetrics({ log }: DailyLogMetricsProps) {
+  const tSections = useTranslations("journal.form.sections");
+  const tMetrics = useTranslations("journal.metrics");
+  const ec = cultivationTerm("ec");
+
   return (
     <div className="mt-3 space-y-4">
       <MetricGroup
-        title="Environment"
+        title={tSections("environment")}
         items={[
-          { label: "Temp", value: formatDisplay(log.temperature, " °C") },
-          { label: "Humidity", value: formatDisplay(log.humidity, " %") },
-          { label: "VPD", value: formatDisplay(log.vpd, " kPa") },
-          { label: "PPFD", value: formatDisplay(log.ppfd, " µmol") },
-          { label: "DLI", value: formatDisplay(log.dli, " mol") },
+          { label: tMetrics("temperature"), value: formatDisplay(log.temperature, " °C") },
+          { label: tMetrics("humidityFull"), value: formatDisplay(log.humidity, " %") },
+          { label: tMetrics("vpd"), value: formatDisplay(log.vpd, " kPa") },
+          { label: tMetrics("ppfd"), value: formatDisplay(log.ppfd, " µmol") },
+          { label: tMetrics("dli"), value: formatDisplay(log.dli, " mol") },
         ]}
       />
       <MetricGroup
-        title="Nutrition"
+        title={tSections("nutrition")}
         items={[
-          { label: "EC in", value: formatDisplay(log.ec_in) },
-          { label: "pH in", value: formatDisplay(log.ph_in) },
-          { label: "EC runoff", value: formatDisplay(log.ec_runoff) },
-          { label: "pH runoff", value: formatDisplay(log.ph_runoff) },
+          { label: tMetrics("ecIn", { ec }), value: formatDisplay(log.ec_in) },
+          { label: tMetrics("phIn"), value: formatDisplay(log.ph_in) },
+          { label: tMetrics("ecRunoff", { ec }), value: formatDisplay(log.ec_runoff) },
+          { label: tMetrics("phOut"), value: formatDisplay(log.ph_runoff) },
         ]}
       />
       <MetricGroup
-        title="Irrigation"
+        title={tSections("irrigation")}
         items={[
-          { label: "Count", value: formatDisplay(log.irrigation_count) },
-          { label: "Vol / event", value: formatDisplay(log.irrigation_volume_per_event, " L") },
-          { label: "Runoff", value: formatDisplay(log.runoff_percent, " %") },
-          { label: "Dryback", value: formatDisplay(log.dryback_percent, " %") },
+          { label: tMetrics("count"), value: formatDisplay(log.irrigation_count) },
+          {
+            label: tMetrics("volumePerEvent"),
+            value: formatDisplay(log.irrigation_volume_per_event, " L"),
+          },
+          { label: tMetrics("runoff"), value: formatDisplay(log.runoff_percent, " %") },
+          { label: tMetrics("dryback"), value: formatDisplay(log.dryback_percent, " %") },
         ]}
       />
       <MetricGroup
-        title="Plant development"
+        title={tSections("plantDevelopment")}
         items={[
-          { label: "Height", value: formatDisplay(log.plant_height_cm, " cm") },
-          { label: "Stretch", value: formatDisplay(log.stretch_percent, " %") },
+          { label: tMetrics("height"), value: formatDisplay(log.plant_height_cm, " cm") },
+          { label: tMetrics("stretch"), value: formatDisplay(log.stretch_percent, " %") },
         ]}
       />
       {log.notes ? (
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            Observations
+            {tSections("observations")}
           </p>
           <p className="mt-1 text-sm text-zinc-400">{log.notes}</p>
         </div>

@@ -16,6 +16,7 @@ import {
   removePhotosFromFormData,
   uploadDailyLogPhotosFromBrowser,
 } from "@/lib/journal/log-photos-client";
+import { useTranslatePhotoUploadError } from "@/lib/journal/use-translate-photo-upload-error";
 import { createClient } from "@/lib/supabase/client";
 
 type UseDailyLogFormWithPhotosOptions = {
@@ -28,6 +29,7 @@ export function useDailyLogFormWithPhotos(
   options?: UseDailyLogFormWithPhotosOptions,
 ) {
   const router = useRouter();
+  const translatePhotoError = useTranslatePhotoUploadError();
   const [state, formAction, actionPending] = useActionState(action, initialState);
   const [photoPending, setPhotoPending] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -91,7 +93,7 @@ export function useDailyLogFormWithPhotos(
       setPhotoPending(false);
 
       if (uploadError) {
-        setPhotoError(uploadError);
+        setPhotoError(translatePhotoError(uploadError));
         return;
       }
 

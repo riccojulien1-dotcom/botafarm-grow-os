@@ -48,9 +48,9 @@ export async function uploadDailyLogPhotos(
     return null;
   }
 
-  const validationError = validatePhotoFiles(files);
-  if (validationError) {
-    return validationError;
+  const validation = validatePhotoFiles(files);
+  if (!validation.ok) {
+    return validation.errorKey;
   }
 
   try {

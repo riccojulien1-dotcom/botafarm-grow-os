@@ -1,4 +1,7 @@
+"use client";
+
 import { Suspense } from "react";
+import { useTranslations } from "next-intl";
 
 import { CreateDailyLogForm } from "@/components/journal/create-daily-log-form";
 import { JournalDashboardStats } from "@/components/journal/journal-dashboard-stats";
@@ -18,22 +21,20 @@ type JournalDashboardViewProps = {
 };
 
 export function JournalDashboardView({ data, filters }: JournalDashboardViewProps) {
+  const t = useTranslations("journal.page");
+
   return (
     <div className="space-y-8 pb-6">
-      <BfPageHeader
-        eyebrow="Mission Control"
-        title="Grow Journal"
-        subtitle="Your cultivation notebook — daily readings, irrigation notes, and photos in one operational logbook."
-      />
+      <BfPageHeader eyebrow={t("eyebrow")} title={t("title")} subtitle={t("subtitle")} />
 
       <JournalDashboardStats stats={data.stats} />
 
       <section className="space-y-3">
         <div className="flex items-end justify-between gap-3">
           <h2 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-            New entry
+            {t("newEntry")}
           </h2>
-          <span className="bf-section-eyebrow">Daily log</span>
+          <span className="bf-section-eyebrow">{t("dailyLog")}</span>
         </div>
         {data.rooms.length ? (
           <GlassPanel glow="magenta" padding="lg">
@@ -41,9 +42,7 @@ export function JournalDashboardView({ data, filters }: JournalDashboardViewProp
           </GlassPanel>
         ) : (
           <GlassPanel padding="lg">
-            <p className="text-sm text-zinc-400">
-              Create a grow room first, then start your cultivation diary here.
-            </p>
+            <p className="text-sm text-zinc-400">{t("noRoomsYet")}</p>
           </GlassPanel>
         )}
       </section>
@@ -51,12 +50,12 @@ export function JournalDashboardView({ data, filters }: JournalDashboardViewProp
       <section className="space-y-3">
         <div className="flex items-end justify-between gap-3">
           <h2 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-            Browse diary
+            {t("browseDiary")}
           </h2>
-          <span className="bf-section-eyebrow">Filter timeline</span>
+          <span className="bf-section-eyebrow">{t("filterTimeline")}</span>
         </div>
         <GlassPanel padding="md">
-          <Suspense fallback={<p className="text-sm text-zinc-500">Loading filters...</p>}>
+          <Suspense fallback={<p className="text-sm text-zinc-500">{t("loadingFilters")}</p>}>
             <JournalFilters
               rooms={data.rooms}
               initialRoomId={filters.roomId ?? ""}

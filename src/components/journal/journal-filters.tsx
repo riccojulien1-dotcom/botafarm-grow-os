@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 type JournalFiltersProps = {
   rooms: Array<{ id: string; name: string }>;
@@ -19,6 +20,7 @@ export function JournalFilters({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("journal.filters");
 
   function applyFilters(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,7 +58,7 @@ export function JournalFilters({
     <form onSubmit={applyFilters} className="grid gap-3 md:grid-cols-4">
       <div>
         <label htmlFor="journal-filter-room" className="text-sm text-zinc-200">
-          Room
+          {t("room")}
         </label>
         <select
           id="journal-filter-room"
@@ -64,7 +66,7 @@ export function JournalFilters({
           defaultValue={initialRoomId}
           className={inputClassName}
         >
-          <option value="">All rooms</option>
+          <option value="">{t("allRooms")}</option>
           {rooms.map((room) => (
             <option key={room.id} value={room.id}>
               {room.name}
@@ -74,7 +76,7 @@ export function JournalFilters({
       </div>
       <div>
         <label htmlFor="journal-filter-from" className="text-sm text-zinc-200">
-          From
+          {t("from")}
         </label>
         <input
           id="journal-filter-from"
@@ -86,7 +88,7 @@ export function JournalFilters({
       </div>
       <div>
         <label htmlFor="journal-filter-to" className="text-sm text-zinc-200">
-          To
+          {t("to")}
         </label>
         <input
           id="journal-filter-to"
@@ -102,7 +104,7 @@ export function JournalFilters({
           disabled={isPending}
           className="rounded-md bg-fuchsia-600 px-4 py-2 text-sm text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
         >
-          {isPending ? "Filtering..." : "Apply"}
+          {isPending ? t("filtering") : t("apply")}
         </button>
         <button
           type="button"
@@ -110,7 +112,7 @@ export function JournalFilters({
           disabled={isPending}
           className="rounded-md border border-zinc-700 px-4 py-2 text-sm hover:border-zinc-500 disabled:opacity-60"
         >
-          Clear
+          {t("clear")}
         </button>
       </div>
     </form>

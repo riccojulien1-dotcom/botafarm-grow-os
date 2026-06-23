@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 import { requireUser } from "@/lib/auth/get-user";
 import type { DailyLogActionState } from "@/lib/journal/daily-log-action-state";
@@ -53,22 +54,23 @@ export async function createRoomDailyLogAction(
   _: DailyLogActionState,
   formData: FormData,
 ): Promise<DailyLogActionState> {
+  const t = await getTranslations("journal.actions");
   const user = await requireUser();
   const supabase = await createClient();
 
   const growRoomId = String(formData.get("grow_room_id") ?? "").trim();
 
   if (!growRoomId) {
-    return { error: "Missing grow room." };
+    return { error: t("selectGrowRoom") };
   }
 
   if (!(await verifyOwnedRoom(supabase, user.id, growRoomId))) {
-    return { error: "Invalid grow room." };
+    return { error: t("invalidGrowRoom") };
   }
 
   const fields = parseDailyLogFormData(formData);
   if (!fields.ok) {
-    return { error: fields.error };
+    return { error: t(fields.errorKey) };
   }
 
   const { data: inserted, error } = await supabase
@@ -82,17 +84,18 @@ export async function createRoomDailyLogAction(
     .single();
 
   if (error || !inserted) {
-    return { error: error?.message ?? "Could not save log." };
+    return { error: error?.message ?? t("couldNotSave") };
   }
 
   revalidateJournalPaths(growRoomId);
-  return { success: "Daily journal log saved.", logId: inserted.id };
+  return { success: t("entrySaved"), logId: inserted.id };
 }
 
 export async function updateRoomDailyLogAction(
   _: DailyLogActionState,
   formData: FormData,
 ): Promise<DailyLogActionState> {
+  const t = await getTranslations("journal.actions");
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -100,16 +103,16 @@ export async function updateRoomDailyLogAction(
   const growRoomId = String(formData.get("grow_room_id") ?? "").trim();
 
   if (!logId || !growRoomId) {
-    return { error: "Missing log or grow room." };
+    return { error: t("missingLogOrRoom") };
   }
 
   if (!(await verifyOwnedLog(supabase, user.id, logId, growRoomId))) {
-    return { error: "You cannot edit this log." };
+    return { error: t("cannotEdit") };
   }
 
   const fields = parseDailyLogFormData(formData);
   if (!fields.ok) {
-    return { error: fields.error };
+    return { error: t(fields.errorKey) };
   }
 
   const { error } = await supabase
@@ -124,13 +127,14 @@ export async function updateRoomDailyLogAction(
   }
 
   revalidateJournalPaths(growRoomId);
-  return { success: "Journal log updated.", logId };
+  return { success: t("entryUpdated"), logId };
 }
 
 export async function deleteRoomDailyLogAction(
   _: DailyLogActionState,
   formData: FormData,
 ): Promise<DailyLogActionState> {
+  const t = await getTranslations("journal.actions");
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -138,11 +142,11 @@ export async function deleteRoomDailyLogAction(
   const growRoomId = String(formData.get("grow_room_id") ?? "").trim();
 
   if (!logId || !growRoomId) {
-    return { error: "Missing log or grow room." };
+    return { error: t("missingLogOrRoom") };
   }
 
   if (!(await verifyOwnedLog(supabase, user.id, logId, growRoomId))) {
-    return { error: "You cannot delete this log." };
+    return { error: t("cannotDelete") };
   }
 
   const { data: photos } = await supabase
@@ -167,5 +171,5 @@ export async function deleteRoomDailyLogAction(
   }
 
   revalidateJournalPaths(growRoomId);
-  return { success: "Journal log deleted." };
+  return { success: t("entryDeleted") };
 }

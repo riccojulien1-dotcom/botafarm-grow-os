@@ -11,6 +11,8 @@ const ALLOWED_PHOTO_TYPES = new Set([
 
 const ALLOWED_PHOTO_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic", "heif"]);
 
+export type PhotoValidationErrorKey = "tooMany" | "tooLarge" | "invalidType";
+
 function fileExtension(file: Pick<File, "name">): string {
   return file.name?.split(".").pop()?.toLowerCase() ?? "";
 }
@@ -24,14 +26,16 @@ export function buildLogPhotoStoragePath(
   return `${userId}/${logId}/${crypto.randomUUID()}.${extension}`;
 }
 
-export function validatePhotoFiles(files: File[]): string | null {
+export function validatePhotoFiles(
+  files: File[],
+): { ok: true } | { ok: false; errorKey: PhotoValidationErrorKey } {
   if (files.length > MAX_LOG_PHOTOS_PER_UPLOAD) {
-    return `You can upload up to ${MAX_LOG_PHOTOS_PER_UPLOAD} photos per log.`;
+    return { ok: false, errorKey: "tooMany" };
   }
 
   for (const file of files) {
     if (file.size > MAX_LOG_PHOTO_BYTES) {
-      return "Each photo must be 5 MB or smaller.";
+      return { ok: false, errorKey: "tooLarge" };
     }
 
     const extension = fileExtension(file);
@@ -39,9 +43,9 @@ export function validatePhotoFiles(files: File[]): string | null {
     const extensionAllowed = extension ? ALLOWED_PHOTO_EXTENSIONS.has(extension) : false;
 
     if (!typeAllowed && !extensionAllowed) {
-      return "Photos must be JPEG, PNG, or WebP.";
+      return { ok: false, errorKey: "invalidType" };
     }
   }
 
-  return null;
+  return { ok: true };
 }

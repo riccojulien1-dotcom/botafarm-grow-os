@@ -6,6 +6,7 @@ import { DailyLogPhotoField } from "@/components/journal/daily-log-photo-field";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useDailyLogFormWithPhotos } from "@/lib/hooks/use-daily-log-form-with-photos";
 import { dailyLogActionInitialState } from "@/lib/journal/daily-log-action-state";
+import { useTranslations } from "next-intl";
 
 type GrowRoomOption = {
   id: string;
@@ -17,6 +18,7 @@ function todayDateInputValue() {
 }
 
 export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] }) {
+  const t = useTranslations("journal.form");
   const { state, photoError, pending, handleSubmit } = useDailyLogFormWithPhotos(
     createDailyLogAction,
     dailyLogActionInitialState,
@@ -31,7 +33,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
     >
       <div className="md:col-span-2">
         <label htmlFor="grow_room_id" className="text-sm text-zinc-200">
-          Grow room
+          {t("growRoom")}
         </label>
         <select
           id="grow_room_id"
@@ -39,7 +41,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
           required
           className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100"
         >
-          <option value="">Select a grow room</option>
+          <option value="">{t("selectGrowRoom")}</option>
           {growRooms.map((room) => (
             <option key={room.id} value={room.id}>
               {room.name}
@@ -69,7 +71,7 @@ export function CreateDailyLogForm({ growRooms }: { growRooms: GrowRoomOption[] 
           disabled={pending}
           className="rounded-md bg-fuchsia-600 px-4 py-2 text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
         >
-          {pending ? "Saving..." : "Save journal entry"}
+          {pending ? t("saving") : t("saveEntry")}
         </button>
       </div>
     </form>

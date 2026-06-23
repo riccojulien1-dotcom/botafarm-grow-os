@@ -74,13 +74,11 @@ export function AuthForm({ mode, title, subtitle, submitLabel, action }: AuthFor
             <select
               id="language"
               name="language"
-              defaultValue="fr"
+              defaultValue="en"
               className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none focus:border-fuchsia-500"
             >
-              <option value="fr">Francais</option>
               <option value="en">English</option>
-              <option value="de">Deutsch</option>
-              <option value="es">Espanol</option>
+              <option value="fr">Français</option>
             </select>
           </div>
         ) : null}

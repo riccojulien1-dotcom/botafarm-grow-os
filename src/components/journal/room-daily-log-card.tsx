@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   deleteRoomDailyLogAction,
@@ -36,6 +37,9 @@ function formatDate(log: RoomDailyLog) {
 
 export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogCardProps) {
   const router = useRouter();
+  const tForm = useTranslations("journal.form");
+  const tTimeline = useTranslations("journal.timeline");
+  const tActions = useTranslations("journal.actions");
   const [isEditing, setIsEditing] = useState(false);
   const [editSession, setEditSession] = useState(0);
   const { state: updateState, photoError, pending: updatePending, handleSubmit } =
@@ -94,7 +98,7 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
               disabled={updatePending}
               className="rounded-md bg-fuchsia-600 px-3 py-1.5 text-sm text-white hover:bg-fuchsia-500 disabled:bg-fuchsia-900"
             >
-              {updatePending ? "Saving..." : "Save changes"}
+              {updatePending ? tForm("saving") : tForm("saveChanges")}
             </button>
             <button
               type="button"
@@ -102,7 +106,7 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
               disabled={updatePending}
               className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-zinc-500 disabled:opacity-60"
             >
-              Cancel
+              {tForm("cancel")}
             </button>
           </div>
         </form>
@@ -120,15 +124,12 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
             onClick={startEditing}
             className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:border-fuchsia-500 hover:text-fuchsia-300"
           >
-            Edit
+            {tTimeline("edit")}
           </button>
           <form
             action={deleteAction}
             onSubmit={(event) => {
-              const confirmed = window.confirm(
-                "Delete this journal log? This action cannot be undone.",
-              );
-              if (!confirmed) {
+              if (!window.confirm(tActions("deleteLogConfirm"))) {
                 event.preventDefault();
               }
             }}
@@ -140,7 +141,7 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
               disabled={deletePending}
               className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 hover:border-red-500 disabled:opacity-60"
             >
-              {deletePending ? "Deleting..." : "Delete"}
+              {deletePending ? tTimeline("deleting") : tTimeline("delete")}
             </button>
           </form>
         </div>
@@ -150,7 +151,9 @@ export function RoomDailyLogCard({ log, growRoomId, photos = [] }: RoomDailyLogC
 
       {photos.length ? (
         <div className="mt-4 space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Photos</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+            {tTimeline("photos")}
+          </p>
           <DailyLogPhotoGallery photos={photos} compact />
         </div>
       ) : null}

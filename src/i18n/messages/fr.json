@@ -1,0 +1,162 @@
+{
+  "nav": {
+    "overview": "Vue d'ensemble",
+    "overviewShort": "CMD",
+    "environment": "Environnement",
+    "environmentShort": "Env",
+    "growRooms": "Salles",
+    "growRoomsShort": "Salles",
+    "journal": "Journal",
+    "journalShort": "Log",
+    "knowledge": "Savoirs",
+    "knowledgeShort": "KB",
+    "admin": "Admin"
+  },
+  "userMenu": {
+    "account": "Compte",
+    "language": "Langue",
+    "logOut": "Se déconnecter",
+    "localeEn": "English",
+    "localeFr": "Français"
+  },
+  "journal": {
+    "page": {
+      "eyebrow": "Mission Control",
+      "title": "Journal de culture",
+      "subtitle": "Votre carnet de culture — relevés quotidiens, notes d'irrigation et photos dans un seul journal opérationnel.",
+      "newEntry": "Nouvelle entrée",
+      "dailyLog": "Relevé du jour",
+      "browseDiary": "Parcourir le journal",
+      "filterTimeline": "Filtrer la timeline",
+      "noRoomsYet": "Créez d'abord une salle, puis commencez votre journal de culture ici.",
+      "loadingFilters": "Chargement des filtres..."
+    },
+    "stats": {
+      "latestEntry": "Dernière entrée",
+      "noLogsYet": "Aucun relevé",
+      "totalLogs": "Total des relevés",
+      "missingToday": "Manquants aujourd'hui",
+      "roomsWithoutUpdates": "Salles sans mise à jour",
+      "logsPerRoom": "Relevés par salle",
+      "roomsCount": "{count, plural, one {# salle} other {# salles}}",
+      "lastEntry": "Dernier relevé : {date}",
+      "never": "Jamais",
+      "noLogToday": " · Pas de relevé aujourd'hui",
+      "logCount": "{count, plural, one {# relevé} other {# relevés}}",
+      "openRoom": "Ouvrir la salle →",
+      "createRoomFirst": "Créez une salle pour commencer à logger."
+    },
+    "filters": {
+      "room": "Salle",
+      "allRooms": "Toutes les salles",
+      "from": "Du",
+      "to": "Au",
+      "apply": "Appliquer",
+      "filtering": "Filtrage...",
+      "clear": "Effacer"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "entryCount": "{count, plural, one {# entrée} other {# entrées}}",
+      "empty": "Aucune entrée ne correspond à ces filtres. Enregistrez un premier relevé ou effacez les filtres pour voir le journal complet.",
+      "diaryEntry": "Entrée du journal",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "room": "Salle",
+      "noMetrics": "Aucune métrique enregistrée pour cette entrée.",
+      "notes": "Notes",
+      "photos": "Photos",
+      "photoAlt": "Photo du journal",
+      "deleteConfirm": "Supprimer cette entrée du journal ? Cette action est irréversible.",
+      "unknownRoom": "Salle inconnue"
+    },
+    "form": {
+      "growRoom": "Salle",
+      "selectGrowRoom": "Sélectionner une salle",
+      "saving": "Enregistrement...",
+      "saveEntry": "Enregistrer le relevé",
+      "saveLog": "Enregistrer le relevé",
+      "saveChanges": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "sections": {
+        "environment": "Environnement",
+        "nutrition": "Nutrition",
+        "irrigation": "Irrigation",
+        "plantDevelopment": "Développement végétal",
+        "observations": "Observations"
+      },
+      "fields": {
+        "logDate": "Date du relevé",
+        "temperature": "Température (°C)",
+        "humidity": "Humidité (%)",
+        "vpd": "VPD (kPa)",
+        "ppfd": "PPFD (µmol/m²/s)",
+        "dli": "DLI (mol/m²/j)",
+        "ecIn": "EC entrée",
+        "phIn": "pH entrée",
+        "ecOut": "EC sortie",
+        "phOut": "pH sortie",
+        "irrigationCount": "Nombre d'irrigations",
+        "irrigationVolume": "Volume d'irrigation (L)",
+        "runoffPercent": "Runoff (%)",
+        "drybackPercent": "Dryback (%)",
+        "plantHeight": "Hauteur des plants (cm)",
+        "stretchPercent": "Stretch (%)",
+        "notes": "Notes",
+        "notesPlaceholder": "État des plants, tâches effectuées, observations..."
+      },
+      "photos": {
+        "label": "Photos",
+        "hint": "Jusqu'à 5 photos par entrée · JPEG, PNG ou WebP · 5 Mo max chacune"
+      }
+    },
+    "metrics": {
+      "temperature": "Temp.",
+      "humidity": "HR",
+      "humidityFull": "Humidité",
+      "ecIn": "{ec} entrée",
+      "ecOut": "{ec} sortie",
+      "ecRunoff": "{ec} runoff",
+      "phIn": "pH entrée",
+      "phOut": "pH sortie",
+      "irrigation": "Irrigation",
+      "count": "Nombre",
+      "volumePerEvent": "Vol. / cycle",
+      "runoff": "Runoff",
+      "dryback": "Dryback",
+      "height": "Hauteur",
+      "stretch": "Stretch",
+      "vpd": "VPD",
+      "ppfd": "PPFD",
+      "dli": "DLI"
+    },
+    "roomSection": {
+      "title": "Journal quotidien",
+      "subtitle": "Suivez les relevés quotidiens de cette salle.",
+      "emptyLogs": "Aucun relevé pour cette salle pour le moment."
+    },
+    "actions": {
+      "selectGrowRoom": "Veuillez sélectionner une salle.",
+      "invalidGrowRoom": "Salle invalide.",
+      "couldNotSave": "Impossible d'enregistrer le relevé.",
+      "entrySaved": "Relevé enregistré.",
+      "missingLogOrRoom": "Relevé ou salle manquant.",
+      "cannotEdit": "Vous ne pouvez pas modifier ce relevé.",
+      "entryUpdated": "Relevé mis à jour.",
+      "cannotDelete": "Vous ne pouvez pas supprimer ce relevé.",
+      "entryDeleted": "Relevé supprimé.",
+      "invalidLogDate": "Veuillez indiquer une date de relevé valide.",
+      "invalidIrrigationCount": "Le nombre d'irrigations doit être un entier.",
+      "deleteLogConfirm": "Supprimer ce relevé ? Cette action est irréversible."
+    },
+    "photos": {
+      "tooMany": "Vous pouvez envoyer jusqu'à {max} photos par relevé.",
+      "tooLarge": "Chaque photo doit faire 5 Mo ou moins.",
+      "invalidType": "Les photos doivent être au format JPEG, PNG ou WebP.",
+      "storageNotConfigured": "Le stockage photo n'est pas configuré. Exécutez la migration Supabase log-photos.",
+      "tableNotConfigured": "La table log_photos n'est pas configurée. Exécutez la migration Supabase.",
+      "uploadFailed": "Échec de l'envoi de la photo."
+    }
+  }
+}

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { User } from "@supabase/supabase-js";
 
-import { signOutAction } from "@/app/(auth)/actions";
+import { UserMenu } from "@/components/layout/user-menu";
 
 type AppShellProps = {
   user: User;
@@ -30,19 +30,7 @@ export function AppShell({ user, children }: AppShellProps) {
               </p>
             </div>
           </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="hidden max-w-[200px] truncate font-mono text-xs text-zinc-500 sm:inline">
-              {user.email}
-            </span>
-            <form action={signOutAction}>
-              <button
-                type="submit"
-                className="rounded-lg border border-white/10 px-3 py-1.5 text-zinc-400 transition hover:border-fuchsia-500/30 hover:text-fuchsia-200"
-              >
-                Log out
-              </button>
-            </form>
-          </div>
+          <UserMenu email={user.email ?? "grower"} />
         </div>
       </header>
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">{children}</main>

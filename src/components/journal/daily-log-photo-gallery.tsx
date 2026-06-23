@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
 type DailyLogPhotoGalleryProps = {
@@ -6,6 +10,8 @@ type DailyLogPhotoGalleryProps = {
 };
 
 export function DailyLogPhotoGallery({ photos, compact = false }: DailyLogPhotoGalleryProps) {
+  const t = useTranslations("journal.timeline");
+
   if (!photos.length) {
     return null;
   }
@@ -26,7 +32,7 @@ export function DailyLogPhotoGallery({ photos, compact = false }: DailyLogPhotoG
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photo.url}
-              alt={photo.caption ?? "Journal photo"}
+              alt={photo.caption ?? t("photoAlt")}
               width={compact ? 120 : 200}
               height={compact ? 120 : 200}
               className="aspect-square h-full w-full object-cover transition group-hover:scale-[1.02]"

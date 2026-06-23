@@ -1,4 +1,7 @@
+"use client";
+
 import type { DailyLogFieldValues } from "@/lib/journal/daily-log-fields";
+import { useTranslations } from "next-intl";
 
 type DailyLogFieldsProps = {
   idPrefix: string;
@@ -28,12 +31,14 @@ export function DailyLogFields({
   showLogDate = true,
   defaultLogDate,
 }: DailyLogFieldsProps) {
+  const t = useTranslations("journal.form");
+
   return (
     <>
       {showLogDate ? (
         <div className="md:col-span-2">
           <label htmlFor={`${idPrefix}-log_date`} className="text-sm text-zinc-200">
-            Log date
+            {t("fields.logDate")}
           </label>
           <input
             id={`${idPrefix}-log_date`}
@@ -46,10 +51,10 @@ export function DailyLogFields({
         </div>
       ) : null}
 
-      <SectionHeading>Environment</SectionHeading>
+      <SectionHeading>{t("sections.environment")}</SectionHeading>
       <div>
         <label htmlFor={`${idPrefix}-temperature`} className="text-sm text-zinc-200">
-          Temperature (°C)
+          {t("fields.temperature")}
         </label>
         <input
           id={`${idPrefix}-temperature`}
@@ -62,7 +67,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-humidity`} className="text-sm text-zinc-200">
-          Humidity (%)
+          {t("fields.humidity")}
         </label>
         <input
           id={`${idPrefix}-humidity`}
@@ -75,7 +80,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-vpd`} className="text-sm text-zinc-200">
-          VPD (kPa)
+          {t("fields.vpd")}
         </label>
         <input
           id={`${idPrefix}-vpd`}
@@ -88,7 +93,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ppfd`} className="text-sm text-zinc-200">
-          PPFD (µmol/m²/s)
+          {t("fields.ppfd")}
         </label>
         <input
           id={`${idPrefix}-ppfd`}
@@ -102,7 +107,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-dli`} className="text-sm text-zinc-200">
-          DLI (mol/m²/day)
+          {t("fields.dli")}
         </label>
         <input
           id={`${idPrefix}-dli`}
@@ -115,10 +120,10 @@ export function DailyLogFields({
         />
       </div>
 
-      <SectionHeading>Nutrition</SectionHeading>
+      <SectionHeading>{t("sections.nutrition")}</SectionHeading>
       <div>
         <label htmlFor={`${idPrefix}-ec_in`} className="text-sm text-zinc-200">
-          EC in
+          {t("fields.ecIn")}
         </label>
         <input
           id={`${idPrefix}-ec_in`}
@@ -131,7 +136,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ph_in`} className="text-sm text-zinc-200">
-          pH in
+          {t("fields.phIn")}
         </label>
         <input
           id={`${idPrefix}-ph_in`}
@@ -144,7 +149,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ec_runoff`} className="text-sm text-zinc-200">
-          EC out
+          {t("fields.ecOut")}
         </label>
         <input
           id={`${idPrefix}-ec_runoff`}
@@ -157,7 +162,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-ph_runoff`} className="text-sm text-zinc-200">
-          pH out
+          {t("fields.phOut")}
         </label>
         <input
           id={`${idPrefix}-ph_runoff`}
@@ -169,10 +174,10 @@ export function DailyLogFields({
         />
       </div>
 
-      <SectionHeading>Irrigation</SectionHeading>
+      <SectionHeading>{t("sections.irrigation")}</SectionHeading>
       <div>
         <label htmlFor={`${idPrefix}-irrigation_count`} className="text-sm text-zinc-200">
-          Irrigation count
+          {t("fields.irrigationCount")}
         </label>
         <input
           id={`${idPrefix}-irrigation_count`}
@@ -189,7 +194,7 @@ export function DailyLogFields({
           htmlFor={`${idPrefix}-irrigation_volume_per_event`}
           className="text-sm text-zinc-200"
         >
-          Irrigation volume (L)
+          {t("fields.irrigationVolume")}
         </label>
         <input
           id={`${idPrefix}-irrigation_volume_per_event`}
@@ -203,7 +208,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-runoff_percent`} className="text-sm text-zinc-200">
-          Runoff (%)
+          {t("fields.runoffPercent")}
         </label>
         <input
           id={`${idPrefix}-runoff_percent`}
@@ -217,7 +222,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-dryback_percent`} className="text-sm text-zinc-200">
-          Dryback (%)
+          {t("fields.drybackPercent")}
         </label>
         <input
           id={`${idPrefix}-dryback_percent`}
@@ -230,10 +235,10 @@ export function DailyLogFields({
         />
       </div>
 
-      <SectionHeading>Plant development</SectionHeading>
+      <SectionHeading>{t("sections.plantDevelopment")}</SectionHeading>
       <div>
         <label htmlFor={`${idPrefix}-plant_height_cm`} className="text-sm text-zinc-200">
-          Plant height (cm)
+          {t("fields.plantHeight")}
         </label>
         <input
           id={`${idPrefix}-plant_height_cm`}
@@ -247,7 +252,7 @@ export function DailyLogFields({
       </div>
       <div>
         <label htmlFor={`${idPrefix}-stretch_percent`} className="text-sm text-zinc-200">
-          Stretch (%)
+          {t("fields.stretchPercent")}
         </label>
         <input
           id={`${idPrefix}-stretch_percent`}
@@ -259,10 +264,10 @@ export function DailyLogFields({
         />
       </div>
 
-      <SectionHeading>Observations</SectionHeading>
+      <SectionHeading>{t("sections.observations")}</SectionHeading>
       <div className="md:col-span-2">
         <label htmlFor={`${idPrefix}-notes`} className="text-sm text-zinc-200">
-          Notes
+          {t("fields.notes")}
         </label>
         <textarea
           id={`${idPrefix}-notes`}
@@ -270,7 +275,7 @@ export function DailyLogFields({
           rows={3}
           defaultValue={values?.notes ?? ""}
           className={inputClassName}
-          placeholder="Plant status, tasks done, observations..."
+          placeholder={t("fields.notesPlaceholder")}
         />
       </div>
     </>

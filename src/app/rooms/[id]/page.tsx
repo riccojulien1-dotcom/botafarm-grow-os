@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { RoomJournalCharts } from "@/components/analytics/room-journal-charts";
@@ -55,6 +56,7 @@ function FieldRow({ label, value }: FieldRowProps) {
 
 export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) {
   const { id } = await params;
+  const tJournalRoom = await getTranslations("journal.roomSection");
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -230,11 +232,9 @@ export default async function RoomDetailsPage({ params }: RoomDetailsPageProps) 
         <GlassPanel glow="cyan" padding="lg" className="space-y-4">
           <div>
             <h2 className="text-xl font-bold uppercase tracking-tight text-white">
-              Daily Journal
+              {tJournalRoom("title")}
             </h2>
-            <p className="mt-1 text-sm text-zinc-400">
-              Track daily measurements for this grow room.
-            </p>
+            <p className="mt-1 text-sm text-zinc-400">{tJournalRoom("subtitle")}</p>
           </div>
 
           <CreateRoomDailyLogForm growRoomId={room.id} />

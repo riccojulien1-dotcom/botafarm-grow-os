@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { RoomDailyLogCard, type RoomDailyLog } from "@/components/journal/room-daily-log-card";
 import type { JournalLogPhoto } from "@/lib/journal/journal-types";
 
@@ -7,15 +9,17 @@ type RoomDailyLogsListProps = {
   photosByLogId?: Map<string, JournalLogPhoto[]>;
 };
 
-export function RoomDailyLogsList({
+export async function RoomDailyLogsList({
   logs,
   growRoomId,
   photosByLogId,
 }: RoomDailyLogsListProps) {
+  const t = await getTranslations("journal.roomSection");
+
   if (!logs.length) {
     return (
       <p className="rounded-xl bf-inset-panel px-4 py-5 text-sm text-zinc-400">
-        No journal logs yet for this room.
+        {t("emptyLogs")}
       </p>
     );
   }

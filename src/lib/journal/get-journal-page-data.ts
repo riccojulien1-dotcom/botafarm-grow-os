@@ -8,7 +8,9 @@ import type {
   JournalTimelineLog,
 } from "@/lib/journal/journal-types";
 import { fetchPhotosByLogIds } from "@/lib/journal/log-photos";
+import { applyJournalMetricLabels } from "@/lib/journal/resolve-journal-metric-label";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 
 const JOURNAL_LOG_SELECT =
   "grow_room_id,id,log_date,logged_at,temperature,humidity,vpd,ppfd,dli,ec_in,ph_in,ec_runoff,ph_runoff,irrigation_count,irrigation_volume_per_event,runoff_percent,dryback_percent,plant_height_cm,stretch_percent,notes";
@@ -191,7 +193,20 @@ export async function getJournalPageData(
     timelineLogs.map((log) => log.id),
   );
 
-  const timeline = buildJournalTimeline(timelineLogs, photosByLogId, filters);
+  const tMetrics = await getTranslations("journal.metrics");
+  const tTimeline = await getTranslations("journal.timeline");
+
+  const timeline = buildJournalTimeline(timelineLogs, photosByLogId, filters).map((entry) => ({
+    ...entry,
+    log: {
+      ...entry.log,
+      roomName:
+        entry.log.roomName === "Unknown room"
+          ? tTimeline("unknownRoom")
+          : entry.log.roomName,
+    },
+    metricDeltas: applyJournalMetricLabels(tMetrics, entry.metricDeltas),
+  }));
 
   return {
     rooms,

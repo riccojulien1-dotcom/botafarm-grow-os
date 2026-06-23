@@ -1,0 +1,162 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "overviewShort": "CMD",
+    "environment": "Environment",
+    "environmentShort": "Env",
+    "growRooms": "Grow rooms",
+    "growRoomsShort": "Rooms",
+    "journal": "Journal",
+    "journalShort": "Log",
+    "knowledge": "Knowledge",
+    "knowledgeShort": "KB",
+    "admin": "Admin"
+  },
+  "userMenu": {
+    "account": "Account",
+    "language": "Language",
+    "logOut": "Log out",
+    "localeEn": "English",
+    "localeFr": "French"
+  },
+  "journal": {
+    "page": {
+      "eyebrow": "Mission Control",
+      "title": "Grow Journal",
+      "subtitle": "Your cultivation notebook — daily readings, irrigation notes, and photos in one operational logbook.",
+      "newEntry": "New entry",
+      "dailyLog": "Daily log",
+      "browseDiary": "Browse diary",
+      "filterTimeline": "Filter timeline",
+      "noRoomsYet": "Create a grow room first, then start your cultivation diary here.",
+      "loadingFilters": "Loading filters..."
+    },
+    "stats": {
+      "latestEntry": "Latest entry",
+      "noLogsYet": "No logs yet",
+      "totalLogs": "Total logs",
+      "missingToday": "Missing today",
+      "roomsWithoutUpdates": "Rooms without updates",
+      "logsPerRoom": "Logs per room",
+      "roomsCount": "{count} rooms",
+      "lastEntry": "Last entry: {date}",
+      "never": "Never",
+      "noLogToday": "No log today",
+      "logCount": "{count, plural, one {# log} other {# logs}}",
+      "openRoom": "Open room →",
+      "createRoomFirst": "Create a grow room to start logging."
+    },
+    "filters": {
+      "room": "Room",
+      "allRooms": "All rooms",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "filtering": "Filtering...",
+      "clear": "Clear"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "entryCount": "{count, plural, one {# entry} other {# entries}}",
+      "empty": "No journal entries match these filters. Log your first reading or clear filters to see the full diary.",
+      "diaryEntry": "Grow diary entry",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "room": "Room",
+      "noMetrics": "No metrics recorded for this entry.",
+      "notes": "Notes",
+      "photos": "Photos",
+      "photoAlt": "Journal photo",
+      "deleteConfirm": "Delete this journal entry? This cannot be undone.",
+      "unknownRoom": "Unknown room"
+    },
+    "form": {
+      "growRoom": "Grow room",
+      "selectGrowRoom": "Select a grow room",
+      "saving": "Saving...",
+      "saveEntry": "Save journal entry",
+      "saveLog": "Save journal log",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "sections": {
+        "environment": "Environment",
+        "nutrition": "Nutrition",
+        "irrigation": "Irrigation",
+        "plantDevelopment": "Plant development",
+        "observations": "Observations"
+      },
+      "fields": {
+        "logDate": "Log date",
+        "temperature": "Temperature (°C)",
+        "humidity": "Humidity (%)",
+        "vpd": "VPD (kPa)",
+        "ppfd": "PPFD (µmol/m²/s)",
+        "dli": "DLI (mol/m²/day)",
+        "ecIn": "EC in",
+        "phIn": "pH in",
+        "ecOut": "EC out",
+        "phOut": "pH out",
+        "irrigationCount": "Irrigation count",
+        "irrigationVolume": "Irrigation volume (L)",
+        "runoffPercent": "Runoff (%)",
+        "drybackPercent": "Dryback (%)",
+        "plantHeight": "Plant height (cm)",
+        "stretchPercent": "Stretch (%)",
+        "notes": "Notes",
+        "notesPlaceholder": "Plant status, tasks done, observations..."
+      },
+      "photos": {
+        "label": "Photos",
+        "hint": "Up to 5 photos per entry · JPEG, PNG, or WebP · 5 MB max each"
+      }
+    },
+    "metrics": {
+      "temperature": "Temp",
+      "humidity": "RH",
+      "humidityFull": "Humidity",
+      "ecIn": "{ec} in",
+      "ecOut": "{ec} out",
+      "ecRunoff": "{ec} runoff",
+      "phIn": "pH in",
+      "phOut": "pH out",
+      "irrigation": "Irrigation",
+      "count": "Count",
+      "volumePerEvent": "Vol / event",
+      "runoff": "Runoff",
+      "dryback": "Dryback",
+      "height": "Height",
+      "stretch": "Stretch",
+      "vpd": "VPD",
+      "ppfd": "PPFD",
+      "dli": "DLI"
+    },
+    "roomSection": {
+      "title": "Daily Journal",
+      "subtitle": "Track daily measurements for this grow room.",
+      "emptyLogs": "No journal logs yet for this room."
+    },
+    "actions": {
+      "selectGrowRoom": "Please select a grow room.",
+      "invalidGrowRoom": "Invalid grow room.",
+      "couldNotSave": "Could not save log.",
+      "entrySaved": "Journal entry saved.",
+      "missingLogOrRoom": "Missing log or grow room.",
+      "cannotEdit": "You cannot edit this log.",
+      "entryUpdated": "Journal entry updated.",
+      "cannotDelete": "You cannot delete this log.",
+      "entryDeleted": "Journal entry deleted.",
+      "invalidLogDate": "Please provide a valid log date.",
+      "invalidIrrigationCount": "Irrigation count must be a whole number.",
+      "deleteLogConfirm": "Delete this journal log? This action cannot be undone."
+    },
+    "photos": {
+      "tooMany": "You can upload up to {max} photos per log.",
+      "tooLarge": "Each photo must be 5 MB or smaller.",
+      "invalidType": "Photos must be JPEG, PNG, or WebP.",
+      "storageNotConfigured": "Photo storage is not configured. Run the log-photos Supabase migration.",
+      "tableNotConfigured": "Journal photo table is not configured. Run the log_photos Supabase migration.",
+      "uploadFailed": "Photo upload failed."
+    }
+  }
+}

@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import { JournalTimelineEntryCard } from "@/components/journal/journal-timeline-entry";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { JournalTimelineEntry } from "@/lib/journal/journal-types";
@@ -7,15 +11,15 @@ type JournalTimelineProps = {
 };
 
 export function JournalTimeline({ entries }: JournalTimelineProps) {
+  const t = useTranslations("journal.timeline");
+
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <h2 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
-          Timeline
+          {t("title")}
         </h2>
-        <span className="bf-section-eyebrow">
-          {entries.length} entr{entries.length === 1 ? "y" : "ies"}
-        </span>
+        <span className="bf-section-eyebrow">{t("entryCount", { count: entries.length })}</span>
       </div>
 
       {entries.length ? (
@@ -28,10 +32,7 @@ export function JournalTimeline({ entries }: JournalTimelineProps) {
         </div>
       ) : (
         <GlassPanel padding="lg">
-          <p className="text-sm text-zinc-400">
-            No journal entries match these filters. Log your first reading or clear filters to see
-            the full diary.
-          </p>
+          <p className="text-sm text-zinc-400">{t("empty")}</p>
         </GlassPanel>
       )}
     </section>
