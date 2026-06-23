@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import {
   getCropCycleEngine,
   getCultivationPhaseLabel,
@@ -9,13 +11,14 @@ import {
   type DashboardRoomEnvironmentLog,
 } from "@/lib/dashboard/build-room-environment-summaries";
 import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
-import { buildCommandCenterPriorities } from "@/lib/dashboard/command-center-priorities";
 import type { CommandCenterPriority } from "@/lib/dashboard/command-center-priorities";
+import { buildLocalizedCommandCenterPriorities } from "@/lib/i18n/localize-command-center";
 import {
   buildSupervisionRooms,
   toOverviewEnvironmentSummaries,
   type OverviewEnvironmentSummary,
 } from "@/lib/environment/build-supervision-rooms";
+import { localizeSupervisionRooms } from "@/lib/i18n/localize-environment";
 import {
   indexLatestLogsByRoom,
 } from "@/lib/recommendations/latest-log-by-room";
@@ -87,6 +90,8 @@ function healthStatusFromScore(score: number): CommandCenterData["healthStatus"]
 }
 
 export async function getCommandCenterData(userId: string): Promise<CommandCenterData> {
+  const tDashboard = await getTranslations("dashboard");
+  const tEnvironment = await getTranslations("environment");
   const supabase = await createClient();
   const base = await getDashboardData(userId);
 
@@ -213,7 +218,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
         roomId: room.id,
         roomName: room.name,
         varietyName:
-          cultivarDisplayName ?? harvest.varietyName ?? geneticsLine?.cultivarName ?? "Room cycle",
+          cultivarDisplayName ?? harvest.varietyName ?? geneticsLine?.cultivarName ?? tDashboard("data.roomCycle"),
         genetics: geneticsLine?.genetics ?? null,
         daysRemaining: Math.max(daysRemaining, 0),
         dateLabel: harvestDateLabel ?? "—",
@@ -245,7 +250,10 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
   };
 
   const healthScore = computeHealthScore(alertCounts);
-  const supervisionRooms = buildSupervisionRooms(rooms, logs);
+  const supervisionRooms = localizeSupervisionRooms(
+    tEnvironment,
+    buildSupervisionRooms(rooms, logs),
+  );
   const roomEnvironments = toOverviewEnvironmentSummaries(supervisionRooms);
 
   return {
@@ -256,7 +264,7 @@ export async function getCommandCenterData(userId: string): Promise<CommandCente
     taskOpen,
     taskOverdue,
     rooms: commandRooms,
-    priorities: buildCommandCenterPriorities(roomsById, tasks),
+    priorities: buildLocalizedCommandCenterPriorities(tDashboard, roomsById, tasks),
     primaryHarvest,
     envTrend,
     harvestPreviews,

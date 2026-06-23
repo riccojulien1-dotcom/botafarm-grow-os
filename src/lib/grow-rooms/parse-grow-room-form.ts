@@ -19,18 +19,24 @@ export type GrowRoomFormPayload = {
   target_cycle_days: number | null;
 };
 
+export type ParseGrowRoomErrorKey =
+  | "nameRequired"
+  | "invalidStatus"
+  | "invalidCycleDate"
+  | "invalidTargetDays";
+
 export function parseGrowRoomFormData(
   formData: FormData,
-): { ok: true; payload: GrowRoomFormPayload } | { ok: false; error: string } {
+): { ok: true; payload: GrowRoomFormPayload } | { ok: false; errorKey: ParseGrowRoomErrorKey } {
   const name = String(formData.get("name") ?? "").trim();
   const statusRaw = String(formData.get("status") ?? DEFAULT_GROW_ROOM_STATUS).trim();
 
   if (!name) {
-    return { ok: false, error: "Grow room name is required." };
+    return { ok: false, errorKey: "nameRequired" };
   }
 
   if (!isGrowRoomStatus(statusRaw)) {
-    return { ok: false, error: "Please select a valid room status." };
+    return { ok: false, errorKey: "invalidStatus" };
   }
 
   const plantCountRaw = formData.get("plant_count");
@@ -43,7 +49,7 @@ export function parseGrowRoomFormData(
   const cycle_start_date = cycleStartRaw || null;
 
   if (cycle_start_date && !/^\d{4}-\d{2}-\d{2}$/.test(cycle_start_date)) {
-    return { ok: false, error: "Cycle start date must be a valid date." };
+    return { ok: false, errorKey: "invalidCycleDate" };
   }
 
   const targetDaysRaw = formData.get("target_cycle_days");
@@ -56,7 +62,7 @@ export function parseGrowRoomFormData(
     target_cycle_days != null &&
     (!Number.isInteger(target_cycle_days) || target_cycle_days <= 0)
   ) {
-    return { ok: false, error: "Target cycle days must be a positive whole number." };
+    return { ok: false, errorKey: "invalidTargetDays" };
   }
 
   return {

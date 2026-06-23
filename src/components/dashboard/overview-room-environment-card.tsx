@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { supervisionRoomStatusStyles } from "@/components/environment/environment-status-styles";
@@ -11,6 +14,8 @@ type OverviewRoomEnvironmentCardProps = {
 };
 
 export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnvironmentCardProps) {
+  const t = useTranslations("dashboard.environmentCard");
+
   return (
     <li>
       <GlassPanel
@@ -37,7 +42,7 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
                 href={`/rooms/${environment.roomId}`}
                 className="inline-flex text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
               >
-                Add journal log
+                {t("addLog")}
               </Link>
             ) : null}
           </div>
@@ -51,7 +56,7 @@ export function OverviewRoomEnvironmentCard({ environment }: OverviewRoomEnviron
               href={`/dashboard/environment#room-env-${environment.roomId}`}
               className="text-xs font-medium text-cyan-400/90 transition hover:text-cyan-300"
             >
-              Open climate analysis →
+              {t("openAnalysis")}
             </Link>
           </div>
         ) : null}

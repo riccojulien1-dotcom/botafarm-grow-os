@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   deleteGrowRoomAction,
@@ -18,6 +19,7 @@ import { BfProgressBar } from "@/components/botafarm/bf-progress-bar";
 import { RoomRecommendationSummaryLine } from "@/components/recommendations/room-recommendation-summary-line";
 import { RecommendationStatusBadge } from "@/components/recommendations/recommendation-status-badge";
 import {
+  CROP_CYCLE_NOT_SET,
   getCropCycleEngine,
   getCultivationPhaseLabel,
   getCurrentCycleDay,
@@ -34,11 +36,8 @@ import { GrowRoomFields, type GrowRoomFieldValues } from "@/components/grow-room
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
 import { preventImplicitFormSubmitOnEnter } from "@/lib/forms/prevent-enter-submit";
 import { useRefreshOnActionSuccess } from "@/lib/hooks/use-refresh-on-action-success";
-import {
-  formatHarvestSpotlightDate,
-  formatPhaseLabel,
-  toTitleCase,
-} from "@/lib/ui/format-mission-labels";
+import { cultivationPhaseChipLabel } from "@/lib/i18n/cultivation-phase-chip-label";
+import { toTitleCase } from "@/lib/ui/format-mission-labels";
 
 export type GrowRoomListItem = GrowRoomFieldValues & {
   id: string;
@@ -61,6 +60,8 @@ export function GrowRoomCard({
   taskSummary,
   roomVarieties = [],
 }: GrowRoomCardProps) {
+  const t = useTranslations("growRooms");
+  const tAlerts = useTranslations("growRooms.growerAlerts");
   const recommendationSummary = getRecommendationSummary(
     latestLog,
     room.status,
@@ -86,9 +87,13 @@ export function GrowRoomCard({
   );
   const primaryAlert = recommendationSummary.activeItems.find((item) => item.severity !== "good");
   const growerAlert = primaryAlert
-    ? translateRecommendationForGrower(toTitleCase(room.name), primaryAlert)
+    ? translateRecommendationForGrower(
+        (key, values) => tAlerts(key, values),
+        toTitleCase(room.name),
+        primaryAlert,
+      )
     : taskSummary?.overdueCount
-      ? `${toTitleCase(room.name)} — overdue task needs attention`
+      ? t("card.overdueAlert", { room: toTitleCase(room.name) })
       : null;
 
   const router = useRouter();
@@ -151,7 +156,7 @@ export function GrowRoomCard({
               disabled={updatePending}
               className="rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-500 px-3 py-1.5 text-sm font-semibold text-black shadow-[0_0_16px_rgba(34,211,238,0.3)] hover:from-cyan-500 hover:to-cyan-400 disabled:opacity-50"
             >
-              {updatePending ? "Saving..." : "Save changes"}
+              {updatePending ? t("form.saving") : t("form.saveChanges")}
             </button>
             <button
               type="button"
@@ -159,7 +164,7 @@ export function GrowRoomCard({
               disabled={updatePending}
               className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm transition hover:border-zinc-500 disabled:opacity-60"
             >
-              Cancel
+              {t("form.cancel")}
             </button>
           </div>
         </form>
@@ -183,8 +188,8 @@ export function GrowRoomCard({
         <div className="flex flex-wrap items-center gap-2">
           <GrowRoomStatusBadge status={room.status} />
           {phaseLabel ? (
-            <span className="rounded-lg border border-fuchsia-500/25 bg-fuchsia-950/25 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-fuchsia-200">
-              {formatPhaseLabel(phaseLabel)}
+            <span className="rounded-lg border border-fuchsia-500/25 bg-fuchsia-950/25 px-2 py-1 text-[10px] font-semibold tracking-wide text-fuchsia-200">
+              {cultivationPhaseChipLabel(t, phaseLabel)}
             </span>
           ) : null}
         </div>
@@ -192,30 +197,30 @@ export function GrowRoomCard({
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
           <MetaChip
             icon={CalendarClock}
-            label="Cycle"
+            label={t("card.cycle")}
             value={
               currentDay != null && room.target_cycle_days
-                ? `Day ${currentDay} of ${room.target_cycle_days}`
+                ? t("card.dayOf", { day: currentDay, total: room.target_cycle_days })
                 : currentDay != null
-                  ? `Day ${currentDay}`
-                  : "Not set"
+                  ? t("card.dayOnly", { day: currentDay })
+                  : t("card.notSet")
             }
           />
           <MetaChip
             icon={CalendarClock}
-            label="Harvest"
+            label={t("card.harvest")}
             value={
               daysLeft != null
-                ? `${Math.max(daysLeft, 0)} days`
-                : harvestDate && harvestDate !== "Not set"
-                  ? formatHarvestSpotlightDate(harvestDate)
+                ? t("card.days", { count: Math.max(daysLeft, 0) })
+                : harvestDate && harvestDate !== CROP_CYCLE_NOT_SET
+                  ? t("card.harvestOn", { date: harvestDate })
                   : "—"
             }
             accent="magenta"
           />
           <MetaChip
             icon={Users}
-            label="Plants"
+            label={t("card.plants")}
             value={String(room.plant_count ?? 0)}
           />
         </div>
@@ -226,14 +231,14 @@ export function GrowRoomCard({
           </p>
         ) : (
           <p className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-3 py-2 text-sm text-emerald-200">
-            Room stable — no urgent alerts
+            {t("card.stable")}
           </p>
         )}
 
         {roomVarieties.length > 0 ? (
           <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-zinc-500">
             <Leaf className="h-3.5 w-3.5" aria-hidden />
-            {roomVarieties.length} cultivar{roomVarieties.length === 1 ? "" : "s"} inside — open room to manage
+            {t("card.cultivarsInside", { count: roomVarieties.length })}
           </p>
         ) : null}
 
@@ -241,7 +246,7 @@ export function GrowRoomCard({
           <div className="mt-4 space-y-2 border-t border-white/[0.05] pt-4">
             <BfProgressBar value={cycle.progressPercent} accent="magenta" showValue={false} size="large" />
             <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-600">
-              {Math.round(cycle.progressPercent)}% cycle complete
+              {t("card.cycleComplete", { percent: Math.round(cycle.progressPercent) })}
             </p>
           </div>
         ) : null}
@@ -262,13 +267,13 @@ export function GrowRoomCard({
           onClick={startEditing}
           className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm transition hover:border-fuchsia-500/50 hover:text-fuchsia-300"
         >
-          Edit
+          {t("card.edit")}
         </button>
         <form
           action={deleteAction}
           onSubmit={(event) => {
             const confirmed = window.confirm(
-              `Delete "${room.name}"? All journal logs for this room will also be deleted.`,
+              t("card.deleteConfirm", { name: room.name }),
             );
             if (!confirmed) {
               event.preventDefault();
@@ -281,7 +286,7 @@ export function GrowRoomCard({
             disabled={deletePending}
             className="rounded-md border border-red-900/60 px-3 py-1.5 text-sm text-red-300 transition hover:border-red-500 disabled:opacity-60"
           >
-            {deletePending ? "Deleting..." : "Delete"}
+            {deletePending ? t("card.deleting") : t("card.delete")}
           </button>
         </form>
       </div>

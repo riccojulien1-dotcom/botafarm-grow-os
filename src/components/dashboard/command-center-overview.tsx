@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { BfButton } from "@/components/botafarm/bf-button";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
@@ -11,22 +14,24 @@ type CommandCenterOverviewProps = {
   data: CommandCenterData;
 };
 
-function priorityTone(item: CommandCenterPriority) {
-  if (item.severity === "action") {
+export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
+  const t = useTranslations("dashboard");
+
+  function priorityTone(item: CommandCenterPriority) {
+    if (item.severity === "action") {
+      return {
+        label: t("priorities.urgent"),
+        rowClass: "border-red-500/25 bg-red-950/20 hover:border-red-400/40",
+        labelClass: "border-red-500/30 bg-red-950/40 text-red-200/90",
+      };
+    }
     return {
-      label: "Urgent",
-      rowClass: "border-red-500/25 bg-red-950/20 hover:border-red-400/40",
-      labelClass: "border-red-500/30 bg-red-950/40 text-red-200/90",
+      label: t("priorities.review"),
+      rowClass: "border-white/[0.06] bg-black/20 hover:border-amber-500/25",
+      labelClass: "border-amber-500/25 bg-amber-950/35 text-amber-100/90",
     };
   }
-  return {
-    label: "Review",
-    rowClass: "border-white/[0.06] bg-black/20 hover:border-amber-500/25",
-    labelClass: "border-amber-500/25 bg-amber-950/35 text-amber-100/90",
-  };
-}
 
-export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
   return (
     <div className="space-y-6 pb-4">
       <section className="bf-mission-hero bf-atmosphere-deep px-5 py-7 sm:px-8 sm:py-9">
@@ -34,20 +39,20 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
         <div className="relative space-y-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-1">
-              <p className="bf-section-eyebrow text-cyan-500/80">Botafarm California</p>
+              <p className="bf-section-eyebrow text-cyan-500/80">{t("hero.brand")}</p>
               <h1 className="bf-hero-display bf-gradient-text text-[clamp(2.5rem,8vw,5.5rem)]">
-                GROW OS
+                {t("hero.title")}
               </h1>
               <p className="font-mono text-sm uppercase tracking-[0.38em] text-zinc-400">
-                Command center
+                {t("hero.subtitle")}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <BfButton href="/dashboard/grow-rooms" variant="primary">
-                Grow rooms
+                {t("hero.growRooms")}
               </BfButton>
               <BfButton href="/dashboard/environment" variant="secondary">
-                Environment
+                {t("hero.environment")}
               </BfButton>
             </div>
           </div>
@@ -56,8 +61,8 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
 
       <section className="space-y-3">
         <SectionHeader
-          title="Grow rooms"
-          subtitle={`${data.rooms.length} active zone${data.rooms.length === 1 ? "" : "s"}`}
+          title={t("sections.growRooms")}
+          subtitle={t("sections.activeZones", { count: data.rooms.length })}
           compact
         />
         {data.rooms.length ? (
@@ -68,9 +73,9 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
           </ul>
         ) : (
           <GlassPanel padding="md">
-            <p className="text-sm text-zinc-500">Deploy your first grow room to begin tracking.</p>
+            <p className="text-sm text-zinc-500">{t("sections.deployFirst")}</p>
             <BfButton href="/dashboard/grow-rooms" variant="primary" className="mt-3">
-              Open grow rooms
+              {t("sections.openGrowRooms")}
             </BfButton>
           </GlassPanel>
         )}
@@ -79,8 +84,8 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <SectionHeader
-            title="Environment scan"
-            subtitle={`${data.roomEnvironments.length} room${data.roomEnvironments.length === 1 ? "" : "s"}`}
+            title={t("sections.environmentScan")}
+            subtitle={t("sections.roomCount", { count: data.roomEnvironments.length })}
             compact
           />
           {data.roomEnvironments.length ? (
@@ -88,7 +93,7 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
               href="/dashboard/environment"
               className="text-xs font-medium text-cyan-400/90 transition hover:text-cyan-300"
             >
-              Full climate analysis →
+              {t("sections.fullClimateAnalysis")}
             </Link>
           ) : null}
         </div>
@@ -100,15 +105,13 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
           </ul>
         ) : (
           <GlassPanel padding="md">
-            <p className="text-sm text-zinc-500">
-              Add grow rooms to track climate and irrigation per room.
-            </p>
+            <p className="text-sm text-zinc-500">{t("sections.addRoomsForClimate")}</p>
           </GlassPanel>
         )}
       </section>
 
       <section className="space-y-3">
-        <SectionHeader title="Tasks today" compact />
+        <SectionHeader title={t("sections.tasksToday")} compact />
         <GlassPanel
           padding="md"
           glow={data.priorities.some((priority) => priority.severity === "action") ? "red" : "none"}
@@ -141,7 +144,7 @@ export function CommandCenterOverview({ data }: CommandCenterOverviewProps) {
             </ul>
           ) : (
             <p className="py-4 text-center text-sm text-emerald-300/90">
-              No open tasks — operation is on track.
+              {t("sections.noOpenTasks")}
             </p>
           )}
         </GlassPanel>

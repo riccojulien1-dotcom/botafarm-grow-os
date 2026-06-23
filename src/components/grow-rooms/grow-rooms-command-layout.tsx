@@ -1,3 +1,8 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { AlertTriangle, DoorOpen, Flower2, Users } from "lucide-react";
+
 import { CreateGrowRoomForm } from "@/components/grow-rooms/create-grow-room-form";
 import { GrowRoomCard } from "@/components/grow-rooms/grow-room-card";
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
@@ -7,7 +12,6 @@ import type { VarietyForHarvest } from "@/lib/grow-rooms/crop-cycle";
 import type { RecommendationLogInput } from "@/lib/recommendations/types";
 import type { RoomTaskSummary } from "@/lib/tasks/task-stats";
 import type { RoomVarietyRecord } from "@/lib/varieties/types";
-import { AlertTriangle, DoorOpen, Flower2, Users } from "lucide-react";
 
 type GrowRoomsCommandLayoutProps = {
   rooms: GrowRoomListItem[];
@@ -31,32 +35,32 @@ export function GrowRoomsCommandLayout({
   taskSummaryByRoom,
   stats,
 }: GrowRoomsCommandLayoutProps) {
+  const t = useTranslations("growRooms");
+
   return (
     <div className="space-y-8">
       <BfPageHeader
-        eyebrow="Grow rooms"
-        title="Your cultivation zones"
-        subtitle="Rooms first — open any room to manage cultivars, tasks, and journal logs inside."
+        eyebrow={t("page.eyebrow")}
+        title={t("page.title")}
+        subtitle={t("page.subtitle")}
       />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatChip icon={DoorOpen} label="Active rooms" value={String(rooms.length)} tone="cyan" />
-        <StatChip icon={Users} label="Total plants" value={String(stats.totalPlants)} tone="white" />
+        <StatChip icon={DoorOpen} label={t("stats.activeRooms")} value={String(rooms.length)} tone="cyan" />
+        <StatChip icon={Users} label={t("stats.totalPlants")} value={String(stats.totalPlants)} tone="white" />
         <StatChip
           icon={AlertTriangle}
-          label="Needs attention"
+          label={t("stats.needsAttention")}
           value={String(stats.alertRooms)}
           tone={stats.alertRooms > 0 ? "red" : "emerald"}
         />
-        <StatChip icon={Flower2} label="In flower" value={String(stats.flowerRooms)} tone="magenta" />
+        <StatChip icon={Flower2} label={t("stats.inFlower")} value={String(stats.flowerRooms)} tone="magenta" />
       </section>
 
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-bold uppercase tracking-tight text-white">All rooms</h2>
-          <span className="bf-section-eyebrow">
-            {rooms.length} zone{rooms.length === 1 ? "" : "s"}
-          </span>
+          <h2 className="text-2xl font-bold uppercase tracking-tight text-white">{t("page.allRooms")}</h2>
+          <span className="bf-section-eyebrow">{t("page.zoneCount", { count: rooms.length })}</span>
         </div>
 
         {rooms.length ? (
@@ -74,20 +78,14 @@ export function GrowRoomsCommandLayout({
           </ul>
         ) : (
           <GlassPanel padding="lg">
-            <p className="text-center text-sm text-zinc-500">
-              No grow rooms yet. Add your first zone below.
-            </p>
+            <p className="text-center text-sm text-zinc-500">{t("page.empty")}</p>
           </GlassPanel>
         )}
       </section>
 
       <GlassPanel glow="cyan" padding="lg" className="scroll-mt-24 opacity-95" id="create-room">
-        <h2 className="font-mono text-xs uppercase tracking-[0.22em] text-zinc-500">
-          Add a new room
-        </h2>
-        <p className="mt-1 mb-5 text-sm text-zinc-500">
-          Create Flower Room, Veg Room, Mother Room, or Clone Room — assign cultivars after.
-        </p>
+        <h2 className="font-mono text-xs uppercase tracking-[0.22em] text-zinc-500">{t("page.addRoom")}</h2>
+        <p className="mt-1 mb-5 text-sm text-zinc-500">{t("page.addRoomHint")}</p>
         <CreateGrowRoomForm />
       </GlassPanel>
     </div>

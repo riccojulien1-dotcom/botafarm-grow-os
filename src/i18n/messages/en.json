@@ -19,6 +19,13 @@
     "localeEn": "English",
     "localeFr": "French"
   },
+  "recommendations": {
+    "severity": {
+      "good": "GOOD",
+      "watch": "WATCH",
+      "action": "ACTION REQUIRED"
+    }
+  },
   "journal": {
     "page": {
       "eyebrow": "Mission Control",
@@ -157,6 +164,351 @@
       "storageNotConfigured": "Photo storage is not configured. Run the log-photos Supabase migration.",
       "tableNotConfigured": "Journal photo table is not configured. Run the log_photos Supabase migration.",
       "uploadFailed": "Photo upload failed."
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "brand": "Botafarm California",
+      "title": "GROW OS",
+      "subtitle": "Command center",
+      "growRooms": "Grow rooms",
+      "environment": "Environment"
+    },
+    "sections": {
+      "growRooms": "Grow rooms",
+      "activeZones": "{count, plural, one {# active zone} other {# active zones}}",
+      "deployFirst": "Deploy your first grow room to begin tracking.",
+      "openGrowRooms": "Open grow rooms",
+      "environmentScan": "Environment scan",
+      "roomCount": "{count, plural, one {# room} other {# rooms}}",
+      "fullClimateAnalysis": "Full climate analysis →",
+      "addRoomsForClimate": "Add grow rooms to track climate and irrigation per room.",
+      "tasksToday": "Tasks today",
+      "noOpenTasks": "No open tasks — operation is on track."
+    },
+    "priorities": {
+      "urgent": "Urgent",
+      "review": "Review",
+      "flowerTransitionDue": "Flower transition due",
+      "flowerTransitionToday": "Flower transition scheduled today",
+      "defoliationDue": "Defoliation due",
+      "defoliationToday": "Defoliation scheduled today",
+      "runoffCheckDue": "Runoff check due",
+      "runoffCheckToday": "Runoff check scheduled today",
+      "phPenDue": "pH pen calibration due",
+      "phPenToday": "pH pen calibration scheduled today",
+      "taskDue": "{title} due",
+      "taskToday": "{title} scheduled today"
+    },
+    "roomCard": {
+      "overdueTasks": "{count, plural, one {# overdue task} other {# overdue tasks}}",
+      "openTasks": "{count, plural, one {# open task} other {# open tasks}}",
+      "noOpenTasks": "No open tasks — manage in Grow Rooms"
+    },
+    "environmentCard": {
+      "addLog": "Add journal log",
+      "openAnalysis": "Open climate analysis →"
+    },
+    "data": {
+      "roomCycle": "Room cycle",
+      "unknownRoom": "Unknown room"
+    }
+  },
+  "growRooms": {
+    "page": {
+      "eyebrow": "Grow rooms",
+      "title": "Your cultivation zones",
+      "subtitle": "Rooms first — open any room to manage cultivars, tasks, and journal logs inside.",
+      "allRooms": "All rooms",
+      "zoneCount": "{count, plural, one {# zone} other {# zones}}",
+      "empty": "No grow rooms yet. Add your first zone below.",
+      "addRoom": "Add a new room",
+      "addRoomHint": "Create Flower Room, Veg Room, Mother Room, or Clone Room — assign cultivars after."
+    },
+    "stats": {
+      "activeRooms": "Active rooms",
+      "totalPlants": "Total plants",
+      "needsAttention": "Needs attention",
+      "inFlower": "In flower"
+    },
+    "card": {
+      "cycle": "Cycle",
+      "harvest": "Harvest",
+      "plants": "Plants",
+      "dayOf": "Day {day} of {total}",
+      "dayOnly": "Day {day}",
+      "notSet": "Not set",
+      "days": "Harvest in {count} days",
+      "harvestOn": "Harvest {date}",
+      "stable": "Room stable — no urgent alerts",
+      "cultivarsInside": "{count, plural, one {# cultivar inside — open room to manage} other {# cultivars inside — open room to manage}}",
+      "cycleComplete": "{percent}% cycle complete",
+      "overdueAlert": "{room} — overdue task needs attention",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "deleteConfirm": "Delete \"{name}\"? All journal logs for this room will also be deleted."
+    },
+    "form": {
+      "create": "Create grow room",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "fields": {
+        "name": "Room name",
+        "status": "Status",
+        "type": "Type",
+        "cycleStart": "Cycle start date",
+        "targetCycleDays": "Target cycle days",
+        "plantCount": "Plant count",
+        "dimensions": "Dimensions",
+        "lighting": "Lighting",
+        "substrate": "Substrate",
+        "genetics": "Genetics",
+        "irrigation": "Irrigation",
+        "notes": "Notes",
+        "namePlaceholder": "Flower Room",
+        "typePlaceholder": "Tent / Room / Greenhouse",
+        "lightingPlaceholder": "LED 480W",
+        "substratePlaceholder": "Coco",
+        "geneticsPlaceholder": "Botafarm Cut A",
+        "irrigationPlaceholder": "Drip",
+        "notesPlaceholder": "Any context for this setup"
+      }
+    },
+    "status": {
+      "preFlower": "Pre-Flower",
+      "flower": "Flower",
+      "drying": "Drying",
+      "cure": "Cure"
+    },
+    "phases": {
+      "earlyFlower": "Early Flower",
+      "midFlower": "Mid Flower",
+      "lateFlower": "Late Flower"
+    },
+    "recommendations": {
+      "addLog": "Recommendations: add a journal log",
+      "activeCount": "{count, plural, one {# active recommendation} other {# active recommendations}}",
+      "learnMore": "Learn more"
+    },
+    "growerAlerts": {
+      "drybackBelowTarget": "{room} — Dryback below target, root zone may stay too wet",
+      "drybackTooHigh": "{room} — Dryback too high, plants may be under-watered",
+      "drybackNeedsAttention": "{room} — Dryback needs attention, check irrigation timing",
+      "ecRunoffRising": "{room} — Runoff EC rising, salts building in the root zone",
+      "ecRunoffCheck": "{room} — Runoff EC needs a closer look at the next feed",
+      "vpdOutsideIdeal": "{room} — VPD outside the ideal window for this phase",
+      "phDrifting": "{room} — root zone pH drifting, check your next feed",
+      "ppfdOffTarget": "{room} — light levels off target for this stage",
+      "genericIssue": "{room} — {issue}"
+    },
+    "cycle": {
+      "currentDay": "Current day",
+      "daysRemaining": "Days remaining",
+      "estHarvest": "Est. harvest",
+      "harvestInDays": "Harvest in {count} days",
+      "harvestToday": "Harvest today",
+      "notSet": "Not set"
+    },
+    "tasks": {
+      "openZero": "Open tasks: 0",
+      "openCount": "Open tasks: {count}",
+      "overdue": "Overdue tasks ({count})",
+      "complete": "Tasks complete"
+    },
+    "actions": {
+      "nameRequired": "Grow room name is required.",
+      "invalidStatus": "Please select a valid room status.",
+      "invalidCycleDate": "Cycle start date must be a valid date.",
+      "invalidTargetDays": "Target cycle days must be a positive whole number.",
+      "couldNotCreate": "Grow room could not be created.",
+      "cultivarCouldNotCreate": "Initial cultivar could not be created.",
+      "missingRoom": "Missing grow room.",
+      "cannotEdit": "You cannot edit this grow room.",
+      "cannotDelete": "You cannot delete this grow room.",
+      "created": "Grow room created.",
+      "updated": "Grow room updated.",
+      "deleted": "Grow room deleted."
+    }
+  },
+  "environment": {
+    "page": {
+      "missionControl": "Mission Control",
+      "eyebrow": "Environment",
+      "title": "What is happening in each room right now?",
+      "subtitle": "Every grow room on one page — current readings, trends, and what may need your attention.",
+      "empty": "Create a grow room and add journal logs to start tracking environment.",
+      "currentConditions": "Current conditions",
+      "moreTools": "More tools",
+      "growRooms": "Grow rooms",
+      "roomsNeedingAttention": "Rooms needing attention",
+      "journalReadings": "Journal readings",
+      "readingCount": "{count} journal readings",
+      "noReadingsYet": "No readings yet",
+      "manualLogs": "Manual Logs"
+    },
+    "room": {
+      "healthOverview": "Room health overview",
+      "lastLog": "Last log:",
+      "notEnoughReadings": "Not enough readings",
+      "notEnoughReadingsRoom": "Not enough readings for this room yet",
+      "addLog": "Add journal log",
+      "viewJournal": "View room journal",
+      "addEntry": "Add journal entry",
+      "openRoom": "Open room",
+      "addLogAttention": "Not enough readings — add a journal log",
+      "allMetricsGood": "All metrics within target",
+      "reviewClimate": "Review climate and irrigation"
+    },
+    "copilot": {
+      "farmEyebrow": "Environment copilot",
+      "farmTitle": "Climate & irrigation briefing",
+      "roomTitle": "Botafarm AI — {room}",
+      "happening": "What is happening",
+      "why": "Why",
+      "next": "What to do next",
+      "aiInterpretation": "Botafarm AI interpretation",
+      "whatToDoNext": "What to do next",
+      "trendChart": "Trend chart — supports your decision",
+      "briefing": {
+        "actionRooms": "{count, plural, one {# room has metrics outside target.} other {# rooms have metrics outside target.}}",
+        "driftRooms": "{count, plural, one {# room shows early drift — still manageable.} other {# rooms show early drift — still manageable.}}",
+        "steady": "Climate and irrigation are steady across all rooms.",
+        "defaultWhy": "Latest journal readings are within expected ranges.",
+        "defaultNext": "Log each room on schedule so trends stay visible before the next irrigation cycle."
+      }
+    },
+    "metrics": {
+      "labels": {
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "vpd": "VPD",
+        "ec_in": "EC in",
+        "ec_runoff": "EC out",
+        "ph_in": "pH in",
+        "ph_runoff": "pH out"
+      },
+      "detail": {
+        "latestReading": "Latest reading",
+        "previousReading": "Previous reading",
+        "average": "Average",
+        "targetRange": "Target range",
+        "lowest": "Lowest",
+        "highest": "Highest",
+        "sinceLastLog": "Since last log",
+        "overTime": "Over time",
+        "recentReadings": "Recent readings",
+        "date": "Date",
+        "reading": "Reading",
+        "targetNotSet": "Target not set for this room phase",
+        "targetPrefix": "Target {range}"
+      },
+      "chart": {
+        "min": "Min {value}",
+        "max": "Max {value}"
+      },
+      "trends": {
+        "stable": "Stable",
+        "increasing": "Increasing",
+        "decreasing": "Decreasing",
+        "notEnoughReadings": "Not enough readings"
+      },
+      "status": {
+        "noReading": "No reading",
+        "watch": "Watch",
+        "drift": "Drift",
+        "action": "Action",
+        "good": "Good",
+        "actionRequired": "Action required",
+        "notEnoughReadings": "Not enough readings"
+      },
+      "delta": {
+        "noReadingLatest": "No reading on latest log",
+        "noChange": "No change since last log",
+        "sinceLastLog": "{delta} since last log",
+        "overPeriod": "{delta} over logged period"
+      },
+      "attention": {
+        "aboveTarget": "{label} is {current} — above {target}",
+        "belowTarget": "{label} is {current} — below {target}",
+        "outsideTarget": "{label} is {current} — outside target",
+        "rose": "{label} rose from {previous} to {current}",
+        "dropped": "{label} dropped from {previous} to {current}",
+        "atTrend": "{label} at {current} — {trend}"
+      },
+      "interpretation": {
+        "noData": "{label} was not logged on your latest journal entry. Add it on your next room log.",
+        "action": "{label} is outside the target range ({target}). Check the room and adjust before the next feed.",
+        "drift": "{label} is still within target ({target}) but {trend}. {delta}.",
+        "watch": "{label} needs a closer look. {delta}. Target: {target}.",
+        "stable": "{label} is stable and within target ({target}).",
+        "within": "{label} is within target ({target}) and {trend}. {delta}."
+      },
+      "recommendation": {
+        "logNext": "Log {label} on your next journal entry to track this room.",
+        "noAction": "No action needed. {label} is steady at {current} and on target.",
+        "walkRoom": "{label} is {current} ({target}). Walk the room on your next round and log again today.",
+        "adjustRoom": "{label} is {current} ({target}). Adjust the room before the next irrigation cycle.",
+        "logAgain": "Log {label} again on the next journal entry. Currently {current}."
+      }
+    },
+    "education": {
+      "temperature": {
+        "summary": "Air temperature in the room affects growth speed, transpiration, and stress.",
+        "detail": "Cannabis prefers stable temperatures. Too hot slows growth and raises VPD. Too cold slows metabolism. Log daily so you can spot swings before plants show stress."
+      },
+      "humidity": {
+        "summary": "Relative humidity controls how much moisture the air holds around your plants.",
+        "detail": "High humidity in flower increases mold risk. Low humidity pulls water through the plant too fast. Match humidity to your room phase and keep it steady."
+      },
+      "vpd": {
+        "summary": "Vapor Pressure Deficit — the drying power of the air on your leaves.",
+        "detail": "VPD combines temperature and humidity into one number growers use to balance transpiration. Too low = slow uptake. Too high = leaf stress. It is one of the most useful climate metrics."
+      },
+      "ec_in": {
+        "summary": "Electrical conductivity of nutrient solution going into the medium.",
+        "detail": "EC In tells you how strong your feed is. Rising EC In without matching plant demand can build salts. Compare EC In to EC Out to understand what the plant is taking up or leaving behind."
+      },
+      "ec_runoff": {
+        "summary": "EC of runoff water leaving the bottom of the pot after irrigation.",
+        "detail": "EC Out shows what the root zone is shedding. Climbing runoff EC often means salt buildup or the plant is drinking more water than nutrients. Track it every feed to stay ahead of lockout."
+      },
+      "ph_in": {
+        "summary": "Acidity of nutrient solution going into the medium.",
+        "detail": "pH controls which nutrients are available to roots. Most cultivars prefer slightly acidic feed. Log pH In every irrigation so you catch drift before deficiency symptoms appear."
+      },
+      "ph_runoff": {
+        "summary": "pH of runoff water leaving the pot after irrigation.",
+        "detail": "Runoff pH reveals what is happening in the root zone. A gap between pH In and pH Out can signal medium buffering or salt issues. Stable runoff pH usually means healthy nutrient uptake."
+      }
+    },
+    "dataSource": {
+      "lastReading": "Last reading",
+      "totalReadings": "Total readings",
+      "loggedFrom": "Logged from",
+      "roomJournals": "Room journals",
+      "lastUpdate": "Last update",
+      "records": "Records",
+      "source": "Source"
+    },
+    "import": {
+      "eyebrow": "Import data",
+      "title": "Coming soon",
+      "description": "Future channels for graph photos, controller screenshots, and assisted capture. Manual journal logs remain the active source today.",
+      "uiReady": "UI ready",
+      "graphPhoto": "Graph photo import",
+      "growlink": "Growlink screen capture",
+      "aroya": "Aroya dashboard capture",
+      "trolmaster": "TrolMaster screen capture",
+      "manualActive": "Manual entry (active)"
+    },
+    "relativeTime": {
+      "today": "today",
+      "justNow": "Just now",
+      "minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+      "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+      "daysAgo": "{count, plural, one {# day ago} other {# days ago}}"
     }
   }
 }

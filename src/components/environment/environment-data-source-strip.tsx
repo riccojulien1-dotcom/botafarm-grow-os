@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 import type { EnvironmentIntelligence } from "@/lib/environment/get-environment-intelligence";
 
 type EnvironmentDataSourceStripProps = {
@@ -11,16 +15,18 @@ export function EnvironmentDataSourceStrip({
   dense = false,
   growerFriendly = false,
 }: EnvironmentDataSourceStripProps) {
+  const t = useTranslations("environment.dataSource");
+
   const items = growerFriendly
     ? [
-        { label: "Last reading", value: quality.lastReadingLabel },
-        { label: "Total readings", value: String(quality.recordCount), accent: true },
-        { label: "Logged from", value: "Room journals" },
+        { label: t("lastReading"), value: quality.lastReadingLabel },
+        { label: t("totalReadings"), value: String(quality.recordCount), accent: true },
+        { label: t("loggedFrom"), value: t("roomJournals") },
       ]
     : [
-        { label: "Last update", value: quality.lastReadingLabel },
-        { label: "Records", value: String(quality.recordCount), accent: true },
-        { label: "Source", value: quality.sourceLabel },
+        { label: t("lastUpdate"), value: quality.lastReadingLabel },
+        { label: t("records"), value: String(quality.recordCount), accent: true },
+        { label: t("source"), value: quality.sourceLabel },
       ];
 
   if (dense) {

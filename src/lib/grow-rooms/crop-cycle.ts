@@ -1,6 +1,8 @@
 import type { GrowRoomStatus } from "@/lib/grow-rooms/constants";
 import { isGrowRoomStatus } from "@/lib/grow-rooms/constants";
 
+export const CROP_CYCLE_NOT_SET = "Not set";
+
 const PHASE_SHORT_LABELS: Record<GrowRoomStatus, string> = {
   Clone: "Clone",
   Mother: "Mother",
@@ -101,7 +103,7 @@ function addCalendarDays(start: Date, days: number): Date {
 
 export function formatCycleStartDate(cycleStartDate: string | null): string {
   if (!cycleStartDate) {
-    return "Not set";
+    return CROP_CYCLE_NOT_SET;
   }
 
   const parsed = parseIsoDateOnly(cycleStartDate);
@@ -268,7 +270,7 @@ export function getVarietyHarvestTimelines(
           ? `${startDays} days`
           : endDays != null
             ? `${endDays} days`
-            : "Not set";
+            : CROP_CYCLE_NOT_SET;
 
     const harvestWindowLabel =
       variety.harvest_window_start_days != null &&
@@ -283,14 +285,14 @@ export function getVarietyHarvestTimelines(
           ? String(daysRemainingStart)
           : daysRemainingEnd != null
             ? String(daysRemainingEnd)
-            : "Not set";
+            : CROP_CYCLE_NOT_SET;
 
     const estimatedHarvestDateStartLabel = harvestDateStart
       ? formatDisplayDate(harvestDateStart)
-      : "Not set";
+      : CROP_CYCLE_NOT_SET;
     const estimatedHarvestDateEndLabel = harvestDateEnd
       ? formatDisplayDate(harvestDateEnd)
-      : "Not set";
+      : CROP_CYCLE_NOT_SET;
 
     return {
       varietyId: variety.id,
@@ -370,7 +372,7 @@ export function getNextHarvestPreview(
   return {
     varietyName: "Room cycle",
     daysRemaining,
-    estimatedHarvestDateLabel: harvestDate ? formatDisplayDate(harvestDate) : "Not set",
+    estimatedHarvestDateLabel: harvestDate ? formatDisplayDate(harvestDate) : CROP_CYCLE_NOT_SET,
     label: `Next harvest: Room cycle in ${Math.max(daysRemaining, 0)} days`,
   };
 }
@@ -393,12 +395,12 @@ export function getCropCycleEngine(
 
   const cycleStartLabel = formatCycleStartDate(cycleStartDate);
   const targetCycleDaysLabel =
-    targetCycleDays == null ? "Not set" : String(targetCycleDays);
+    targetCycleDays == null ? CROP_CYCLE_NOT_SET : String(targetCycleDays);
 
   const currentDay = getCurrentCycleDay(cycleStartDate, today);
   let daysRemaining: number | null = null;
-  let estimatedHarvestDateLabel = "Not set";
-  let phaseDayLabel = "Not set";
+  let estimatedHarvestDateLabel = CROP_CYCLE_NOT_SET;
+  let phaseDayLabel = CROP_CYCLE_NOT_SET;
   let harvestInDaysLabel: string | null = null;
   let harvestAlert: string | null = null;
   let progressPercent: number | null = null;
@@ -448,10 +450,10 @@ export function getCropCycleEngine(
   return {
     cycleStartLabel,
     currentDay,
-    currentDayLabel: currentDay == null ? "Not set" : String(currentDay),
+    currentDayLabel: currentDay == null ? CROP_CYCLE_NOT_SET : String(currentDay),
     targetCycleDaysLabel,
     daysRemaining,
-    daysRemainingLabel: daysRemaining == null ? "Not set" : String(daysRemaining),
+    daysRemainingLabel: daysRemaining == null ? CROP_CYCLE_NOT_SET : String(daysRemaining),
     estimatedHarvestDateLabel,
     phaseDayLabel,
     harvestInDaysLabel,

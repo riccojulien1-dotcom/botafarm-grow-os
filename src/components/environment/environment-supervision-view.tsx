@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { BfPageHeader } from "@/components/botafarm/bf-page-header";
 import { GlassPanel } from "@/components/botafarm/glass-panel";
@@ -6,7 +9,7 @@ import { EnvironmentDataSourceStrip } from "@/components/environment/environment
 import { EnvironmentImportPlaceholder } from "@/components/environment/environment-import-placeholder";
 import { EnvironmentFarmCopilot } from "@/components/environment/environment-room-copilot";
 import { EnvironmentSupervisionShell } from "@/components/environment/environment-supervision-shell";
-import { buildEnvironmentFarmBriefing } from "@/lib/copilot/build-operation-briefing";
+import { localizeEnvironmentFarmBriefing } from "@/lib/i18n/localize-environment";
 import type { EnvironmentSupervisionData } from "@/lib/environment/get-environment-supervision-data";
 
 type EnvironmentSupervisionViewProps = {
@@ -14,11 +17,14 @@ type EnvironmentSupervisionViewProps = {
 };
 
 export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewProps) {
+  const t = useTranslations("environment");
   const roomsNeedingAttention = data.rooms.filter(
     (room) => room.roomStatus === "action" || room.roomStatus === "watch",
   ).length;
 
-  const farmBriefing = buildEnvironmentFarmBriefing(data.rooms);
+  const farmBriefing = localizeEnvironmentFarmBriefing(t, data.rooms);
+  const readingLabel =
+    data.totalLogs > 0 ? t("page.readingCount", { count: data.totalLogs }) : t("page.noReadingsYet");
 
   return (
     <div className="space-y-6 pb-8">
@@ -27,14 +33,14 @@ export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewP
           href="/dashboard"
           className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-zinc-400 transition hover:border-cyan-500/30 hover:text-cyan-200"
         >
-          Mission Control
+          {t("page.missionControl")}
         </Link>
       </div>
 
       <BfPageHeader
-        eyebrow="Environment"
-        title="What is happening in each room right now?"
-        subtitle="Every grow room on one page — current readings, trends, and what may need your attention."
+        eyebrow={t("page.eyebrow")}
+        title={t("page.title")}
+        subtitle={t("page.subtitle")}
       />
 
       {data.rooms.length ? (
@@ -44,36 +50,33 @@ export function EnvironmentSupervisionView({ data }: EnvironmentSupervisionViewP
         </>
       ) : (
         <GlassPanel padding="md">
-          <p className="text-sm text-zinc-500">
-            Create a grow room and add journal logs to start tracking environment.
-          </p>
+          <p className="text-sm text-zinc-500">{t("page.empty")}</p>
         </GlassPanel>
       )}
 
       <section className="space-y-3 border-t border-white/[0.06] pt-8">
         <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-500">
-          Current conditions
+          {t("page.currentConditions")}
         </h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          <SummaryTile label="Grow rooms" value={String(data.rooms.length)} />
-          <SummaryTile label="Rooms needing attention" value={String(roomsNeedingAttention)} />
-          <SummaryTile label="Journal readings" value={String(data.totalLogs)} />
+          <SummaryTile label={t("page.growRooms")} value={String(data.rooms.length)} />
+          <SummaryTile label={t("page.roomsNeedingAttention")} value={String(roomsNeedingAttention)} />
+          <SummaryTile label={t("page.journalReadings")} value={String(data.totalLogs)} />
         </div>
       </section>
 
       <section className="space-y-3 border-t border-white/[0.06] pt-8">
         <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-zinc-500">
-          More tools
+          {t("page.moreTools")}
         </h2>
         <GlassPanel padding="md">
           <EnvironmentDataSourceStrip
             growerFriendly
             quality={{
               lastReadingAt: null,
-              lastReadingLabel:
-                data.totalLogs > 0 ? `${data.totalLogs} journal readings` : "No readings yet",
+              lastReadingLabel: readingLabel,
               recordCount: data.totalLogs,
-              sourceLabel: "Manual Logs",
+              sourceLabel: t("page.manualLogs"),
             }}
           />
         </GlassPanel>

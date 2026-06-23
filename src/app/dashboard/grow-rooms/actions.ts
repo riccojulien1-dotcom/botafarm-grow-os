@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 
 import { ensureDefaultBatchForVariety } from "@/app/rooms/[id]/batch-actions";
 import { requireUser } from "@/lib/auth/get-user";
@@ -38,12 +39,13 @@ export async function createGrowRoomAction(
   _: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const t = await getTranslations("growRooms.actions");
   const user = await requireUser();
   const supabase = await createClient();
   const parsed = parseGrowRoomFormData(formData);
 
   if (!parsed.ok) {
-    return { error: parsed.error };
+    return { error: t(parsed.errorKey) };
   }
 
   const { data: inserted, error } = await supabase
@@ -56,7 +58,7 @@ export async function createGrowRoomAction(
     .single();
 
   if (error || !inserted?.id) {
-    return { error: error?.message ?? "Grow room could not be created." };
+    return { error: error?.message ?? t("couldNotCreate") };
   }
 
   const initialVariety = buildInitialRoomVarietyFromGrowRoom(parsed.payload);
@@ -80,7 +82,7 @@ export async function createGrowRoomAction(
         .eq("id", inserted.id)
         .eq("user_id", user.id);
       return {
-        error: varietyError?.message ?? "Initial cultivar could not be created.",
+        error: varietyError?.message ?? t("cultivarCouldNotCreate"),
       };
     }
 
@@ -97,28 +99,29 @@ export async function createGrowRoomAction(
   }
 
   revalidateGrowRoomPaths(inserted.id);
-  return { success: "Grow room created." };
+  return { success: t("created") };
 }
 
 export async function updateGrowRoomAction(
   _: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const t = await getTranslations("growRooms.actions");
   const user = await requireUser();
   const supabase = await createClient();
   const roomId = String(formData.get("room_id") ?? "").trim();
 
   if (!roomId) {
-    return { error: "Missing grow room." };
+    return { error: t("missingRoom") };
   }
 
   if (!(await verifyOwnedRoom(supabase, user.id, roomId))) {
-    return { error: "You cannot edit this grow room." };
+    return { error: t("cannotEdit") };
   }
 
   const parsed = parseGrowRoomFormData(formData);
   if (!parsed.ok) {
-    return { error: parsed.error };
+    return { error: t(parsed.errorKey) };
   }
 
   const { error } = await supabase
@@ -132,23 +135,24 @@ export async function updateGrowRoomAction(
   }
 
   revalidateGrowRoomPaths(roomId);
-  return { success: "Grow room updated." };
+  return { success: t("updated") };
 }
 
 export async function deleteGrowRoomAction(
   _: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const t = await getTranslations("growRooms.actions");
   const user = await requireUser();
   const supabase = await createClient();
   const roomId = String(formData.get("room_id") ?? "").trim();
 
   if (!roomId) {
-    return { error: "Missing grow room." };
+    return { error: t("missingRoom") };
   }
 
   if (!(await verifyOwnedRoom(supabase, user.id, roomId))) {
-    return { error: "You cannot delete this grow room." };
+    return { error: t("cannotDelete") };
   }
 
   const { error } = await supabase
@@ -162,5 +166,5 @@ export async function deleteGrowRoomAction(
   }
 
   revalidateGrowRoomPaths();
-  return { success: "Grow room deleted." };
+  return { success: t("deleted") };
 }

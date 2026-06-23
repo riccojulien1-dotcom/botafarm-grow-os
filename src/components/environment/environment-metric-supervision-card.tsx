@@ -1,11 +1,12 @@
 "use client";
 
 import { Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { EnvironmentMetricChart } from "@/components/environment/environment-metric-chart";
 import { EnvironmentMetricIcon } from "@/components/environment/environment-metric-icon";
 import type { SupervisionMetric } from "@/lib/environment/build-supervision-metrics";
-import { METRIC_EDUCATION } from "@/lib/environment/metric-education";
+import type { EnvironmentMetricKey } from "@/lib/environment/build-environment-metrics";
 
 type EnvironmentMetricSupervisionCardProps = {
   metric: SupervisionMetric;
@@ -13,19 +14,28 @@ type EnvironmentMetricSupervisionCardProps = {
   onToggle: () => void;
 };
 
-const trendColors: Record<string, string> = {
-  Stable: "text-zinc-400",
-  Increasing: "text-amber-200",
-  Decreasing: "text-cyan-200",
-  "Not enough readings": "text-zinc-500",
-};
-
 export function EnvironmentMetricSupervisionCard({
   metric,
   expanded,
   onToggle,
 }: EnvironmentMetricSupervisionCardProps) {
-  const education = METRIC_EDUCATION[metric.key];
+  const t = useTranslations("environment");
+  const educationSummary = t(
+    `education.${metric.key}.summary` as `education.${EnvironmentMetricKey}.summary`,
+  );
+
+  const stable = t("metrics.trends.stable");
+  const increasing = t("metrics.trends.increasing");
+  const decreasing = t("metrics.trends.decreasing");
+  const trendColorClass =
+    metric.trendLabel === increasing
+      ? "text-amber-200"
+      : metric.trendLabel === decreasing
+        ? "text-cyan-200"
+        : metric.trendLabel === stable
+          ? "text-zinc-400"
+          : "text-zinc-500";
+
   const deltaColor =
     metric.deltaDirection === "up"
       ? "text-amber-200"
@@ -38,7 +48,7 @@ export function EnvironmentMetricSupervisionCard({
       type="button"
       onClick={onToggle}
       aria-expanded={expanded}
-      aria-label={`${metric.label}: ${metric.currentDisplay}. ${education.summary}`}
+      aria-label={`${metric.label}: ${metric.currentDisplay}. ${educationSummary}`}
       className={`flex w-full flex-col rounded-xl border bg-black/35 p-4 text-left transition ${
         expanded
           ? "border-cyan-500/45 ring-1 ring-cyan-500/20"
@@ -53,7 +63,7 @@ export function EnvironmentMetricSupervisionCard({
               {metric.label}
             </p>
             <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-zinc-500">
-              {education.summary}
+              {educationSummary}
             </p>
           </div>
         </div>
@@ -65,7 +75,7 @@ export function EnvironmentMetricSupervisionCard({
         >
           <Info size={15} aria-hidden />
           <span className="pointer-events-none absolute right-0 top-full z-20 mt-2 hidden w-52 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-left text-[11px] leading-relaxed text-zinc-300 shadow-xl group-hover/info:block">
-            {education.detail}
+            {t(`education.${metric.key}.detail` as `education.${EnvironmentMetricKey}.detail`)}
           </span>
         </span>
       </div>
@@ -77,11 +87,7 @@ export function EnvironmentMetricSupervisionCard({
 
         <p className="mt-2 text-sm font-medium text-cyan-300/90">{metric.targetDisplay}</p>
 
-        <p
-          className={`mt-2 text-sm font-semibold ${trendColors[metric.trendLabel] ?? "text-zinc-400"}`}
-        >
-          {metric.trendLabel}
-        </p>
+        <p className={`mt-2 text-sm font-semibold ${trendColorClass}`}>{metric.trendLabel}</p>
 
         <p className={`mt-1 text-xs font-medium tabular-nums ${deltaColor}`}>{metric.deltaShortLabel}</p>
       </div>

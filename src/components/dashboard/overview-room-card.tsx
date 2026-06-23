@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, DoorOpen } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { GrowRoomStatusBadge } from "@/components/grow-rooms/grow-room-status-badge";
@@ -10,18 +13,15 @@ type OverviewRoomCardProps = {
   room: CommandCenterRoom;
 };
 
-function nextActionLine(room: CommandCenterRoom): string {
-  if (room.overdueTasks > 0) {
-    return `${room.overdueTasks} overdue task${room.overdueTasks === 1 ? "" : "s"}`;
-  }
-  if (room.openTasks > 0) {
-    return `${room.openTasks} open task${room.openTasks === 1 ? "" : "s"}`;
-  }
-  return "No open tasks — manage in Grow Rooms";
-}
-
 export function OverviewRoomCard({ room }: OverviewRoomCardProps) {
-  const actionLine = nextActionLine(room);
+  const t = useTranslations("dashboard.roomCard");
+
+  let actionLine = t("noOpenTasks");
+  if (room.overdueTasks > 0) {
+    actionLine = t("overdueTasks", { count: room.overdueTasks });
+  } else if (room.openTasks > 0) {
+    actionLine = t("openTasks", { count: room.openTasks });
+  }
 
   return (
     <li>

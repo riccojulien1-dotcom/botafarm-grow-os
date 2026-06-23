@@ -46,6 +46,10 @@ export const cultivationGlossary = {
     term: "Mother",
     definition: "Stock plant kept for taking cuttings.",
   },
+  cultivar: {
+    term: "Cultivar",
+    definition: "Named genetic variety under cultivation.",
+  },
   ec: {
     term: "EC",
     definition: "Electrical conductivity of nutrient solution.",

@@ -1,7 +1,8 @@
-import {
-  SEVERITY_LABELS,
-  type RecommendationSeverity,
-} from "@/lib/recommendations/types";
+"use client";
+
+import { useTranslations } from "next-intl";
+
+import type { RecommendationSeverity } from "@/lib/recommendations/types";
 
 const severityStyles: Record<RecommendationSeverity, string> = {
   good: "border-cyan-500/30 bg-cyan-950/30 text-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.15)]",
@@ -14,11 +15,19 @@ type RecommendationStatusBadgeProps = {
   compact?: boolean;
 };
 
+const SEVERITY_EMOJI: Record<RecommendationSeverity, string> = {
+  good: "🟢",
+  watch: "🟡",
+  action: "🔴",
+};
+
 export function RecommendationStatusBadge({
   severity,
   compact = false,
 }: RecommendationStatusBadgeProps) {
-  const { emoji, label } = SEVERITY_LABELS[severity];
+  const t = useTranslations("recommendations.severity");
+  const label = t(severity);
+  const emoji = SEVERITY_EMOJI[severity];
 
   return (
     <span

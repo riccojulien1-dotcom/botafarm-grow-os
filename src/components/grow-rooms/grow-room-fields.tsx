@@ -1,8 +1,12 @@
+"use client";
+
 import {
   DEFAULT_GROW_ROOM_STATUS,
   GROW_ROOM_STATUSES,
   type GrowRoomStatus,
 } from "@/lib/grow-rooms/constants";
+import { growRoomStatusLabel } from "@/lib/i18n/grow-room-status-label";
+import { useTranslations } from "next-intl";
 
 export type GrowRoomFieldValues = {
   name: string;
@@ -28,13 +32,15 @@ const inputClassName =
   "mt-1 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100";
 
 export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
+  const t = useTranslations("growRooms.form");
+  const tStatus = useTranslations("growRooms.status");
   const status = values?.status ?? DEFAULT_GROW_ROOM_STATUS;
 
   return (
     <>
       <div className="md:col-span-2">
         <label htmlFor={`${idPrefix}-name`} className="text-sm text-zinc-200">
-          Room name
+          {t("fields.name")}
         </label>
         <input
           id={`${idPrefix}-name`}
@@ -42,13 +48,13 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
           required
           defaultValue={values?.name ?? ""}
           className={inputClassName}
-          placeholder="Flower Room"
+          placeholder={t("fields.namePlaceholder")}
         />
       </div>
 
       <div>
         <label htmlFor={`${idPrefix}-status`} className="text-sm text-zinc-200">
-          Status
+          {t("fields.status")}
         </label>
         <select
           id={`${idPrefix}-status`}
@@ -59,7 +65,7 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
         >
           {GROW_ROOM_STATUSES.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {growRoomStatusLabel(tStatus, option)}
             </option>
           ))}
         </select>
@@ -67,20 +73,20 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
 
       <div>
         <label htmlFor={`${idPrefix}-room_type`} className="text-sm text-zinc-200">
-          Type
+          {t("fields.type")}
         </label>
         <input
           id={`${idPrefix}-room_type`}
           name="room_type"
           defaultValue={values?.room_type ?? ""}
           className={inputClassName}
-          placeholder="Tent / Room / Greenhouse"
+          placeholder={t("fields.typePlaceholder")}
         />
       </div>
 
       <div>
         <label htmlFor={`${idPrefix}-cycle_start_date`} className="text-sm text-zinc-200">
-          Cycle start date
+          {t("fields.cycleStart")}
         </label>
         <input
           id={`${idPrefix}-cycle_start_date`}
@@ -93,7 +99,7 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
 
       <div>
         <label htmlFor={`${idPrefix}-target_cycle_days`} className="text-sm text-zinc-200">
-          Target cycle days
+          {t("fields.targetCycleDays")}
         </label>
         <input
           id={`${idPrefix}-target_cycle_days`}
@@ -108,7 +114,7 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
 
       <div>
         <label htmlFor={`${idPrefix}-plant_count`} className="text-sm text-zinc-200">
-          Plant count
+          {t("fields.plantCount")}
         </label>
         <input
           id={`${idPrefix}-plant_count`}
@@ -122,7 +128,7 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
 
       <div>
         <label htmlFor={`${idPrefix}-dimensions`} className="text-sm text-zinc-200">
-          Dimensions
+          {t("fields.dimensions")}
         </label>
         <input
           id={`${idPrefix}-dimensions`}
@@ -135,59 +141,59 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
 
       <div>
         <label htmlFor={`${idPrefix}-lighting`} className="text-sm text-zinc-200">
-          Lighting
+          {t("fields.lighting")}
         </label>
         <input
           id={`${idPrefix}-lighting`}
           name="lighting"
           defaultValue={values?.lighting ?? ""}
           className={inputClassName}
-          placeholder="LED 480W"
+          placeholder={t("fields.lightingPlaceholder")}
         />
       </div>
 
       <div>
         <label htmlFor={`${idPrefix}-substrate`} className="text-sm text-zinc-200">
-          Substrate
+          {t("fields.substrate")}
         </label>
         <input
           id={`${idPrefix}-substrate`}
           name="substrate"
           defaultValue={values?.substrate ?? ""}
           className={inputClassName}
-          placeholder="Coco"
+          placeholder={t("fields.substratePlaceholder")}
         />
       </div>
 
       <div>
         <label htmlFor={`${idPrefix}-genetics`} className="text-sm text-zinc-200">
-          Genetics
+          {t("fields.genetics")}
         </label>
         <input
           id={`${idPrefix}-genetics`}
           name="genetics"
           defaultValue={values?.genetics ?? ""}
           className={inputClassName}
-          placeholder="Botafarm Cut A"
+          placeholder={t("fields.geneticsPlaceholder")}
         />
       </div>
 
       <div>
         <label htmlFor={`${idPrefix}-irrigation`} className="text-sm text-zinc-200">
-          Irrigation
+          {t("fields.irrigation")}
         </label>
         <input
           id={`${idPrefix}-irrigation`}
           name="irrigation"
           defaultValue={values?.irrigation ?? ""}
           className={inputClassName}
-          placeholder="Drip"
+          placeholder={t("fields.irrigationPlaceholder")}
         />
       </div>
 
       <div className="md:col-span-2">
         <label htmlFor={`${idPrefix}-notes`} className="text-sm text-zinc-200">
-          Notes
+          {t("fields.notes")}
         </label>
         <textarea
           id={`${idPrefix}-notes`}
@@ -195,7 +201,7 @@ export function GrowRoomFields({ idPrefix, values }: GrowRoomFieldsProps) {
           rows={3}
           defaultValue={values?.notes ?? ""}
           className={inputClassName}
-          placeholder="Any context for this setup"
+          placeholder={t("fields.notesPlaceholder")}
         />
       </div>
     </>

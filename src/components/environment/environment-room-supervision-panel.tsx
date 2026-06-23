@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { EnvironmentMetricDetailPanel } from "@/components/environment/environment-metric-detail-panel";
@@ -19,6 +20,7 @@ export function EnvironmentRoomSupervisionPanel({
   room,
   highlighted = false,
 }: EnvironmentRoomSupervisionPanelProps) {
+  const t = useTranslations("environment.room");
   const [expandedMetricKey, setExpandedMetricKey] = useState<string | null>(null);
   const expandedMetric = room.metrics.find((metric) => metric.key === expandedMetricKey) ?? null;
 
@@ -48,13 +50,14 @@ export function EnvironmentRoomSupervisionPanel({
               ) : null}
               {room.lastLogFreshness ? (
                 <p className="text-sm text-zinc-500">
-                  Last log: <span className="text-zinc-300">{room.lastLogFreshness}</span>
+                  {t("lastLog")}{" "}
+                  <span className="text-zinc-300">{room.lastLogFreshness}</span>
                   {room.lastLogDate ? (
                     <span className="text-zinc-600"> · {room.lastLogDate}</span>
                   ) : null}
                 </p>
               ) : (
-                <p className="text-sm text-zinc-500">Not enough readings</p>
+                <p className="text-sm text-zinc-500">{t("notEnoughReadings")}</p>
               )}
             </div>
 
@@ -82,20 +85,20 @@ export function EnvironmentRoomSupervisionPanel({
             </>
           ) : (
             <div className="rounded-xl border border-white/[0.06] bg-black/20 px-6 py-10 text-center">
-              <p className="text-sm text-zinc-500">Not enough readings for this room yet</p>
+              <p className="text-sm text-zinc-500">{t("notEnoughReadingsRoom")}</p>
               <Link
                 href={`/rooms/${room.id}`}
                 className="mt-3 inline-flex text-sm font-medium text-cyan-400 transition hover:text-cyan-300"
               >
-                Add journal log
+                {t("addLog")}
               </Link>
             </div>
           )}
 
           <footer className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-4">
-            <QuickAction href={`/rooms/${room.id}`} label="View room journal" />
-            <QuickAction href={`/rooms/${room.id}`} label="Add journal entry" />
-            <QuickAction href={`/rooms/${room.id}`} label="Open room" />
+            <QuickAction href={`/rooms/${room.id}`} label={t("viewJournal")} />
+            <QuickAction href={`/rooms/${room.id}`} label={t("addEntry")} />
+            <QuickAction href={`/rooms/${room.id}`} label={t("openRoom")} />
           </footer>
         </div>
       </GlassPanel>

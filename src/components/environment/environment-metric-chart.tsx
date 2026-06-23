@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslations } from "next-intl";
 
 import type { EnvironmentMetricKey } from "@/lib/environment/build-environment-metrics";
 import type { SupervisionMetricPoint } from "@/lib/environment/build-supervision-metrics";
@@ -40,6 +41,7 @@ export function EnvironmentMetricChart({
   max = null,
   decimals = 2,
 }: EnvironmentMetricChartProps) {
+  const t = useTranslations("environment");
   const stroke = strokeColors[accent];
   const chartData = points.map((point) => ({
     date: point.date,
@@ -54,7 +56,7 @@ export function EnvironmentMetricChart({
           compact ? "h-20" : "h-48"
         }`}
       >
-        Not enough readings
+        {t("metrics.trends.notEnoughReadings")}
       </div>
     );
   }
@@ -93,7 +95,7 @@ export function EnvironmentMetricChart({
               labelStyle={{ color: "#d4d4d8" }}
               formatter={(value) => [
                 formatMetricReading(Number(value), metricKey, decimals),
-                "Reading",
+                t("metrics.detail.reading"),
               ]}
               labelFormatter={(_, payload) => {
                 const point = payload?.[0]?.payload as { date?: string; label?: string } | undefined;
@@ -109,7 +111,9 @@ export function EnvironmentMetricChart({
                   compact
                     ? undefined
                     : {
-                        value: `Min ${formatMetricReading(min, metricKey, decimals)}`,
+                        value: t("metrics.chart.min", {
+                          value: formatMetricReading(min, metricKey, decimals),
+                        }),
                         position: "insideBottomLeft",
                         fill: "#a1a1aa",
                         fontSize: 10,
@@ -126,7 +130,9 @@ export function EnvironmentMetricChart({
                   compact
                     ? undefined
                     : {
-                        value: `Max ${formatMetricReading(max, metricKey, decimals)}`,
+                        value: t("metrics.chart.max", {
+                          value: formatMetricReading(max, metricKey, decimals),
+                        }),
                         position: "insideTopLeft",
                         fill: "#a1a1aa",
                         fontSize: 10,
@@ -149,8 +155,16 @@ export function EnvironmentMetricChart({
       </div>
       {!compact && min != null && max != null ? (
         <div className="flex justify-between font-mono text-[10px] uppercase tracking-wider text-zinc-500">
-          <span>Min {formatMetricReading(min, metricKey, decimals)}</span>
-          <span>Max {formatMetricReading(max, metricKey, decimals)}</span>
+          <span>
+            {t("metrics.chart.min", {
+              value: formatMetricReading(min, metricKey, decimals),
+            })}
+          </span>
+          <span>
+            {t("metrics.chart.max", {
+              value: formatMetricReading(max, metricKey, decimals),
+            })}
+          </span>
         </div>
       ) : null}
     </div>

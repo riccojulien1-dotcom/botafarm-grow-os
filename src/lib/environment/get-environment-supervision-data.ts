@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import {
   buildEnvironmentAlerts,
   type EnvironmentAlert,
@@ -7,6 +9,7 @@ import {
   type SupervisionLogRow,
   type SupervisionRoom,
 } from "@/lib/environment/build-supervision-rooms";
+import { localizeSupervisionRooms } from "@/lib/i18n/localize-environment";
 import { createClient } from "@/lib/supabase/server";
 
 export type { SupervisionRoom } from "@/lib/environment/build-supervision-rooms";
@@ -20,6 +23,7 @@ export type EnvironmentSupervisionData = {
 export async function getEnvironmentSupervisionData(
   userId: string,
 ): Promise<EnvironmentSupervisionData> {
+  const t = await getTranslations("environment");
   const supabase = await createClient();
 
   const [roomsResult, logsResult, countResult] = await Promise.all([
@@ -44,7 +48,10 @@ export async function getEnvironmentSupervisionData(
 
   const rooms = roomsResult.data ?? [];
   const logs = (logsResult.data ?? []) as SupervisionLogRow[];
-  const supervisionRooms = buildSupervisionRooms(rooms, logs);
+  const supervisionRooms = localizeSupervisionRooms(
+    t,
+    buildSupervisionRooms(rooms, logs),
+  );
 
   return {
     rooms: supervisionRooms,

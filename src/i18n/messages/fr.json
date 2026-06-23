@@ -19,6 +19,13 @@
     "localeEn": "English",
     "localeFr": "Français"
   },
+  "recommendations": {
+    "severity": {
+      "good": "OK",
+      "watch": "À surveiller",
+      "action": "Action requise"
+    }
+  },
   "journal": {
     "page": {
       "eyebrow": "Mission Control",
@@ -157,6 +164,351 @@
       "storageNotConfigured": "Le stockage photo n'est pas configuré. Exécutez la migration Supabase log-photos.",
       "tableNotConfigured": "La table log_photos n'est pas configurée. Exécutez la migration Supabase.",
       "uploadFailed": "Échec de l'envoi de la photo."
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "brand": "Botafarm California",
+      "title": "GROW OS",
+      "subtitle": "Command center",
+      "growRooms": "Salles",
+      "environment": "Environnement"
+    },
+    "sections": {
+      "growRooms": "Salles",
+      "activeZones": "{count, plural, one {# zone active} other {# zones actives}}",
+      "deployFirst": "Déployez votre première salle pour commencer le suivi.",
+      "openGrowRooms": "Ouvrir les salles",
+      "environmentScan": "Scan environnement",
+      "roomCount": "{count, plural, one {# salle} other {# salles}}",
+      "fullClimateAnalysis": "Analyse climat complète →",
+      "addRoomsForClimate": "Ajoutez des salles pour suivre le climat et l'irrigation par salle.",
+      "tasksToday": "Tâches du jour",
+      "noOpenTasks": "Aucune tâche ouverte — l'opération est sous contrôle."
+    },
+    "priorities": {
+      "urgent": "Urgent",
+      "review": "À revoir",
+      "flowerTransitionDue": "Transition flower en retard",
+      "flowerTransitionToday": "Transition flower prévue aujourd'hui",
+      "defoliationDue": "Defoliation en retard",
+      "defoliationToday": "Defoliation prévue aujourd'hui",
+      "runoffCheckDue": "Contrôle Runoff en retard",
+      "runoffCheckToday": "Contrôle Runoff prévu aujourd'hui",
+      "phPenDue": "Calibration pH pen en retard",
+      "phPenToday": "Calibration pH pen prévue aujourd'hui",
+      "taskDue": "{title} en retard",
+      "taskToday": "{title} prévu aujourd'hui"
+    },
+    "roomCard": {
+      "overdueTasks": "{count, plural, one {# tâche en retard} other {# tâches en retard}}",
+      "openTasks": "{count, plural, one {# tâche ouverte} other {# tâches ouvertes}}",
+      "noOpenTasks": "Aucune tâche ouverte — gérer dans Salles"
+    },
+    "environmentCard": {
+      "addLog": "Ajouter un log",
+      "openAnalysis": "Ouvrir l'analyse climat →"
+    },
+    "data": {
+      "roomCycle": "Cycle de salle",
+      "unknownRoom": "Salle inconnue"
+    }
+  },
+  "growRooms": {
+    "page": {
+      "eyebrow": "Salles",
+      "title": "Vos zones de culture",
+      "subtitle": "Les salles d'abord — ouvrez une salle pour gérer les cultivars, tâches et logs.",
+      "allRooms": "Toutes les salles",
+      "zoneCount": "{count, plural, one {# zone} other {# zones}}",
+      "empty": "Aucune salle pour le moment. Ajoutez votre première zone ci-dessous.",
+      "addRoom": "Ajouter une salle",
+      "addRoomHint": "Créez une salle Flower, Veg, Mother ou Clone — assignez les cultivars ensuite."
+    },
+    "stats": {
+      "activeRooms": "Salles actives",
+      "totalPlants": "Total plants",
+      "needsAttention": "Besoin d'attention",
+      "inFlower": "En flower"
+    },
+    "card": {
+      "cycle": "Cycle",
+      "harvest": "Récolte",
+      "plants": "Plants",
+      "dayOf": "Jour {day} sur {total}",
+      "dayOnly": "Jour {day}",
+      "notSet": "Non défini",
+      "days": "Récolte dans {count} jours",
+      "harvestOn": "Récolte {date}",
+      "stable": "Salle stable — aucune alerte urgente",
+      "cultivarsInside": "{count, plural, one {# cultivar dans la salle — ouvrir pour gérer} other {# cultivars dans la salle — ouvrir pour gérer}}",
+      "cycleComplete": "{percent} % du cycle",
+      "overdueAlert": "{room} — tâche en retard à traiter",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "deleteConfirm": "Supprimer « {name} » ? Tous les logs de cette salle seront aussi supprimés."
+    },
+    "form": {
+      "create": "Créer une salle",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "fields": {
+        "name": "Nom de la salle",
+        "status": "Statut",
+        "type": "Type",
+        "cycleStart": "Date de début de cycle",
+        "targetCycleDays": "Durée cible du cycle (jours)",
+        "plantCount": "Nombre de plants",
+        "dimensions": "Dimensions",
+        "lighting": "Éclairage",
+        "substrate": "Substrat",
+        "genetics": "Génétique",
+        "irrigation": "Irrigation",
+        "notes": "Notes",
+        "namePlaceholder": "Flower Room",
+        "typePlaceholder": "Tente / Salle / Serre",
+        "lightingPlaceholder": "LED 480W",
+        "substratePlaceholder": "Coco",
+        "geneticsPlaceholder": "Botafarm Cut A",
+        "irrigationPlaceholder": "Drip",
+        "notesPlaceholder": "Contexte pour cette installation"
+      }
+    },
+    "status": {
+      "preFlower": "Pre-Flower",
+      "flower": "Flower",
+      "drying": "Séchage",
+      "cure": "Cure"
+    },
+    "phases": {
+      "earlyFlower": "Early Flower",
+      "midFlower": "Mid Flower",
+      "lateFlower": "Late Flower"
+    },
+    "recommendations": {
+      "addLog": "Recommandations : ajoutez un log",
+      "activeCount": "{count, plural, one {# recommandation active} other {# recommandations actives}}",
+      "learnMore": "En savoir plus"
+    },
+    "growerAlerts": {
+      "drybackBelowTarget": "{room} — Dryback sous la cible, la zone racinaire peut rester trop humide",
+      "drybackTooHigh": "{room} — Dryback trop élevé, les plants peuvent être sous-arrosés",
+      "drybackNeedsAttention": "{room} — Dryback à surveiller, vérifier le timing d'irrigation",
+      "ecRunoffRising": "{room} — Runoff EC en hausse, accumulation de sels dans la zone racinaire",
+      "ecRunoffCheck": "{room} — Runoff EC à vérifier au prochain arrosage",
+      "vpdOutsideIdeal": "{room} — VPD hors de la fenêtre idéale pour cette phase",
+      "phDrifting": "{room} — pH de la zone racinaire qui dérive, vérifier le prochain arrosage",
+      "ppfdOffTarget": "{room} — niveaux de lumière hors cible pour ce stade",
+      "genericIssue": "{room} — {issue}"
+    },
+    "cycle": {
+      "currentDay": "Jour actuel",
+      "daysRemaining": "Jours restants",
+      "estHarvest": "Récolte estimée",
+      "harvestInDays": "Récolte dans {count} jours",
+      "harvestToday": "Récolte aujourd'hui",
+      "notSet": "Non défini"
+    },
+    "tasks": {
+      "openZero": "Tâches ouvertes : 0",
+      "openCount": "Tâches ouvertes : {count}",
+      "overdue": "Tâches en retard ({count})",
+      "complete": "Tâches terminées"
+    },
+    "actions": {
+      "nameRequired": "Le nom de la salle est requis.",
+      "invalidStatus": "Veuillez sélectionner un statut de salle valide.",
+      "invalidCycleDate": "La date de début de cycle doit être valide.",
+      "invalidTargetDays": "La durée du cycle doit être un entier positif.",
+      "couldNotCreate": "Impossible de créer la salle.",
+      "cultivarCouldNotCreate": "Impossible de créer le cultivar initial.",
+      "missingRoom": "Salle manquante.",
+      "cannotEdit": "Vous ne pouvez pas modifier cette salle.",
+      "cannotDelete": "Vous ne pouvez pas supprimer cette salle.",
+      "created": "Salle créée.",
+      "updated": "Salle mise à jour.",
+      "deleted": "Salle supprimée."
+    }
+  },
+  "environment": {
+    "page": {
+      "missionControl": "Mission Control",
+      "eyebrow": "Environnement",
+      "title": "Que se passe-t-il dans chaque salle en ce moment ?",
+      "subtitle": "Toutes vos salles sur une page — relevés actuels, tendances et points d'attention.",
+      "empty": "Créez une salle et ajoutez des logs pour commencer le suivi environnement.",
+      "currentConditions": "Conditions actuelles",
+      "moreTools": "Plus d'outils",
+      "growRooms": "Salles",
+      "roomsNeedingAttention": "Salles à surveiller",
+      "journalReadings": "Relevés journal",
+      "readingCount": "{count} relevés journal",
+      "noReadingsYet": "Aucun relevé",
+      "manualLogs": "Logs manuels"
+    },
+    "room": {
+      "healthOverview": "Vue d'ensemble santé des salles",
+      "lastLog": "Dernier log :",
+      "notEnoughReadings": "Pas assez de relevés",
+      "notEnoughReadingsRoom": "Pas assez de relevés pour cette salle",
+      "addLog": "Ajouter un log",
+      "viewJournal": "Voir le journal de la salle",
+      "addEntry": "Ajouter un log",
+      "openRoom": "Ouvrir la salle",
+      "addLogAttention": "Pas assez de relevés — ajoutez un log",
+      "allMetricsGood": "Toutes les métriques dans la cible",
+      "reviewClimate": "Revoir le climat et l'irrigation"
+    },
+    "copilot": {
+      "farmEyebrow": "Copilot environnement",
+      "farmTitle": "Briefing climat & irrigation",
+      "roomTitle": "Botafarm AI — {room}",
+      "happening": "Ce qui se passe",
+      "why": "Pourquoi",
+      "next": "Prochaine action",
+      "aiInterpretation": "Interprétation Botafarm AI",
+      "whatToDoNext": "Prochaine action",
+      "trendChart": "Graphique de tendance — aide à la décision",
+      "briefing": {
+        "actionRooms": "{count, plural, one {# salle a des métriques hors cible.} other {# salles ont des métriques hors cible.}}",
+        "driftRooms": "{count, plural, one {# salle montre une dérive précoce — encore gérable.} other {# salles montrent une dérive précoce — encore gérable.}}",
+        "steady": "Le climat et l'irrigation sont stables sur toutes les salles.",
+        "defaultWhy": "Les derniers logs sont dans les plages attendues.",
+        "defaultNext": "Loggez chaque salle selon le planning pour garder les tendances visibles avant le prochain cycle d'irrigation."
+      }
+    },
+    "metrics": {
+      "labels": {
+        "temperature": "Température",
+        "humidity": "Humidité",
+        "vpd": "VPD",
+        "ec_in": "EC in",
+        "ec_runoff": "EC out",
+        "ph_in": "pH in",
+        "ph_runoff": "pH out"
+      },
+      "detail": {
+        "latestReading": "Dernier relevé",
+        "previousReading": "Relevé précédent",
+        "average": "Moyenne",
+        "targetRange": "Plage cible",
+        "lowest": "Minimum",
+        "highest": "Maximum",
+        "sinceLastLog": "Depuis le dernier log",
+        "overTime": "Dans le temps",
+        "recentReadings": "Relevés récents",
+        "date": "Date",
+        "reading": "Relevé",
+        "targetNotSet": "Cible non définie pour cette phase",
+        "targetPrefix": "Cible {range}"
+      },
+      "chart": {
+        "min": "Min {value}",
+        "max": "Max {value}"
+      },
+      "trends": {
+        "stable": "Stable",
+        "increasing": "En hausse",
+        "decreasing": "En baisse",
+        "notEnoughReadings": "Pas assez de relevés"
+      },
+      "status": {
+        "noReading": "Pas de relevé",
+        "watch": "À surveiller",
+        "drift": "Dérive",
+        "action": "Action",
+        "good": "Bon",
+        "actionRequired": "Action requise",
+        "notEnoughReadings": "Pas assez de relevés"
+      },
+      "delta": {
+        "noReadingLatest": "Pas de relevé sur le dernier log",
+        "noChange": "Aucun changement depuis le dernier log",
+        "sinceLastLog": "{delta} depuis le dernier log",
+        "overPeriod": "{delta} sur la période loggée"
+      },
+      "attention": {
+        "aboveTarget": "{label} est à {current} — au-dessus de {target}",
+        "belowTarget": "{label} est à {current} — en dessous de {target}",
+        "outsideTarget": "{label} est à {current} — hors cible",
+        "rose": "{label} est passé de {previous} à {current}",
+        "dropped": "{label} est passé de {previous} à {current}",
+        "atTrend": "{label} à {current} — {trend}"
+      },
+      "interpretation": {
+        "noData": "{label} n'a pas été loggé sur votre dernier log. Ajoutez-le au prochain log de la salle.",
+        "action": "{label} est hors de la plage cible ({target}). Vérifiez la salle et ajustez avant le prochain feed.",
+        "drift": "{label} est encore dans la cible ({target}) mais {trend}. {delta}.",
+        "watch": "{label} mérite un regard attentif. {delta}. Cible : {target}.",
+        "stable": "{label} est stable et dans la cible ({target}).",
+        "within": "{label} est dans la cible ({target}) et {trend}. {delta}."
+      },
+      "recommendation": {
+        "logNext": "Loggez {label} au prochain log pour suivre cette salle.",
+        "noAction": "Aucune action requise. {label} est stable à {current} et dans la cible.",
+        "walkRoom": "{label} est à {current} ({target}). Faites le tour de la salle et loggez à nouveau aujourd'hui.",
+        "adjustRoom": "{label} est à {current} ({target}). Ajustez la salle avant le prochain cycle d'irrigation.",
+        "logAgain": "Loggez {label} au prochain log. Actuellement {current}."
+      }
+    },
+    "education": {
+      "temperature": {
+        "summary": "La température de l'air affecte la vitesse de croissance, la transpiration et le stress.",
+        "detail": "Le cannabis préfère des températures stables. Trop chaud ralentit la croissance et augmente le VPD. Trop froid ralentit le métabolisme. Loggez quotidiennement pour repérer les variations avant le stress visible."
+      },
+      "humidity": {
+        "summary": "L'humidité relative contrôle la quantité d'eau que l'air retient autour des plants.",
+        "detail": "Une humidité élevée en flower augmente le risque de moisissure. Une humidité basse tire l'eau trop vite dans la plante. Adaptez l'humidité à la phase et gardez-la stable."
+      },
+      "vpd": {
+        "summary": "Déficit de pression de vapeur — le pouvoir desséchant de l'air sur les feuilles.",
+        "detail": "Le VPD combine température et humidité en un indicateur pour équilibrer la transpiration. Trop bas = absorption lente. Trop haut = stress foliaire. C'est l'une des métriques climat les plus utiles."
+      },
+      "ec_in": {
+        "summary": "Conductivité électrique de la solution nutritive en entrée.",
+        "detail": "L'EC in indique la force de votre feed. Un EC in qui monte sans demande des plants peut accumuler les sels. Comparez EC in et EC out pour comprendre l'absorption."
+      },
+      "ec_runoff": {
+        "summary": "EC de l'eau de Runoff sortant du pot après irrigation.",
+        "detail": "L'EC out montre ce que la zone racinaire rejette. Un EC de Runoff qui grimpe signale souvent une accumulation de sels. Suivez-le à chaque irrigation."
+      },
+      "ph_in": {
+        "summary": "Acidité de la solution nutritive en entrée.",
+        "detail": "Le pH contrôle la disponibilité des nutriments. La plupart des cultivars préfèrent un feed légèrement acide. Loggez le pH in à chaque irrigation."
+      },
+      "ph_runoff": {
+        "summary": "pH de l'eau de Runoff sortant du pot.",
+        "detail": "Le pH de Runoff révèle ce qui se passe en zone racinaire. Un écart entre pH in et pH out peut signaler un tamponnage du substrat. Un pH de Runoff stable indique une bonne absorption."
+      }
+    },
+    "dataSource": {
+      "lastReading": "Dernier relevé",
+      "totalReadings": "Total relevés",
+      "loggedFrom": "Source des logs",
+      "roomJournals": "Journaux des salles",
+      "lastUpdate": "Dernière mise à jour",
+      "records": "Enregistrements",
+      "source": "Source"
+    },
+    "import": {
+      "eyebrow": "Importer des données",
+      "title": "Bientôt disponible",
+      "description": "Futurs canaux pour photos de graphes, captures d'écran de contrôleurs et import assisté. Les logs manuels restent la source active aujourd'hui.",
+      "uiReady": "UI prête",
+      "graphPhoto": "Import photo de graphe",
+      "growlink": "Capture écran Growlink",
+      "aroya": "Capture dashboard Aroya",
+      "trolmaster": "Capture écran TrolMaster",
+      "manualActive": "Saisie manuelle (active)"
+    },
+    "relativeTime": {
+      "today": "aujourd'hui",
+      "justNow": "À l'instant",
+      "minutesAgo": "{count, plural, one {il y a # minute} other {il y a # minutes}}",
+      "hoursAgo": "{count, plural, one {il y a # heure} other {il y a # heures}}",
+      "daysAgo": "{count, plural, one {il y a # jour} other {il y a # jours}}"
     }
   }
 }

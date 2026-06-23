@@ -1,18 +1,25 @@
+"use client";
+
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { EnvironmentMetricChart } from "@/components/environment/environment-metric-chart";
 import { EnvironmentMetricIcon } from "@/components/environment/environment-metric-icon";
 import { supervisionMetricStatusStyles } from "@/components/environment/environment-status-styles";
 import type { SupervisionMetric } from "@/lib/environment/build-supervision-metrics";
 import { formatMetricReading } from "@/lib/environment/format-metric-display";
-import { METRIC_EDUCATION } from "@/lib/environment/metric-education";
+import type { EnvironmentMetricKey } from "@/lib/environment/build-environment-metrics";
 
 type EnvironmentMetricDetailPanelProps = {
   metric: SupervisionMetric;
 };
 
 export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetailPanelProps) {
-  const education = METRIC_EDUCATION[metric.key];
+  const t = useTranslations("environment");
+  const education = {
+    summary: t(`education.${metric.key}.summary` as `education.${EnvironmentMetricKey}.summary`),
+    detail: t(`education.${metric.key}.detail` as `education.${EnvironmentMetricKey}.detail`),
+  };
 
   return (
     <div className="rounded-xl border border-fuchsia-500/25 bg-fuchsia-950/10 p-5">
@@ -39,7 +46,7 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-fuchsia-300" aria-hidden />
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-fuchsia-200">
-            Botafarm AI interpretation
+            {t("copilot.aiInterpretation")}
           </p>
         </div>
         <p className="mt-3 text-base font-medium leading-relaxed text-white">
@@ -47,7 +54,7 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
         </p>
         <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-950/20 px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">
-            What to do next
+            {t("copilot.whatToDoNext")}
           </p>
           <p className="mt-2 text-sm font-medium leading-relaxed text-emerald-100">
             {metric.recommendation}
@@ -58,7 +65,7 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
 
       <div className="mt-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          Trend chart — supports your decision
+          {t("copilot.trendChart")}
         </p>
         <EnvironmentMetricChart
           points={metric.points}
@@ -71,26 +78,29 @@ export function EnvironmentMetricDetailPanel({ metric }: EnvironmentMetricDetail
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <DetailStat label="Latest reading" value={metric.currentDisplay} />
-        <DetailStat label="Previous reading" value={metric.previousDisplay} />
-        <DetailStat label="Average" value={metric.avgLabel} />
-        <DetailStat label="Target range" value={metric.targetDisplay.replace(/^Target /, "")} />
-        <DetailStat label="Lowest" value={metric.minLabel} />
-        <DetailStat label="Highest" value={metric.maxLabel} />
-        <DetailStat label="Since last log" value={metric.deltaShortLabel} />
-        <DetailStat label="Over time" value={metric.periodChangeLabel} />
+        <DetailStat label={t("metrics.detail.latestReading")} value={metric.currentDisplay} />
+        <DetailStat label={t("metrics.detail.previousReading")} value={metric.previousDisplay} />
+        <DetailStat label={t("metrics.detail.average")} value={metric.avgLabel} />
+        <DetailStat
+          label={t("metrics.detail.targetRange")}
+          value={metric.targetDisplay.replace(/^Target |^Cible /, "")}
+        />
+        <DetailStat label={t("metrics.detail.lowest")} value={metric.minLabel} />
+        <DetailStat label={t("metrics.detail.highest")} value={metric.maxLabel} />
+        <DetailStat label={t("metrics.detail.sinceLastLog")} value={metric.deltaShortLabel} />
+        <DetailStat label={t("metrics.detail.overTime")} value={metric.periodChangeLabel} />
       </div>
 
       {metric.points.length ? (
         <div className="mt-5 overflow-x-auto rounded-lg border border-white/[0.06]">
           <p className="border-b border-white/[0.06] px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Recent readings
+            {t("metrics.detail.recentReadings")}
           </p>
           <table className="w-full min-w-[360px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-zinc-500">
-                <th className="px-3 py-2 font-medium">Date</th>
-                <th className="px-3 py-2 font-medium">Reading</th>
+                <th className="px-3 py-2 font-medium">{t("metrics.detail.date")}</th>
+                <th className="px-3 py-2 font-medium">{t("metrics.detail.reading")}</th>
               </tr>
             </thead>
             <tbody>

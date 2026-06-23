@@ -4,6 +4,7 @@ import { GlassPanel } from "@/components/botafarm/glass-panel";
 import { supervisionRoomStatusStyles } from "@/components/environment/environment-status-styles";
 import type { SupervisionRoom } from "@/lib/environment/get-environment-supervision-data";
 import { toTitleCase } from "@/lib/ui/format-mission-labels";
+import { useTranslations } from "next-intl";
 
 type EnvironmentRoomHealthOverviewProps = {
   rooms: SupervisionRoom[];
@@ -14,6 +15,7 @@ export function EnvironmentRoomHealthOverview({
   rooms,
   onSelectRoom,
 }: EnvironmentRoomHealthOverviewProps) {
+  const t = useTranslations("environment.room");
   if (!rooms.length) {
     return null;
   }
@@ -31,7 +33,7 @@ export function EnvironmentRoomHealthOverview({
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-bold uppercase tracking-[0.18em] text-white sm:text-xl">
-        Room health overview
+        {t("healthOverview")}
       </h2>
 
       <GlassPanel padding="md">

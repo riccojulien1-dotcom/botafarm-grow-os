@@ -1,4 +1,7 @@
+"use client";
+
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { CopilotBriefing } from "@/lib/copilot/types";
@@ -16,22 +19,26 @@ export function EnvironmentRoomCopilot({
   why,
   next,
 }: EnvironmentRoomCopilotProps) {
+  const t = useTranslations("environment.copilot");
+
   return (
     <GlassPanel glow="magenta" padding="md" className="border-fuchsia-500/20">
       <div className="flex items-center gap-2 border-b border-white/[0.06] pb-3">
         <Sparkles className="h-4 w-4 text-fuchsia-300" aria-hidden />
-        <p className="text-sm font-bold text-white">Botafarm AI — {roomName}</p>
+        <p className="text-sm font-bold text-white">{t("roomTitle", { room: roomName })}</p>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
-        <AiBlock label="What is happening" value={happening} />
-        <AiBlock label="Why" value={why} />
-        <AiBlock label="What to do next" value={next} accent />
+        <AiBlock label={t("happening")} value={happening} />
+        <AiBlock label={t("why")} value={why} />
+        <AiBlock label={t("next")} value={next} accent />
       </div>
     </GlassPanel>
   );
 }
 
 export function EnvironmentFarmCopilot({ briefing }: { briefing: CopilotBriefing }) {
+  const t = useTranslations("environment.copilot");
+
   return (
     <GlassPanel glow="magenta" padding="lg">
       <div className="flex items-center gap-3 border-b border-white/[0.06] pb-4">
@@ -40,15 +47,15 @@ export function EnvironmentFarmCopilot({ briefing }: { briefing: CopilotBriefing
         </span>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-fuchsia-400/80">
-            Environment copilot
+            {t("farmEyebrow")}
           </p>
-          <h2 className="text-lg font-bold text-white">Climate &amp; irrigation briefing</h2>
+          <h2 className="text-lg font-bold text-white">{t("farmTitle")}</h2>
         </div>
       </div>
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        <AiBlock label="What is happening" value={briefing.happening} />
-        <AiBlock label="Why" value={briefing.why} />
-        <AiBlock label="What to do next" value={briefing.next} accent />
+        <AiBlock label={t("happening")} value={briefing.happening} />
+        <AiBlock label={t("why")} value={briefing.why} />
+        <AiBlock label={t("next")} value={briefing.next} accent />
       </div>
     </GlassPanel>
   );
