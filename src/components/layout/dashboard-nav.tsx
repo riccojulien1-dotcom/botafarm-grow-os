@@ -37,8 +37,7 @@ export function DashboardNav({ showAdminLink = false }: DashboardNavProps) {
                 : "text-zinc-400 hover:bg-white/[0.04] hover:text-cyan-200 hover:shadow-[0_0_12px_rgba(34,211,238,0.08)]"
             }`}
           >
-            <span className="hidden sm:inline">{t(link.labelKey)}</span>
-            <span className="font-mono sm:hidden">{t(link.shortKey)}</span>
+            <span className="sm:inline">{t(link.labelKey)}</span>
           </Link>
         );
       })}

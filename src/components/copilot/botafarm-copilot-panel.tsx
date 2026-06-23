@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -6,13 +8,13 @@ import {
   CircleAlert,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { GlassPanel } from "@/components/botafarm/glass-panel";
 import type { CopilotBriefing, CopilotSignal } from "@/lib/copilot/types";
 
 type BotafarmCopilotPanelProps = {
   briefing: CopilotBriefing;
-  title?: string;
   compact?: boolean;
 };
 
@@ -32,11 +34,9 @@ function SignalIcon({ tone }: { tone: CopilotSignal["tone"] }) {
   return <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" aria-hidden />;
 }
 
-export function BotafarmCopilotPanel({
-  briefing,
-  title = "Botafarm AI",
-  compact = false,
-}: BotafarmCopilotPanelProps) {
+export function BotafarmCopilotPanel({ briefing, compact = false }: BotafarmCopilotPanelProps) {
+  const t = useTranslations("dashboard.copilot");
+
   return (
     <GlassPanel glow="magenta" padding={compact ? "md" : "lg"} className="h-full">
       <div className="flex items-center gap-3 border-b border-white/[0.06] pb-4">
@@ -45,16 +45,16 @@ export function BotafarmCopilotPanel({
         </span>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-fuchsia-400/80">
-            Cultivation copilot
+            {t("eyebrow")}
           </p>
-          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <h2 className="text-lg font-bold text-white">{t("title")}</h2>
         </div>
       </div>
 
       <div className="mt-4 space-y-4">
-        <BriefBlock label="What is happening" value={briefing.happening} accent="cyan" />
-        <BriefBlock label="Why" value={briefing.why} accent="amber" />
-        <BriefBlock label="What to do next" value={briefing.next} accent="emerald" />
+        <BriefBlock label={t("happening")} value={briefing.happening} accent="cyan" />
+        <BriefBlock label={t("why")} value={briefing.why} accent="amber" />
+        <BriefBlock label={t("next")} value={briefing.next} accent="emerald" />
       </div>
 
       {briefing.signals.length ? (

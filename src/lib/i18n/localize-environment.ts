@@ -73,7 +73,7 @@ function localizeInterpretation(
   englishTrend: string,
   localizedTrend: string,
 ): string {
-  const target = metric.targetDisplay.replace(/^Target /, "");
+  const target = targetRangeFromDisplay(metric.targetDisplay);
   const delta = metric.deltaLabel;
 
   switch (metric.status) {
@@ -103,7 +103,13 @@ function localizeInterpretation(
   }
 }
 
+function targetRangeFromDisplay(targetDisplay: string): string {
+  return targetDisplay.replace(/^(Target|Cible) /, "");
+}
+
 function localizeRecommendation(t: EnvironmentTranslator, metric: SupervisionMetric, label: string): string {
+  const target = targetRangeFromDisplay(metric.targetDisplay);
+
   if (metric.status === "no_data") {
     return t("metrics.recommendation.logNext", { label: label.toLowerCase() });
   }
@@ -114,14 +120,14 @@ function localizeRecommendation(t: EnvironmentTranslator, metric: SupervisionMet
     return t("metrics.recommendation.walkRoom", {
       label,
       current: metric.currentDisplay,
-      target: metric.targetDisplay,
+      target,
     });
   }
   if (metric.status === "action") {
     return t("metrics.recommendation.adjustRoom", {
       label,
       current: metric.currentDisplay,
-      target: metric.targetDisplay,
+      target,
     });
   }
   return t("metrics.recommendation.logAgain", { label: label.toLowerCase(), current: metric.currentDisplay });
@@ -139,7 +145,7 @@ function localizeAttentionReason(
       if (parts) {
         const max = Number(parts[2]);
         const min = Number(parts[1]);
-        const target = metric.targetDisplay.replace(/^Target /, "");
+        const target = targetRangeFromDisplay(metric.targetDisplay);
         if (metric.current > max) {
           return t("metrics.attention.aboveTarget", {
             label,

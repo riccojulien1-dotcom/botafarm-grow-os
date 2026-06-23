@@ -212,6 +212,28 @@
     "data": {
       "roomCycle": "Room cycle",
       "unknownRoom": "Unknown room"
+    },
+    "copilot": {
+      "eyebrow": "Cultivation copilot",
+      "title": "Botafarm AI",
+      "happening": "What is happening",
+      "why": "Why",
+      "next": "What to do next",
+      "briefing": {
+        "overdueTasksHappening": "{count, plural, one {# overdue task needs attention today.} other {# overdue tasks need attention today.}}",
+        "climateActionHappening": "{count, plural, one {# room has climate or irrigation outside target.} other {# rooms have climate or irrigation outside target.}}",
+        "queueHappening": "Today's queue: {taskCount, plural, one {# task} other {# tasks}} and {roomCount, plural, one {# room} other {# rooms}} to review.",
+        "allStableHappening": "All tracked rooms are on schedule. No urgent items in the command center.",
+        "whyOverdue": "{room} — {title}.",
+        "whyClimateFallback": "{room} needs a climate check.",
+        "whyDueToday": "{room} — {title} due today.",
+        "whyDrift": "{count, plural, one {# room shows early drift — open Environment for detail.} other {# rooms show early drift — open Environment for detail.}}",
+        "whyStable": "Journal logs and task schedules show a stable operation.",
+        "nextOverdue": "Work through Tasks today, then open Grow Rooms for room management.",
+        "nextClimate": "Open Environment for full climate analysis, or complete tasks listed on Overview.",
+        "nextTodayTask": "Complete today's task: {title}.",
+        "nextStable": "Keep logging daily. Use Grow Rooms to manage cycles and Environment for trend detail."
+      }
     }
   },
   "growRooms": {

@@ -1,5 +1,8 @@
-import { buildCommandCenterPriorities } from "@/lib/dashboard/command-center-priorities";
-import { buildOperationBriefing } from "@/lib/copilot/build-operation-briefing";
+import { getTranslations } from "next-intl/server";
+
+import { buildLocalizedOperationBriefing } from "@/lib/i18n/localize-operation-briefing";
+import { buildLocalizedCommandCenterPriorities } from "@/lib/i18n/localize-command-center";
+import { localizeSupervisionRooms } from "@/lib/i18n/localize-environment";
 import type { CopilotBriefing } from "@/lib/copilot/types";
 import {
   buildSupervisionRooms,
@@ -10,6 +13,8 @@ import type { GrowRoomTask } from "@/lib/tasks/types";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getCopilotBriefing(userId: string): Promise<CopilotBriefing> {
+  const tDashboard = await getTranslations("dashboard");
+  const tEnvironment = await getTranslations("environment");
   const supabase = await createClient();
 
   const [roomsResult, logsResult, tasksResult] = await Promise.all([
@@ -21,7 +26,7 @@ export async function getCopilotBriefing(userId: string): Promise<CopilotBriefin
     supabase
       .from("daily_logs")
       .select(
-        "grow_room_id,log_date,logged_at,temperature,humidity,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,vpd,ppfd",
+        "grow_room_id,log_date,logged_at,temperature,humidity,vpd,ec_in,ph_in,ec_runoff,ph_runoff,dryback_percent,ppfd",
       )
       .eq("user_id", userId)
       .order("log_date", { ascending: false })
@@ -36,10 +41,13 @@ export async function getCopilotBriefing(userId: string): Promise<CopilotBriefin
   const logs = (logsResult.data ?? []) as SupervisionLogRow[];
   const tasks = (tasksResult.data ?? []) as GrowRoomTask[];
   const roomsById = new Map(rooms.map((room) => [room.id, { name: room.name }]));
-  const supervisionRooms = buildSupervisionRooms(rooms, logs);
+  const supervisionRooms = localizeSupervisionRooms(
+    tEnvironment,
+    buildSupervisionRooms(rooms, logs),
+  );
 
-  return buildOperationBriefing({
+  return buildLocalizedOperationBriefing(tDashboard, {
     roomEnvironments: toOverviewEnvironmentSummaries(supervisionRooms),
-    priorities: buildCommandCenterPriorities(roomsById, tasks),
+    priorities: buildLocalizedCommandCenterPriorities(tDashboard, roomsById, tasks),
   });
 }

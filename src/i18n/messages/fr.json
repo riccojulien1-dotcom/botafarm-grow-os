@@ -1,15 +1,15 @@
 {
   "nav": {
     "overview": "Tableau de bord",
-    "overviewShort": "CMD",
+    "overviewShort": "Tableau de bord",
     "environment": "Environnement",
-    "environmentShort": "Env",
+    "environmentShort": "Environnement",
     "growRooms": "Salles",
     "growRoomsShort": "Salles",
     "journal": "Journal",
-    "journalShort": "Log",
+    "journalShort": "Journal",
     "knowledge": "Savoirs",
-    "knowledgeShort": "KB",
+    "knowledgeShort": "Savoirs",
     "admin": "Admin"
   },
   "userMenu": {
@@ -170,7 +170,7 @@
     "hero": {
       "brand": "Botafarm California",
       "title": "GROW OS",
-      "subtitle": "Command center",
+      "subtitle": "Mission Control",
       "growRooms": "Salles",
       "environment": "Environnement"
     },
@@ -212,6 +212,28 @@
     "data": {
       "roomCycle": "Cycle de salle",
       "unknownRoom": "Salle inconnue"
+    },
+    "copilot": {
+      "eyebrow": "Copilot culture",
+      "title": "Botafarm AI",
+      "happening": "Ce qui se passe",
+      "why": "Pourquoi",
+      "next": "Prochaine action",
+      "briefing": {
+        "overdueTasksHappening": "{count, plural, one {# tâche en retard nécessite votre attention aujourd'hui.} other {# tâches en retard nécessitent votre attention aujourd'hui.}}",
+        "climateActionHappening": "{count, plural, one {# salle a le climat ou l'irrigation hors cible.} other {# salles ont le climat ou l'irrigation hors cible.}}",
+        "queueHappening": "File du jour : {taskCount, plural, one {# tâche} other {# tâches}} et {roomCount, plural, one {# salle} other {# salles}} à revoir.",
+        "allStableHappening": "Toutes les salles suivies sont dans les temps. Aucun point urgent au centre de commande.",
+        "whyOverdue": "{room} — {title}.",
+        "whyClimateFallback": "{room} nécessite un contrôle climat.",
+        "whyDueToday": "{room} — {title} prévu aujourd'hui.",
+        "whyDrift": "{count, plural, one {# salle montre une dérive précoce — ouvrir Environnement pour le détail.} other {# salles montrent une dérive précoce — ouvrir Environnement pour le détail.}}",
+        "whyStable": "Les logs et plannings de tâches indiquent une opération stable.",
+        "nextOverdue": "Traitez les tâches du jour, puis ouvrez Salles pour la gestion des salles.",
+        "nextClimate": "Ouvrez Environnement pour l'analyse climat complète, ou complétez les tâches listées sur le tableau de bord.",
+        "nextTodayTask": "Complétez la tâche du jour : {title}.",
+        "nextStable": "Continuez les logs quotidiens. Utilisez Salles pour les cycles et Environnement pour les tendances."
+      }
     }
   },
   "growRooms": {
@@ -267,7 +289,7 @@
         "genetics": "Génétique",
         "irrigation": "Irrigation",
         "notes": "Notes",
-        "namePlaceholder": "Flower Room",
+        "namePlaceholder": "Salle Floraison",
         "typePlaceholder": "Tente / Salle / Serre",
         "lightingPlaceholder": "LED 480W",
         "substratePlaceholder": "Coco",
